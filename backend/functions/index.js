@@ -173,7 +173,7 @@ app.post("/campus", (req, res) => {
     });
 });
 
-//only get validity of first time login link
+//only get validity of first time signup link
 app.post("/validate-link/:campusID/:linkID", (req, res) => {
   const campusID = req.params.campusID;
   const linkID = req.params.linkID;
@@ -188,6 +188,26 @@ app.post("/validate-link/:campusID/:linkID", (req, res) => {
       } else {
         return res.json({ valid: false });
       }
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+});
+
+//only get validity of admin add link
+app.post("/validate-add-admin-link/:campusID/:linkID", (req, res) => {
+  const campusID = req.params.campusID;
+  const linkID = req.params.linkID;
+
+  admin
+    .firestore()
+    .doc(`/campuses/${campusID}`)
+    .get()
+    .then((doc) => {
+      if (doc.data().adminLinks.some((link) => link.linkID === linkID))
+        return res.json({ valid: true });
+      else return res.json({ valid: false });
     })
     .catch((error) => {
       console.error(error);
@@ -301,8 +321,8 @@ app.post("/generate-admin-link/:campusID", (req, res) => {
   //roles:
   //sudo (all)
   //general (everything else other than adding new admins)
-  //focused (only one function -> specify)
-  //department (perform all actions for one department -> specify)
+  //focused:orientation
+  //department:departmentID
 
   const linkArray = [
     {
