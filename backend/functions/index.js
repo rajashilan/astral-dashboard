@@ -312,9 +312,117 @@ app.post("/admin-signup/:campusID/:linkID", (req, res) => {
 //role is added automatically according to the data retrieved
 //once the new admin that calls with the linkID is registered, the link is deleted
 
+app.post("/add-admin-signup/:campusID/:linkID", (req, res) => {
+  const campusID = req.params.campusID;
+  const linkID = req.params.linkID;
+
+  const adminAccount = {
+    name: req.body.name,
+    role: "",
+    email: req.body.email,
+    password: req.body.password,
+    userID: "",
+  };
+
+  //first verify the link
+  //then check if the email suffix is correct
+  //then, get the role details using the link
+  //signup admin
+  //add admin details
+  //delete link data from adminLinks
+
+  let adminLinks;
+
+  admin
+    .firestore()
+    .doc(`/campuses/${campusID}`)
+    .get()
+    .then((doc) => {
+      if (doc.data().adminLinks.some((link) => link.linkID === linkID)) {
+        //link verified
+
+        let role = doc.data().adminLinks.find((link) => link.linkID === linkID);
+        adminAccount.role = role.role;
+
+        adminLinks = doc.data().adminLinks;
+
+        admin
+          .firestore()
+          .doc(`/colleges/${doc.data().collegeID}`)
+          .get()
+          .then((doc) => {
+            if (adminAccount.email.split("@")[1] === doc.data().adminSuffix) {
+              //email suffix verified
+
+              firebase
+                .auth()
+                .createUserWithEmailAndPassword(
+                  adminAccount.email,
+                  adminAccount.password
+                )
+                .then((data) => {
+                  userID = data.user.uid;
+
+                  adminAccount.userID = userID;
+
+                  admin
+                    .firestore()
+                    .collection("admins")
+                    .add(adminAccount)
+                    .then(() => {
+                      firebase
+                        .auth()
+                        .currentUser.sendEmailVerification()
+                        .then(() => {
+                          //delete link from adminLinks
+                          const index = adminLinks.findIndex(
+                            (link) => link.linkID === linkID
+                          );
+                          adminLinks.splice(index, 1);
+                          admin
+                            .firestore()
+                            .doc(`/campuses/${campusID}`)
+                            .update({ adminLinks: adminLinks })
+                            .then(() => {
+                              return res.json({
+                                message:
+                                  "New admin account created successfully",
+                              });
+                            })
+                            .catch((error) => {
+                              console.error(error);
+                              return res.status(500).json({
+                                error: "Something went wrong",
+                              });
+                            });
+                        });
+                    });
+                })
+                .catch((error) => {
+                  console.error(error);
+                  if (error.code === "auth/email-already-in-use") {
+                    return res.json({
+                      email: "Email is already in use.",
+                    });
+                  } else {
+                    return res.status(500).json({
+                      general: "Something went wrong, please try again",
+                    });
+                  }
+                });
+            } else return res.json({ error: "Invalid admin email" });
+          });
+      } else return res.json({ error: "Invalid link" });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+});
+
 //there should also be a link to update admin roles
 
-//to generate the link
+//to generate the link to create a new admin
 app.post("/generate-admin-link/:campusID", (req, res) => {
   const campusID = req.params.campusID;
 
