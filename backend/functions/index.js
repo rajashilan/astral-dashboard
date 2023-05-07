@@ -470,7 +470,11 @@ app.post("/generate-admin-link/:campusID", (req, res) => {
     .get()
     .then((data) => {
       data.forEach((doc) => {
-        if (doc.data().role === "sudo" && doc.data().campusID === campusID) {
+        if (
+          doc.data().role === "sudo" &&
+          doc.data().campusID === campusID &&
+          doc.data().active === true
+        ) {
           //valid admin
 
           admin
@@ -530,7 +534,11 @@ app.post("/edit-department/:campusID", (req, res) => {
     .get()
     .then((data) => {
       data.forEach((doc) => {
-        if (doc.data().role === "sudo" && doc.data().campusID === campusID) {
+        if (
+          doc.data().role === "sudo" &&
+          doc.data().campusID === campusID &&
+          doc.data().active === true
+        ) {
           //valid admin
 
           admin
@@ -581,7 +589,11 @@ app.post("/edit-intake/:campusID", (req, res) => {
     .get()
     .then((data) => {
       data.forEach((doc) => {
-        if (doc.data().role === "sudo" && doc.data().campusID === campusID) {
+        if (
+          doc.data().role === "sudo" &&
+          doc.data().campusID === campusID &&
+          doc.data().active === true
+        ) {
           //valid admin
 
           admin
@@ -628,7 +640,11 @@ app.post("/admin-role", (req, res) => {
     .get()
     .then((data) => {
       data.forEach((doc) => {
-        if (doc.data().role === "sudo" && doc.data().campusID === campusID) {
+        if (
+          doc.data().role === "sudo" &&
+          doc.data().campusID === campusID &&
+          doc.data().active === true
+        ) {
           admin
             .firestore()
             .collection("admins")
@@ -701,7 +717,11 @@ app.post("/deactivate-admin/:campusID", (req, res) => {
     .get()
     .then((data) => {
       data.forEach((doc) => {
-        if (doc.data().role === "sudo" && doc.data().campusID === campusID) {
+        if (
+          doc.data().role === "sudo" &&
+          doc.data().campusID === campusID &&
+          doc.data().active === true
+        ) {
           //valid admin
           admin
             .firestore()
@@ -821,7 +841,11 @@ app.post("/reactivate-admin/:campusID", (req, res) => {
     .get()
     .then((data) => {
       data.forEach((doc) => {
-        if (doc.data().role === "sudo" && doc.data().campusID === campusID) {
+        if (
+          doc.data().role === "sudo" &&
+          doc.data().campusID === campusID &&
+          doc.data().active === true
+        ) {
           //valid admin request
 
           admin
