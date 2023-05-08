@@ -231,6 +231,7 @@ app.post("/admin-signup/:campusID/:linkID", (req, res) => {
     userID: "",
     active: true,
     campusID: campusID,
+    createdAt: new Date().toISOString(),
   };
 
   let sudoAdmins;
@@ -336,6 +337,7 @@ app.post("/add-admin-signup/:campusID/:linkID", (req, res) => {
     userID: "",
     active: true,
     campusID: campusID,
+    createdAt: new Date().toISOString(),
   };
 
   //first verify the link
@@ -624,6 +626,7 @@ app.post("/edit-intake/:campusID", (req, res) => {
 app.post("/admin-role", (req, res) => {
   const role = {
     role: req.body.role,
+    edited: new Date().toISOString(),
   };
 
   const adminID = req.body.adminID;
