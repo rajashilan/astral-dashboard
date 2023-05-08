@@ -22,7 +22,7 @@ firebase.initializeApp(firebaseConfig);
 
 const app = express();
 
-const { NormalAuth } = require("./utils/Auth");
+const { NormalAuth, sudoAdminAuth } = require("./utils/Auth");
 
 //theClaw login
 app.post("/theClaw", NormalAuth, (req, res) => {
@@ -306,7 +306,8 @@ app.post("/admin-signup/:campusID/:linkID", (req, res) => {
                   admin
                     .firestore()
                     .collection("admins")
-                    .add(adminAccount)
+                    .doc(adminAccount.userID)
+                    .set(adminAccount)
                     .then(() => {
                       firebase
                         .auth()
@@ -427,7 +428,8 @@ app.post("/add-admin-signup/:campusID/:linkID", (req, res) => {
                   admin
                     .firestore()
                     .collection("admins")
-                    .add(adminAccount)
+                    .doc(adminAccount.userID)
+                    .set(adminAccount)
                     .then(() => {
                       firebase
                         .auth()
@@ -506,44 +508,40 @@ app.post("/generate-admin-link/:campusID", (req, res) => {
   //and if the sudo admin is from the particular campus
   admin
     .firestore()
-    .collection("admins")
-    .where("userID", "==", adminID)
+    .doc(`/admins/${adminID}`)
     .get()
-    .then((data) => {
-      data.forEach((doc) => {
-        if (
-          doc.data().role === "sudo" &&
-          doc.data().campusID === campusID &&
-          doc.data().active === true
-        ) {
-          //valid admin
+    .then((doc) => {
+      if (
+        doc.data().role === "sudo" &&
+        doc.data().campusID === campusID &&
+        doc.data().active === true
+      ) {
+        //valid admin
 
-          admin
-            .firestore()
-            .doc(`/campuses/${campusID}`)
-            .set(
-              {
-                adminLinks: FieldValue.arrayUnion(...linkArray),
-              },
-              { merge: true }
-            )
-            .then(() => {
-              return res.json({
-                message: `Link for admin with '${linkArray[0].role}' created`,
-                linkID: linkArray[0].linkID,
-                campusID: campusID,
-              });
-            })
-            .catch((error) => {
-              console.error(error);
-              return res.status(500).json({ error: "Something went wrong" });
+        admin
+          .firestore()
+          .doc(`/campuses/${campusID}`)
+          .set(
+            {
+              adminLinks: FieldValue.arrayUnion(...linkArray),
+            },
+            { merge: true }
+          )
+          .then(() => {
+            return res.json({
+              message: `Link for admin with '${linkArray[0].role}' created`,
+              linkID: linkArray[0].linkID,
+              campusID: campusID,
             });
-        } else
-          return res.json({
-            error:
-              "Invalid admin, please have a sudo admin perform this action.",
+          })
+          .catch((error) => {
+            console.error(error);
+            return res.status(500).json({ error: "Something went wrong" });
           });
-      });
+      } else
+        return res.json({
+          error: "Invalid admin, please have a sudo admin perform this action.",
+        });
     })
     .catch((error) => {
       console.error(error);
@@ -552,45 +550,42 @@ app.post("/generate-admin-link/:campusID", (req, res) => {
 });
 
 //admin login
-app.post("/login/:campusID", (req, res) => {
+app.post("/login/", (req, res) => {
   //check if the admin is requesting login for the correct college
   //then check if the admin's email is verified
-  const campusID = req.params.campusID;
+
+  //admin should just log in, and the campusID should be returned
+  //and then the campus data should be returned using the campusID
 
   const login = {
     email: req.body.email,
     password: req.body.password,
   };
 
-  admin
-    .firestore()
-    .collection("admins")
-    .where("email", "==", login.email)
-    .get()
+  const returnData = {
+    token: "",
+    campusID: "",
+  };
+
+  firebase
+    .auth()
+    .signInWithEmailAndPassword(login.email, login.password)
     .then((data) => {
-      if (data.exists) {
-        data.forEach((doc) => {
-          if (doc.data().campusID === campusID) {
-            firebase
-              .auth()
-              .signInWithEmailAndPassword(login.email, login.password)
-              .then((data) => {
-                if (data.user.emailVerified === false)
-                  return res.json({ error: "Please verify" });
-                else return data.user.getIdToken();
-              })
-              .then((token) => {
-                return res.json({ token: token });
-              });
-          } else
-            return res.json({
-              error: "Invalid campus",
-            });
+      // if (data.user.emailVerified === false)
+      //   return res.json({ error: "Please verify" });
+      const userID = data.user.uid;
+      admin
+        .firestore()
+        .doc(`/admins/${userID}`)
+        .get()
+        .then((doc) => {
+          returnData.campusID = doc.data().campusID;
+          return data.user.getIdToken();
+        })
+        .then((token) => {
+          returnData.token = token;
+          return res.json(returnData);
         });
-      } else
-        return res
-          .status(400)
-          .json({ error: "Invalid user credentials, please try again" });
     })
     .catch((error) => {
       console.error(error);
@@ -619,35 +614,31 @@ app.post("/edit-department/:campusID", (req, res) => {
   //first check if the user requesting the link is a sudo user
   admin
     .firestore()
-    .collection("admins")
-    .where("userID", "==", adminID)
+    .doc(`/admins/${adminID}`)
     .get()
-    .then((data) => {
-      data.forEach((doc) => {
-        if (
-          doc.data().role === "sudo" &&
-          doc.data().campusID === campusID &&
-          doc.data().active === true
-        ) {
-          //valid admin
+    .then((doc) => {
+      if (
+        doc.data().role === "sudo" &&
+        doc.data().campusID === campusID &&
+        doc.data().active === true
+      ) {
+        //valid admin
 
-          admin
-            .firestore()
-            .doc(`/campuses/${campusID}`)
-            .update(department)
-            .then(() => {
-              return res.json({ message: "Departments updated" });
-            })
-            .catch((error) => {
-              console.error(error);
-              return res.status(500).json({ error: "Something went wrong" });
-            });
-        } else
-          return res.json({
-            error:
-              "Invalid admin, please have a sudo admin perform this action.",
+        admin
+          .firestore()
+          .doc(`/campuses/${campusID}`)
+          .update(department)
+          .then(() => {
+            return res.json({ message: "Departments updated" });
+          })
+          .catch((error) => {
+            console.error(error);
+            return res.status(500).json({ error: "Something went wrong" });
           });
-      });
+      } else
+        return res.json({
+          error: "Invalid admin, please have a sudo admin perform this action.",
+        });
     })
     .catch((error) => {
       console.error(error);
@@ -674,35 +665,31 @@ app.post("/edit-intake/:campusID", (req, res) => {
   //first check if the user requesting the link is a sudo user
   admin
     .firestore()
-    .collection("admins")
-    .where("userID", "==", adminID)
+    .doc(`/admins/${adminID}`)
     .get()
-    .then((data) => {
-      data.forEach((doc) => {
-        if (
-          doc.data().role === "sudo" &&
-          doc.data().campusID === campusID &&
-          doc.data().active === true
-        ) {
-          //valid admin
+    .then((doc) => {
+      if (
+        doc.data().role === "sudo" &&
+        doc.data().campusID === campusID &&
+        doc.data().active === true
+      ) {
+        //valid admin
 
-          admin
-            .firestore()
-            .doc(`/campuses/${campusID}`)
-            .update(intake)
-            .then(() => {
-              return res.json({ message: "Intakes updated" });
-            })
-            .catch((error) => {
-              console.error(error);
-              return res.status(500).json({ error: "Something went wrong" });
-            });
-        } else
-          return res.json({
-            error:
-              "Invalid admin, please have a sudo admin perform this action.",
+        admin
+          .firestore()
+          .doc(`/campuses/${campusID}`)
+          .update(intake)
+          .then(() => {
+            return res.json({ message: "Intakes updated" });
+          })
+          .catch((error) => {
+            console.error(error);
+            return res.status(500).json({ error: "Something went wrong" });
           });
-      });
+      } else
+        return res.json({
+          error: "Invalid admin, please have a sudo admin perform this action.",
+        });
     })
     .catch((error) => {
       console.error(error);
@@ -722,28 +709,34 @@ app.post("/admin-role", (req, res) => {
   const campusID = req.body.campusID;
 
   let sudoAdmins;
+  let adminPreviousRole;
 
   //first check if admin requesting is a sudo admin
   admin
     .firestore()
-    .collection("admins")
-    .where("userID", "==", adminID)
+    .doc(`/admins/${adminID}`)
     .get()
-    .then((data) => {
-      data.forEach((doc) => {
-        if (
-          doc.data().role === "sudo" &&
-          doc.data().campusID === campusID &&
-          doc.data().active === true
-        ) {
-          admin
-            .firestore()
-            .collection("admins")
-            .where("userID", "==", userID)
-            .get()
-            .then((data) => {
-              data.forEach((doc) => {
-                doc.ref.update(role).then(() => {
+    .then((doc) => {
+      if (
+        doc.data().role === "sudo" &&
+        doc.data().campusID === campusID &&
+        doc.data().active === true
+      ) {
+        //then check if user is being assigned the same role again
+        admin
+          .firestore()
+          .doc(`/admins/${userID}`)
+          .get()
+          .then((doc) => {
+            adminPreviousRole = doc.data().role;
+            if (adminPreviousRole === role.role)
+              return res.json({ error: "Admin already has this role." });
+            else {
+              admin
+                .firestore()
+                .doc(`/admins/${userID}`)
+                .update(role)
+                .then(() => {
                   //if sudo admin, increase campus's sudoAdmins number
                   if (role.role === "sudo") {
                     admin
@@ -762,23 +755,43 @@ app.post("/admin-role", (req, res) => {
                           message: "New sudo admin sucessfully updated.",
                         });
                       });
+                  } else if (adminPreviousRole === "sudo") {
+                    admin
+                      .firestore()
+                      .doc(`/campuses/${campusID}`)
+                      .get()
+                      .then((doc) => {
+                        sudoAdmins = doc.data().sudoAdmins;
+                        return admin
+                          .firestore()
+                          .doc(`/campuses/${campusID}`)
+                          .update({
+                            sudoAdmins: sudoAdmins - 1,
+                          });
+                      })
+                      .then(() => {
+                        return res.json({
+                          message:
+                            "Previous sudo admin's new role sucessfully updated.",
+                        });
+                      });
                   } else
                     return res.json({
                       message: "New user role sucessfully updated.",
                     });
+                })
+                .catch((error) => {
+                  console.error(error);
+                  return res
+                    .status(500)
+                    .json({ error: "Something went wrong" });
                 });
-              });
-            })
-            .catch((error) => {
-              console.error(error);
-              return res.status(500).json({ error: "Something went wrong" });
-            });
-        } else
-          return res.json({
-            error:
-              "Invalid admin, please have a sudo admin perform this action.",
+            }
           });
-      });
+      } else
+        return res.json({
+          error: "Invalid admin, please have a sudo admin perform this action.",
+        });
     })
     .catch((error) => {
       console.error(error);
@@ -803,108 +816,91 @@ app.post("/deactivate-admin/:campusID", (req, res) => {
 
   admin
     .firestore()
-    .collection("admins")
-    .where("userID", "==", adminID)
+    .doc(`/admins/${adminID}`)
     .get()
-    .then((data) => {
-      data.forEach((doc) => {
-        if (
-          doc.data().role === "sudo" &&
-          doc.data().campusID === campusID &&
-          doc.data().active === true
-        ) {
-          //valid admin
-          admin
-            .firestore()
-            .collection("admins")
-            .where("userID", "==", deactivateAdminID)
-            .get()
-            .then((data) => {
-              data.forEach((doc) => {
-                //check if admin role is sudo
-                if (doc.data().role === "sudo") {
-                  //if it is, check if there is at least another sudo admin for the campus
-                  admin
-                    .firestore()
-                    .doc(`/campuses/${campusID}`)
-                    .get()
-                    .then((doc) => {
-                      if (doc.data().sudoAdmins > 1) {
-                        //more than 1, so can deactivate
-                        sudoAdmins = doc.data().sudoAdmins;
+    .then((doc) => {
+      if (
+        doc.data().role === "sudo" &&
+        doc.data().campusID === campusID &&
+        doc.data().active === true
+      ) {
+        //valid admin
+        admin
+          .firestore()
+          .doc(`/admins/${deactivateAdminID}`)
+          .get()
+          .then((doc) => {
+            //check if admin role is sudo
+            if (doc.data().role === "sudo") {
+              //if it is, check if there is at least another sudo admin for the campus
+              admin
+                .firestore()
+                .doc(`/campuses/${campusID}`)
+                .get()
+                .then((doc) => {
+                  if (doc.data().sudoAdmins > 1) {
+                    //more than 1, so can deactivate
+                    sudoAdmins = doc.data().sudoAdmins;
 
+                    admin
+                      .firestore()
+                      .docs(`/admins/${deactivateAdminID}`)
+                      .update({ active: false })
+                      .then(() => {
+                        //update campus data
                         admin
                           .firestore()
-                          .collection("admins")
-                          .where("userID", "==", deactivateAdminID)
-                          .get()
-                          .then((data) => {
-                            data.forEach((doc) => {
-                              doc.ref.update({ active: false }).then(() => {
-                                //update campus data
-                                admin
-                                  .firestore()
-                                  .doc(`/campuses/${campusID}`)
-                                  .update({ sudoAdmins: sudoAdmins - 1 })
-                                  .then(() => {
-                                    return res.json({
-                                      message: "Admin deactivated",
-                                    });
-                                  });
-                              });
+                          .doc(`/campuses/${campusID}`)
+                          .update({ sudoAdmins: sudoAdmins - 1 })
+                          .then(() => {
+                            return res.json({
+                              message: "Admin deactivated",
                             });
-                          })
-                          .catch((error) => {
-                            console.error(error);
-                            return res
-                              .status(500)
-                              .json({ error: "Something went wrong" });
                           });
-                      } else
-                        return res.json({
-                          error: "The campus needs at least one sudo admin.",
-                        });
-                    })
-                    .catch((error) => {
-                      console.error(error);
-                      return res
-                        .status(500)
-                        .json({ error: "Something went wrong" });
-                    });
-                } else {
-                  admin
-                    .firestore()
-                    .collection("admins")
-                    .where("userID", "==", deactivateAdminID)
-                    .get()
-                    .then((data) => {
-                      data.forEach((doc) => {
-                        doc.ref.update({ active: false }).then(() => {
-                          return res.json({
-                            message: "Admin deactivated",
-                          });
-                        });
+                      })
+                      .catch((error) => {
+                        console.error(error);
+                        return res
+                          .status(500)
+                          .json({ error: "Something went wrong" });
                       });
-                    })
-                    .catch((error) => {
-                      console.error(error);
-                      return res
-                        .status(500)
-                        .json({ error: "Something went wrong" });
+                  } else
+                    return res.json({
+                      error: "The campus needs at least one sudo admin.",
                     });
-                }
-              });
-            })
-            .catch((error) => {
-              console.error(error);
-              return res.status(500).json({ error: "Something went wrong" });
-            });
-        } else
-          return res.json({
-            error:
-              "Invalid admin, please have a sudo admin perform this action.",
+                })
+                .catch((error) => {
+                  console.error(error);
+                  return res
+                    .status(500)
+                    .json({ error: "Something went wrong" });
+                });
+            } else {
+              admin
+                .firestore()
+                .doc(`/admins/${deactivateAdminID}`)
+                .update({ active: false })
+                .then(() => {
+                  return res.json({
+                    message: "Admin deactivated",
+                  });
+                })
+                .catch((error) => {
+                  console.error(error);
+                  return res
+                    .status(500)
+                    .json({ error: "Something went wrong" });
+                });
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+            return res.status(500).json({ error: "Something went wrong" });
           });
-      });
+      } else
+        return res.json({
+          error: "Invalid admin, please have a sudo admin perform this action.",
+        });
     })
     .catch((error) => {
       console.error(error);
@@ -927,70 +923,63 @@ app.post("/reactivate-admin/:campusID", (req, res) => {
 
   admin
     .firestore()
-    .collection("admins")
-    .where("userID", "==", adminID)
+    .docs(`/admins/${adminID}`)
     .get()
-    .then((data) => {
-      data.forEach((doc) => {
-        if (
-          doc.data().role === "sudo" &&
-          doc.data().campusID === campusID &&
-          doc.data().active === true
-        ) {
-          //valid admin request
+    .then((doc) => {
+      if (
+        doc.data().role === "sudo" &&
+        doc.data().campusID === campusID &&
+        doc.data().active === true
+      ) {
+        //valid admin request
 
-          admin
-            .firestore()
-            .collection("admins")
-            .where("userID", "==", reactivateAdminID)
-            .get()
-            .then((data) => {
-              data.forEach((doc) => {
-                role = doc.data().role;
-                doc.ref.update({ active: true }).then(() => {
-                  //check if reactivating user is sudo
-                  if (role === "sudo") {
-                    //update sudo admins
+        admin
+          .firestore()
+          .doc(`/admins/${reactivateAdminID}`)
+          .get()
+          .then((doc) => {
+            role = doc.data().role;
+            doc.ref.update({ active: true }).then(() => {
+              //check if reactivating user is sudo
+              if (role === "sudo") {
+                //update sudo admins
+                admin
+                  .firestore()
+                  .doc(`/campuses/${campusID}`)
+                  .get()
+                  .then((doc) => {
+                    sudoAdmins = doc.data().sudoAdmins;
+
                     admin
                       .firestore()
                       .doc(`/campuses/${campusID}`)
-                      .get()
-                      .then((doc) => {
-                        sudoAdmins = doc.data().sudoAdmins;
-
-                        admin
-                          .firestore()
-                          .doc(`/campuses/${campusID}`)
-                          .update({ sudoAdmins: sudoAdmins + 1 })
-                          .then(() => {
-                            return res.json({
-                              message: "Sudo admin reactivated",
-                            });
-                          });
-                      })
-                      .catch((error) => {
-                        console.error(error);
-                        return res
-                          .status(500)
-                          .json({ error: "Something went wrong" });
+                      .update({ sudoAdmins: sudoAdmins + 1 })
+                      .then(() => {
+                        return res.json({
+                          message: "Sudo admin reactivated",
+                        });
                       });
-                  } else
-                    return res.json({
-                      message: "Admin reactivated",
-                    });
+                  })
+                  .catch((error) => {
+                    console.error(error);
+                    return res
+                      .status(500)
+                      .json({ error: "Something went wrong" });
+                  });
+              } else
+                return res.json({
+                  message: "Admin reactivated",
                 });
-              });
-            })
-            .catch((error) => {
-              console.error(error);
-              return res.status(500).json({ error: "Something went wrong" });
             });
-        } else
-          return res.json({
-            error:
-              "Invalid admin, please have a sudo admin perform this action.",
+          })
+          .catch((error) => {
+            console.error(error);
+            return res.status(500).json({ error: "Something went wrong" });
           });
-      });
+      } else
+        return res.json({
+          error: "Invalid admin, please have a sudo admin perform this action.",
+        });
     })
     .catch((error) => {
       console.error(error);
