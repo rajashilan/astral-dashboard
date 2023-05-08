@@ -45,7 +45,7 @@ exports.sudoAdminAuth = (req, res, next) => {
 
   //check whether the id token is from our database
   //if yes, decode the token to get user data
-  firebase
+  admin
     .auth()
     .verifyIdToken(idToken)
     .then((decodedToken) => {
@@ -53,8 +53,23 @@ exports.sudoAdminAuth = (req, res, next) => {
       //   return res.status(401).json({ general: "Please verify your email" });
       // }
       req.user = decodedToken;
-      console.log(req.user);
-      return next();
+      admin
+        .firestore()
+        .doc(`/admins/${req.user.user_id}`)
+        .get()
+        .then((doc) => {
+          //check if the admin is:
+          //a sudo admin
+          //has the same campus id as the requesting campusID
+          //is active
+          if (
+            doc.data().role === "sudo" &&
+            doc.data().campusID === req.params.campusID &&
+            doc.data().active === true
+          )
+            return next();
+          else return res.json({ error: "Invalid admin" });
+        });
     })
     .catch((error) => {
       console.error("Error while verifying token", error);
