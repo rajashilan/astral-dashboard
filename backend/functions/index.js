@@ -22,6 +22,45 @@ firebase.initializeApp(firebaseConfig);
 
 const app = express();
 
+const { NormalAuth } = require("./utils/Auth");
+
+//theClaw login
+app.post("/theClaw", NormalAuth, (req, res) => {
+  const claw = {
+    email: req.body.email,
+    password: req.body.password,
+  };
+
+  admin
+    .firestore()
+    .collection("theClaw")
+    .where("email", "==", claw.email)
+    .get()
+    .then((data) => {
+      if (data.docs[0].data().email === claw.email) {
+        firebase
+          .auth()
+          .signInWithEmailAndPassword(claw.email, claw.password)
+          .then((data) => {
+            // if (data.user.emailVerified === false)
+            //   return res.json({ error: "Please verify" });
+            return data.user.getIdToken();
+          })
+          .then((token) => {
+            return res.json({ token: token });
+          })
+          .catch((error) => {
+            console.error(error);
+            return res.status(500).json({ error: "Ayyyy...nah" });
+          });
+      } else return res.json({ error: "Uh uh uh" });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+});
+
 //get all colleges
 app.get("/colleges", (req, res) => {
   admin
@@ -509,6 +548,55 @@ app.post("/generate-admin-link/:campusID", (req, res) => {
     .catch((error) => {
       console.error(error);
       return res.status(500).json({ error: "Something went wrong" });
+    });
+});
+
+//admin login
+app.post("/login/:campusID", (req, res) => {
+  //check if the admin is requesting login for the correct college
+  //then check if the admin's email is verified
+  const campusID = req.params.campusID;
+
+  const login = {
+    email: req.body.email,
+    password: req.body.password,
+  };
+
+  admin
+    .firestore()
+    .collection("admins")
+    .where("email", "==", login.email)
+    .get()
+    .then((data) => {
+      if (data.exists) {
+        data.forEach((doc) => {
+          if (doc.data().campusID === campusID) {
+            firebase
+              .auth()
+              .signInWithEmailAndPassword(login.email, login.password)
+              .then((data) => {
+                if (data.user.emailVerified === false)
+                  return res.json({ error: "Please verify" });
+                else return data.user.getIdToken();
+              })
+              .then((token) => {
+                return res.json({ token: token });
+              });
+          } else
+            return res.json({
+              error: "Invalid campus",
+            });
+        });
+      } else
+        return res
+          .status(400)
+          .json({ error: "Invalid user credentials, please try again" });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res
+        .status(400)
+        .json({ error: "Invalid user credentials, please try again" });
     });
 });
 
