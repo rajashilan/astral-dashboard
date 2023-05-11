@@ -18,7 +18,7 @@ exports.clawSignIn = (req, res) => {
           .signInWithEmailAndPassword(claw.email, claw.password)
           .then((data) => {
             // if (data.user.emailVerified === false)
-            //   return res.json({ error: "Please verify" });
+            //   return res.status(400).json({ error: "Please verify" });
             return data.user.getIdToken();
           })
           .then((token) => {
@@ -28,7 +28,7 @@ exports.clawSignIn = (req, res) => {
             console.error(error);
             return res.status(500).json({ error: "Ayyyy...nah" });
           });
-      } else return res.json({ error: "Uh uh uh" });
+      } else return res.status(400).json({ error: "Uh uh uh" });
     })
     .catch((error) => {
       console.error(error);

@@ -158,7 +158,9 @@ exports.adminFirstTimeSignUp = (req, res) => {
                 .catch((error) => {
                   console.error(error);
                   if (error.code === "auth/email-already-in-use") {
-                    return res.json({ email: "Email is already in use." });
+                    return res
+                      .status(400)
+                      .json({ error: "Email is already in use." });
                   } else {
                     return res.status(500).json({
                       general: "Something went wrong, please try again",
@@ -166,14 +168,14 @@ exports.adminFirstTimeSignUp = (req, res) => {
                   }
                 });
             } else {
-              return res.json({ error: "Invalid admin email" });
+              return res.status(400).json({ error: "Invalid admin email" });
             }
           })
           .catch((error) => {
             console.error(error);
             return res.status(500).json({ error: "Something went wrong" });
           });
-      } else return res.json({ error: "Invalid link" });
+      } else return res.status(400).json({ error: "Invalid link" });
     })
     .catch((error) => {
       console.error(error);
@@ -289,7 +291,7 @@ exports.addedAdminSignUp = (req, res) => {
                 .catch((error) => {
                   console.error(error);
                   if (error.code === "auth/email-already-in-use") {
-                    return res.json({
+                    return res.status(400).json({
                       email: "Email is already in use.",
                     });
                   } else {
@@ -298,9 +300,10 @@ exports.addedAdminSignUp = (req, res) => {
                     });
                   }
                 });
-            } else return res.json({ error: "Invalid admin email" });
+            } else
+              return res.status(400).json({ error: "Invalid admin email" });
           });
-      } else return res.json({ error: "Invalid link" });
+      } else return res.status(400).json({ error: "Invalid link" });
     })
     .catch((error) => {
       console.error(error);
@@ -370,7 +373,12 @@ exports.adminLogin = (req, res) => {
     .signInWithEmailAndPassword(login.email, login.password)
     .then((data) => {
       // if (data.user.emailVerified === false)
-      //   return res.json({ error: "Please verify" });
+      //   return res
+      //     .status(400)
+      //     .json({
+      //       error:
+      //         "Please verify your email address to complete your registration process",
+      //     });
       const userID = data.user.uid;
       admin
         .firestore()
@@ -402,7 +410,7 @@ exports.editCampusDepartment = (req, res) => {
 
   //check if departments are empty
   if (department.departments.length === 0) {
-    return res.json({
+    return res.status(400).json({
       error: "There must be at least one department in your campus.",
     });
   }
@@ -431,7 +439,7 @@ exports.editCampusIntake = (req, res) => {
 
   //check if departments are empty
   if (intake.intakes.length === 0) {
-    return res.json({
+    return res.status(400).json({
       error: "There must be at least one intake in your campus.",
     });
   }
@@ -469,7 +477,7 @@ exports.editAdminRole = (req, res) => {
     .then((doc) => {
       adminPreviousRole = doc.data().role;
       if (adminPreviousRole === role.role)
-        return res.json({ error: "Admin already has this role." });
+        return res.status(400).json({ error: "Admin already has this role." });
       else {
         admin
           .firestore()
@@ -580,7 +588,7 @@ exports.deactivateAdmin = (req, res) => {
                     .json({ error: "Something went wrong" });
                 });
             } else
-              return res.json({
+              return res.status(400).json({
                 error: "The campus needs at least one sudo admin.",
               });
           })
