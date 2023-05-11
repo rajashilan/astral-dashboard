@@ -1,25 +1,59 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Component, useState } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import axios from "axios";
+import jwtDecode from "jwt-decode";
+
+//redux
+import { Provider } from "react-redux";
+import store from "./redux/store";
+
+//pages
+import Login from "./pages/login";
+import Signup from "./pages/signup";
+import Home from "./pages/home";
+import Menu from "./pages/menu";
+
+//components
+import Navbar from "./components/Navbar";
+
+// axios.defaults.baseURL =
+//   "https://asia-southeast1-astral-d3ff5.cloudfunctions.net/api";
+
+axios.defaults.baseURL =
+  "http://localhost:5000/astral-d3ff5/asia-southeast1/api";
+
+let authenticated;
+
+const token = localStorage.FBIdToken;
+if (token) {
+  const decodedToken = jwtDecode(token);
+  if (decodedToken.exp * 1000 < Date.now()) {
+    authenticated = false;
+    console.log("unauthenticated");
+    window.location.href = "/login";
+  } else {
+    authenticated = true;
+    console.log("authenticated");
+  }
+}
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Provider store={store}>
+      <Router>
+        <Navbar />
+        <Routes>
+          <Route exact path="/" element={<Menu />} />
+          <Route exact path="/login" element={<Login />} />
+          <Route exact path="/:campusID/:linkID/:admin" element={<Signup />} />
+          <Route exact path="/home" element={<Home />} />
+        </Routes>
+      </Router>
+    </Provider>
   );
+}
+{
+  /* <div className="mt-[4rem] mx-[8rem]  px-[3.75rem] py-[3.75rem] flex rounded-lg bg-[#131A2E]"></div> */
 }
 
 export default App;
