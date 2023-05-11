@@ -1,4 +1,4 @@
-const { admin, db } = require("./utils/admin");
+const { admin, db } = require("../utils/admin");
 const firebase = require("firebase");
 const crypto = require("crypto");
 

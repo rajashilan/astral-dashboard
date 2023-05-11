@@ -1,4 +1,4 @@
-const { admin, db } = require("./utils/admin");
+const { admin, db } = require("../utils/admin");
 const firebase = require("firebase");
 const crypto = require("crypto");
 const { FieldValue } = require("firebase-admin/firestore");
@@ -50,11 +50,13 @@ exports.firstTimeSignUpLinkValidity = (req, res) => {
   db.doc(`/campuses/${campusID}`)
     .get()
     .then((doc) => {
-      if (doc.data().linkID === linkID && doc.data().adminCreated === false) {
-        return res.json({ valid: true });
-      } else {
-        return res.json({ valid: false });
-      }
+      if (doc.exists) {
+        if (doc.data().linkID === linkID && doc.data().adminCreated === false) {
+          return res.json({ valid: true });
+        } else {
+          return res.json({ valid: false });
+        }
+      } else return res.status(400).json({ error: "Invalid link" });
     })
     .catch((error) => {
       console.error(error);
@@ -69,9 +71,15 @@ exports.addedAdminSignUpLinkValidity = (req, res) => {
   db.doc(`/campuses/${campusID}`)
     .get()
     .then((doc) => {
-      if (doc.data().adminLinks.some((link) => link.linkID === linkID))
-        return res.json({ valid: true });
-      else return res.json({ valid: false });
+      if (
+        doc.exists &&
+        doc.data().adminLinks &&
+        doc.data().adminLinks.length > 0
+      ) {
+        if (doc.data().adminLinks.some((link) => link.linkID === linkID))
+          return res.json({ valid: true });
+        else return res.json({ valid: false });
+      } else return res.status(400).json({ error: "Invalid link" });
     })
     .catch((error) => {
       console.error(error);

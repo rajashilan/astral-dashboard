@@ -2,11 +2,12 @@ const functions = require("firebase-functions");
 
 const express = require("express");
 const firebase = require("firebase");
-firebase.initializeApp(config);
 
 const config = require("./utils/config");
+firebase.initializeApp(config);
 
 const app = express();
+const cors = require("cors");
 
 const { NormalAuth, sudoAdminAuth } = require("./utils/Auth");
 
@@ -34,6 +35,12 @@ const {
   deactivateAdmin,
   reactivateAdmin,
 } = require("./handlers/campusAdmin");
+
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "https://web.postman.co/"],
+  })
+);
 
 //claw routes ==============================================================
 
