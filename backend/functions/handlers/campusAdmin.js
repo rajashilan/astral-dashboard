@@ -503,24 +503,43 @@ exports.editAdminRole = (req, res) => {
                   });
                 });
             } else if (adminPreviousRole === "sudo") {
+              //first check the sudoAdmins count for the college, ensure more than 1
+
               admin
                 .firestore()
                 .doc(`/campuses/${campusID}`)
                 .get()
                 .then((doc) => {
-                  sudoAdmins = doc.data().sudoAdmins;
-                  return admin
-                    .firestore()
-                    .doc(`/campuses/${campusID}`)
-                    .update({
-                      sudoAdmins: sudoAdmins - 1,
+                  if (doc.data().sudoAdmins > 1) {
+                    admin
+                      .firestore()
+                      .doc(`/campuses/${campusID}`)
+                      .get()
+                      .then((doc) => {
+                        sudoAdmins = doc.data().sudoAdmins;
+                        return admin
+                          .firestore()
+                          .doc(`/campuses/${campusID}`)
+                          .update({
+                            sudoAdmins: sudoAdmins - 1,
+                          });
+                      })
+                      .then(() => {
+                        return res.json({
+                          message:
+                            "Previous sudo admin's new role sucessfully updated.",
+                        });
+                      })
+                      .catch((error) => {
+                        console.error(error);
+                        return res
+                          .status(500)
+                          .json({ error: "Something went wrong" });
+                      });
+                  } else
+                    return res.status(400).json({
+                      error: "The campus needs at least one sudo admin.",
                     });
-                })
-                .then(() => {
-                  return res.json({
-                    message:
-                      "Previous sudo admin's new role sucessfully updated.",
-                  });
                 });
             } else
               return res.json({
