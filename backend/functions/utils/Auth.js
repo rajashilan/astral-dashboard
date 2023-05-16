@@ -66,9 +66,10 @@ exports.sudoAdminAuth = (req, res, next) => {
             doc.data().role === "sudo" &&
             doc.data().campusID === req.params.campusID &&
             doc.data().active === true
-          )
+          ) {
+            req.user.role = doc.data().role;
             return next();
-          else return res.json({ error: "Invalid admin" });
+          } else return res.status(400).json({ error: "Invalid admin" });
         });
     })
     .catch((error) => {

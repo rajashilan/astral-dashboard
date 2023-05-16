@@ -29,6 +29,7 @@ const {
   addedAdminSignUp,
   generateNewAdminLink,
   adminLogin,
+  getSessionData,
   editCampusDepartment,
   editCampusIntake,
   editAdminRole,
@@ -85,6 +86,9 @@ app.post("/generate-admin-link/:campusID", sudoAdminAuth, generateNewAdminLink);
 //admin login
 app.post("/login/", adminLogin);
 
+//get admin's session data
+app.get("/session-data/:campusID", sudoAdminAuth, getSessionData);
+
 //edit a campus' department
 app.post("/edit-department/:campusID", sudoAdminAuth, editCampusDepartment);
 
@@ -92,7 +96,7 @@ app.post("/edit-department/:campusID", sudoAdminAuth, editCampusDepartment);
 app.post("/edit-intake/:campusID", sudoAdminAuth, editCampusIntake);
 
 //edit an admin's role
-app.post("/admin-role", sudoAdminAuth, editAdminRole);
+app.post("/admin-role/:campusID", sudoAdminAuth, editAdminRole);
 
 //deactivate an admin
 app.post("/deactivate-admin/:campusID", sudoAdminAuth, deactivateAdmin);

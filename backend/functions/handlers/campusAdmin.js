@@ -199,7 +199,7 @@ exports.addedAdminSignUp = (req, res) => {
 
   const adminAccount = {
     name: req.body.name,
-    role: "",
+    role: req.user.role,
     email: req.body.email,
     password: req.body.password,
     userID: "",
@@ -223,9 +223,6 @@ exports.addedAdminSignUp = (req, res) => {
     .then((doc) => {
       if (doc.data().adminLinks.some((link) => link.linkID === linkID)) {
         //link verified
-
-        let role = doc.data().adminLinks.find((link) => link.linkID === linkID);
-        adminAccount.role = role.role;
 
         adminLinks = doc.data().adminLinks;
         sudoAdmins = doc.data().sudoAdmins;
@@ -401,6 +398,52 @@ exports.adminLogin = (req, res) => {
     });
 };
 
+exports.getSessionData = (req, res) => {
+  const campusID = req.params.campusID;
+  const adminID = req.user.user_id;
+  console.log(req.user);
+
+  let sessionData = {
+    admin: {
+      name: "",
+      email: "",
+      role: "",
+    },
+    campus: {
+      college: "",
+      departments: [],
+      intakes: [],
+      name: "",
+    },
+  };
+
+  //first get admin data -> name, email, role
+  db.doc(`/admins/${adminID}`)
+    .get()
+    .then((doc) => {
+      sessionData.admin.name = doc.data().name;
+      sessionData.admin.email = doc.data().email;
+      sessionData.admin.role = doc.data().role;
+
+      return db.doc(`/campuses/${campusID}`).get();
+    })
+    .then((doc) => {
+      sessionData.campus.college = doc.data().college;
+      sessionData.campus.departments = [...doc.data().departments];
+      sessionData.campus.intakes = [...doc.data().intakes];
+      sessionData.campus.name = doc.data().name;
+    })
+    .then(() => {
+      return res.json(sessionData);
+    })
+    .catch((error) => {
+      console.error(error);
+      return res
+        .status(400)
+        .json({ error: "Invalid user credentials, please try again" });
+    });
+};
+
 exports.editCampusDepartment = (req, res) => {
   const department = {
     departments: req.body.departments,
@@ -466,7 +509,7 @@ exports.editAdminRole = (req, res) => {
   };
 
   const userID = req.body.userID;
-  const campusID = req.body.campusID;
+  const campusID = req.params.campusID;
 
   let sudoAdmins;
   let adminPreviousRole;
