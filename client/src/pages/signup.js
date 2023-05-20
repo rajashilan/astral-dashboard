@@ -12,6 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { useSelector } from "react-redux";
 
 const formSchema = z.object({
   email: z
@@ -33,6 +34,7 @@ export default function Signup() {
   });
 
   const navigate = useNavigate();
+  const state = useSelector((state) => state.user);
   const params = useParams();
 
   const [loading, setLoading] = useState(false);
@@ -41,6 +43,7 @@ export default function Signup() {
   const [generalErrors, setGeneralErrors] = useState("");
 
   useEffect(() => {
+    if (state.authenticated) navigate("/");
     //check if link and campus ID are valid
 
     //check if its added admin
@@ -106,11 +109,11 @@ export default function Signup() {
           console.log(res.data);
           setLoading(false);
           setDisable(false);
-          // navigate("/login", {
-          //   state: {
-          //     signedUp: true,
-          //   },
-          // });
+          navigate("/login", {
+            state: {
+              signedUp: true,
+            },
+          });
         })
         .catch((error) => {
           setGeneralErrors(error.response.data.error);

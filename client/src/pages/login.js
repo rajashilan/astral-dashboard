@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
 import logo from "../assets/logo.svg";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import TextInput from "../components/TextInput";
 import Button from "../components/Button";
-import LabelButton from "../components/LabelButton";
 import ErrorLabel from "../components/ErrorLabel";
 import SuccessLabel from "../components/SuccessLabel";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Link } from "react-router-dom";
-import axios from "axios";
+
+import { loginAdmin } from "../redux/actions/userActions";
+import { useDispatch, useSelector } from "react-redux";
 
 const formSchema = z.object({
   email: z
@@ -32,14 +32,19 @@ export default function Login() {
     defaultValues: {},
   });
 
-  const navigate = useNavigate();
-  const location = useLocation();
-
   const [loading, setLoading] = useState(false);
   const [generalErrors, setGeneralErrors] = useState("");
 
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const state = useSelector((state) => state.user);
+
+  useEffect(() => {
+    if (state.authenticated) navigate("/");
+  }, []);
+
   const onFormSubmit = (data) => {
-    setGeneralErrors("");
     setLoading(true);
 
     let loginData = {
@@ -47,19 +52,7 @@ export default function Login() {
       password: data["password"],
     };
 
-    axios
-      .post("/login", loginData)
-      .then((res) => {
-        localStorage.setItem("FBIdToken", `Bearer ${res.data.token}`);
-        localStorage.setItem("AdminCampus", res.data.campusID);
-        setLoading(false);
-        navigate("/");
-      })
-      .catch((error) => {
-        setGeneralErrors(error.response.data.error);
-        console.error(error);
-        setLoading(false);
-      });
+    dispatch(loginAdmin(loginData, navigate));
   };
 
   let signedUp = false;

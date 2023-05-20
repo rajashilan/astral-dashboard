@@ -1,10 +1,12 @@
-import React, { Component, useState } from "react";
+import React, { Component, useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 
 //redux
-import { Provider } from "react-redux";
+import { Provider, useDispatch, useSelector } from "react-redux";
+import { logoutUser, getSessionData } from "./redux/actions/userActions";
+import { SET_AUTHENTICATED } from "./redux/types";
 import store from "./redux/store";
 
 //pages
@@ -22,34 +24,32 @@ import Navbar from "./components/Navbar";
 axios.defaults.baseURL =
   "http://localhost:5000/astral-d3ff5/asia-southeast1/api";
 
-let authenticated;
-
 const token = localStorage.FBIdToken;
 if (token) {
   const decodedToken = jwtDecode(token);
   if (decodedToken.exp * 1000 < Date.now()) {
-    authenticated = false;
-    console.log("unauthenticated");
-    window.location.href = "/login";
+    store.dispatch(logoutUser());
+    console.log("worked");
   } else {
-    authenticated = true;
-    console.log("authenticated");
+    store.dispatch({
+      type: SET_AUTHENTICATED,
+    });
+    axios.defaults.headers.common["Authorization"] = token;
+    store.dispatch(getSessionData());
   }
 }
 
 function App() {
   return (
-    <Provider store={store}>
-      <Router>
-        <Navbar />
-        <Routes>
-          <Route exact path="/" element={<Menu />} />
-          <Route exact path="/login" element={<Login />} />
-          <Route exact path="/:campusID/:linkID/:admin" element={<Signup />} />
-          <Route exact path="/home" element={<Home />} />
-        </Routes>
-      </Router>
-    </Provider>
+    <Router>
+      <Navbar />
+      <Routes>
+        <Route exact path="/" element={<Menu />} />
+        <Route exact path="/login" element={<Login />} />
+        <Route exact path="/:campusID/:linkID/:admin" element={<Signup />} />
+        <Route exact path="/home" element={<Home />} />
+      </Routes>
+    </Router>
   );
 }
 {
