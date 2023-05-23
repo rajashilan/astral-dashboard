@@ -72,10 +72,27 @@ exports.addCollegeAndCampus = (req, res) => {
         .collection("campuses")
         .add(campus)
         .then((data) => {
-          return res.json({
-            message: `${college.name} created successfully along with its campus ${campus.name}`,
-            linkID: campus.linkID,
-            campusID: data.id,
+          campus.departments.forEach((department) => {
+            let departmentData = {
+              name: department,
+              campusID: data.id,
+            };
+
+            admin
+              .firestore()
+              .collection("departments")
+              .add(departmentData)
+              .then((data) => {
+                return res.json({
+                  message: `${college.name} created successfully along with its campus ${campus.name}`,
+                  linkID: campus.linkID,
+                  campusID: data.id,
+                });
+              })
+              .catch((error) => {
+                console.error(error);
+                return res.status(500).json({ error: "Something went wrong" });
+              });
           });
         });
     })
@@ -115,10 +132,27 @@ exports.addCampus = (req, res) => {
         .collection("campuses")
         .add(campus)
         .then((data) => {
-          return res.json({
-            message: `${campus.name} created successfully`,
-            linkID: campus.linkID,
-            campusID: data.id,
+          campus.departments.forEach((department) => {
+            let departmentData = {
+              name: department,
+              campusID: data.id,
+            };
+
+            admin
+              .firestore()
+              .collection("departments")
+              .add(departmentData)
+              .then((data) => {
+                return res.json({
+                  message: `${campus.name} created successfully`,
+                  linkID: campus.linkID,
+                  campusID: data.id,
+                });
+              })
+              .catch((error) => {
+                console.error(error);
+                return res.status(500).json({ error: "Something went wrong" });
+              });
           });
         });
     })
