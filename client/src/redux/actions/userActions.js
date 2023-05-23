@@ -57,6 +57,7 @@ export const getSessionData = () => (dispatch) => {
 
 export const logoutUser = () => (dispatch) => {
   localStorage.removeItem("FBIdToken");
+  localStorage.removeItem("AdminCampus");
   delete axios.defaults.headers.common["Authorization"];
   dispatch({
     type: SET_UNAUTHENTICATED,
