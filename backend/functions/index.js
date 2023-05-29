@@ -9,7 +9,11 @@ firebase.initializeApp(config);
 const app = express();
 const cors = require("cors");
 
-const { NormalAuth, sudoAdminAuth } = require("./utils/Auth");
+const {
+  NormalAuth,
+  sudoAdminAuth,
+  verifyAdminForSessionData,
+} = require("./utils/Auth");
 
 //import claw handlers
 const {
@@ -84,10 +88,10 @@ app.post("/add-admin-signup/:campusID/:linkID", addedAdminSignUp);
 app.post("/generate-admin-link/:campusID", sudoAdminAuth, generateNewAdminLink);
 
 //admin login
-app.post("/login/", adminLogin);
+app.post("/login", adminLogin);
 
 //get admin's session data
-app.get("/session-data/:campusID", sudoAdminAuth, getSessionData);
+app.get("/session-data/:campusID", verifyAdminForSessionData, getSessionData);
 
 //edit a campus' department
 app.post("/edit-department/:campusID", sudoAdminAuth, editCampusDepartment);
