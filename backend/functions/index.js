@@ -27,6 +27,8 @@ const {
 const {
   getAllColleges,
   getCampuses,
+  getAdminsForCampus,
+  getDepartmentsForCampus,
   firstTimeSignUpLinkValidity,
   addedAdminSignUpLinkValidity,
   adminFirstTimeSignUp,
@@ -68,6 +70,12 @@ app.get("/colleges", getAllColleges);
 
 //get all campuses for a college
 app.post("/campuses", getCampuses);
+
+//get all admins for a college
+app.get("/admins/:campusID", sudoAdminAuth, getAdminsForCampus);
+
+//get all departments for a college
+app.get("/departments/:campusID", sudoAdminAuth, getDepartmentsForCampus);
 
 //get validity of first time signup link
 app.post("/validate-link/:campusID/:linkID", firstTimeSignUpLinkValidity);

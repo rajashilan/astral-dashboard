@@ -43,6 +43,47 @@ exports.getCampuses = (req, res) => {
     });
 };
 
+exports.getAdminsForCampus = (req, res) => {
+  const campusID = req.params.campusID;
+
+  db.collection("admins")
+    .where("campusID", "==", campusID)
+    .get()
+    .then((data) => {
+      let admins = [];
+      data.forEach((doc) => {
+        admins.push(doc.data());
+      });
+      return res.status(200).json(admins);
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
+exports.getDepartmentsForCampus = (req, res) => {
+  const campusID = req.params.campusID;
+
+  db.collection("departments")
+    .where("campusID", "==", campusID)
+    .get()
+    .then((data) => {
+      let departments = [];
+      data.forEach((doc) => {
+        departments.push({
+          ...doc.data(),
+          id: doc.id,
+        });
+      });
+      return res.status(200).json(departments);
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
 exports.firstTimeSignUpLinkValidity = (req, res) => {
   const campusID = req.params.campusID;
   const linkID = req.params.linkID;
@@ -90,12 +131,12 @@ exports.addedAdminSignUpLinkValidity = (req, res) => {
 exports.adminFirstTimeSignUp = (req, res) => {
   const campusID = req.params.campusID;
   const linkID = req.params.linkID;
+  password = req.body.password;
 
   const adminAccount = {
     name: req.body.name,
     role: "sudo",
     email: req.body.email,
-    password: req.body.password,
     userID: "",
     active: true,
     campusID: campusID,
@@ -121,10 +162,7 @@ exports.adminFirstTimeSignUp = (req, res) => {
             if (adminAccount.email.split("@")[1] === doc.data().adminSuffix) {
               firebase
                 .auth()
-                .createUserWithEmailAndPassword(
-                  adminAccount.email,
-                  adminAccount.password
-                )
+                .createUserWithEmailAndPassword(adminAccount.email, password)
                 .then((data) => {
                   userID = data.user.uid;
 
@@ -196,12 +234,12 @@ exports.adminFirstTimeSignUp = (req, res) => {
 exports.addedAdminSignUp = (req, res) => {
   const campusID = req.params.campusID;
   const linkID = req.params.linkID;
+  password: req.body.password;
 
   const adminAccount = {
     name: req.body.name,
     role: req.user.role,
     email: req.body.email,
-    password: req.body.password,
     userID: "",
     active: true,
     campusID: campusID,
@@ -239,10 +277,7 @@ exports.addedAdminSignUp = (req, res) => {
 
               firebase
                 .auth()
-                .createUserWithEmailAndPassword(
-                  adminAccount.email,
-                  adminAccount.password
-                )
+                .createUserWithEmailAndPassword(adminAccount.email, password)
                 .then((data) => {
                   userID = data.user.uid;
 
