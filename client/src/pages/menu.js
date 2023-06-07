@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import logo from "../assets/logo.svg";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../redux/actions/userActions";
@@ -46,9 +46,11 @@ export default function Menu() {
     <p>loading...</p>
   ) : state.role === "sudo" ? (
     <div className="flex flex-col text-center space-y-[0.5rem]">
-      <p className="text-[46px] font-normal text-[#C4FFF9] cursor-pointer">
-        college
-      </p>
+      <Link to="/college">
+        <p className="text-[46px] font-normal text-[#C4FFF9] cursor-pointer">
+          college
+        </p>
+      </Link>
       <p className="text-[46px] font-normal text-[#C4FFF9] cursor-pointer">
         orientation
       </p>

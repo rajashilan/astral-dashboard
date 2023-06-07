@@ -14,6 +14,7 @@ import Login from "./pages/login";
 import Signup from "./pages/signup";
 import Home from "./pages/home";
 import Menu from "./pages/menu";
+import College from "./pages/college";
 
 //components
 import Navbar from "./components/Navbar";
@@ -48,6 +49,7 @@ function App() {
         <Route exact path="/login" element={<Login />} />
         <Route exact path="/:campusID/:linkID/:admin" element={<Signup />} />
         <Route exact path="/home" element={<Home />} />
+        <Route exact path="/college" element={<College />} />
       </Routes>
     </Router>
   );
