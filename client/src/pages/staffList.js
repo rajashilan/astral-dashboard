@@ -1,5 +1,5 @@
 import React from "react";
 
-export default function staffList() {
+export default function stafflist() {
   return <div>staffList</div>;
 }
