@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -50,7 +49,6 @@ export default function Admins() {
     dispatch(getAdminsForCampus());
     //get all departments
     dispatch(getDepartmentsForCampus());
-    console.log(roles[roles.length - 1].departmentList);
   }, []);
 
   useEffect(() => {
@@ -107,8 +105,6 @@ export default function Admins() {
         role = `${selectedRole}:${selectedDepartment}`;
       }
       if (role !== "") {
-        const campusID = localStorage.getItem("AdminCampus");
-
         let data = {
           role: role,
           userID: editModalData.userID,
