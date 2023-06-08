@@ -48,6 +48,7 @@ exports.getAdminsForCampus = (req, res) => {
 
   db.collection("admins")
     .where("campusID", "==", campusID)
+    .where("userID", "!=", req.user.uid)
     .get()
     .then((data) => {
       let admins = [];
