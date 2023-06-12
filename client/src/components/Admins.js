@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
 import {
+  adminActivation,
   getAdminsForCampus,
   getDepartmentsForCampus,
   updateAdminsRole,
@@ -62,11 +63,6 @@ export default function Admins() {
     setRoles(tempRoles);
   }, [state.departments]);
 
-  //upon clicking edit role, show a pop up modal
-  //display admin name, and role
-  //allow admin to choose new roles as dropdown
-  //send userID(changing admin) and campusID
-
   const handleShowEditModal = (userID, name, role, active, email) => {
     setShowEditModal(!showEditModal);
     const modalData = {
@@ -120,6 +116,33 @@ export default function Admins() {
     }
   };
 
+  //for activating/deactivating user
+  //show a pop up modal and ask admin to type the admin's email to confirm
+  //depending on activating or deactivating, send userID as deactivateAdminID or reactivateAdminID
+  //also send all of the user's other details in data to be used in data reducer
+
+  const handleAdminActivation = (
+    userID,
+    name,
+    role,
+    active,
+    email,
+    activationType
+  ) => {
+    let data = {
+      userID: userID,
+      name: name,
+      role: role,
+      active: !active,
+      email: email,
+      activationType: activationType,
+    };
+
+    if (activationType === "activate") data.reactivateAdminID = userID;
+    else data.deactivateAdminID = userID;
+    dispatch(adminActivation(data));
+  };
+
   let display = state.loading ? (
     <p>Loading admins...</p>
   ) : state.admins.length > 0 ? (
@@ -136,7 +159,7 @@ export default function Admins() {
             <span class="sr-only">Edit Role</span>
           </th>
           <th scope="col" class="px-6 py-3">
-            <span class="sr-only">Delete</span>
+            <span class="sr-only">Activate</span>
           </th>
         </tr>
       </thead>
@@ -158,7 +181,7 @@ export default function Admins() {
               </td>
               <td className="px-6 py-4 text-right">
                 <button
-                  className="font-medium text-[#C4FFF9] dark:text-[#C4FFF9] hover:underline"
+                  className="cursor-pointer font-medium text-[#C4FFF9] dark:text-[#C4FFF9] hover:underline"
                   onClick={() =>
                     handleShowEditModal(
                       admin.userID,
@@ -172,14 +195,43 @@ export default function Admins() {
                   Edit Role
                 </button>
               </td>
-              <td className="px-6 py-4 text-right">
-                <a
-                  href="#"
-                  className="font-normal text-gray-400 dark:text-gray-400 hover:underline"
-                >
-                  Delete
-                </a>
-              </td>
+              {admin.active === true ? (
+                <td className="px-6 py-4 text-right">
+                  <p
+                    onClick={() =>
+                      handleAdminActivation(
+                        admin.userID,
+                        admin.name,
+                        admin.role,
+                        admin.active,
+                        admin.email,
+                        "deactivate"
+                      )
+                    }
+                    className="cursor-pointer font-medium text-gray-400 dark:text-gray-400 hover:underline"
+                  >
+                    Deactivate
+                  </p>
+                </td>
+              ) : (
+                <td className="px-6 py-4 text-right">
+                  <p
+                    onClick={() =>
+                      handleAdminActivation(
+                        admin.userID,
+                        admin.name,
+                        admin.role,
+                        admin.active,
+                        admin.email,
+                        "activate"
+                      )
+                    }
+                    className="cursor-pointer font-medium text-[#C4FFF9] dark:text-[#C4FFF9] hover:underline"
+                  >
+                    Activate
+                  </p>
+                </td>
+              )}
             </tr>
           );
         })}
@@ -203,10 +255,10 @@ export default function Admins() {
         >
           ✕
         </button>
-        <h1 className="text-[20px] font-medium text-[#DFE5F8]">
+        <h1 className="text-[20px] font-medium text-[#DFE5F8] text-center">
           Edit {editModalData.name}'s role
         </h1>
-        <h2 className="text-[18px] font-normal text-[#DFE5F8]">
+        <h2 className="text-[18px] font-normal text-[#DFE5F8] text-center">
           Current role: {editModalData.role}
         </h2>
 

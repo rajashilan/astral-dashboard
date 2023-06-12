@@ -1,6 +1,6 @@
 import {
   SET_ADMINS,
-  SET_UPDATED_ADMIN_ROLE,
+  SET_UPDATED_ADMIN,
   SET_NEW_ADMIN_LINK,
   CLEAR_NEW_ADMIN_LINK,
   SET_DEPARTMENTS,
@@ -22,7 +22,7 @@ export default function (state = initialState, action) {
         ...state,
         admins: [...action.payload],
       };
-    case SET_UPDATED_ADMIN_ROLE:
+    case SET_UPDATED_ADMIN:
       let index = state.admins.findIndex(
         (admin) => admin.userID === action.payload.userID
       );
