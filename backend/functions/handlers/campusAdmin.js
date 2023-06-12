@@ -235,11 +235,11 @@ exports.adminFirstTimeSignUp = (req, res) => {
 exports.addedAdminSignUp = (req, res) => {
   const campusID = req.params.campusID;
   const linkID = req.params.linkID;
-  password: req.body.password;
+  const password = req.body.password;
 
   const adminAccount = {
     name: req.body.name,
-    role: req.user.role,
+    role: "",
     email: req.body.email,
     userID: "",
     active: true,
@@ -256,6 +256,8 @@ exports.addedAdminSignUp = (req, res) => {
 
   let adminLinks;
   let sudoAdmins;
+
+  //first find the role using the requested linkID
 
   db.doc(`/campuses/${campusID}`)
     .get()
@@ -298,6 +300,7 @@ exports.addedAdminSignUp = (req, res) => {
                           const index = adminLinks.findIndex(
                             (link) => link.linkID === linkID
                           );
+                          adminAccount.role = adminLinks[index].role;
                           adminLinks.splice(index, 1);
                           admin
                             .firestore()
@@ -307,10 +310,20 @@ exports.addedAdminSignUp = (req, res) => {
                               sudoAdmins: sudoAdmins,
                             })
                             .then(() => {
-                              return res.json({
-                                message:
-                                  "New admin account created successfully",
-                              });
+                              //after getting the role, update the admin's role
+
+                              admin
+                                .firestore()
+                                .doc(`/admins/${adminAccount.userID}`)
+                                .update({
+                                  role: adminAccount.role,
+                                })
+                                .then(() => {
+                                  return res.json({
+                                    message:
+                                      "New admin account created successfully",
+                                  });
+                                });
                             })
                             .catch((error) => {
                               console.error(error);

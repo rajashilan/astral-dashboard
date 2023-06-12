@@ -43,6 +43,17 @@ const {
   reactivateAdmin,
 } = require("./handlers/campusAdmin");
 
+const {
+  createOrientationOverview,
+  editOrientationOverview,
+  createOrientationPage,
+  createNewSubcontent,
+  deleteSubcontent,
+  editOrientationPageTitle,
+  editOrientationPageHeader,
+  deleteOrientationPage,
+} = require("./handlers/orientation");
+
 app.use(
   cors({
     origin: ["http://localhost:3000", "https://web.postman.co/"],
@@ -115,5 +126,51 @@ app.post("/deactivate-admin/:campusID", sudoAdminAuth, deactivateAdmin);
 
 //reactivating an admin
 app.post("/reactivate-admin/:campusID", sudoAdminAuth, reactivateAdmin);
+
+//orientation routes ==============================================================
+
+app.post("/orientation/:campusID", sudoAdminAuth, createOrientationOverview);
+
+app.post(
+  "/orientation/:campusID/:orientationID",
+  sudoAdminAuth,
+  editOrientationOverview
+);
+
+app.post(
+  "/orientation-page/:campusID/:orientationID",
+  sudoAdminAuth,
+  createOrientationPage
+);
+
+app.post(
+  "/subcontent/:campusID/:orientationPageID",
+  sudoAdminAuth,
+  createNewSubcontent
+);
+
+app.delete(
+  "/subcontent/:campusID/:orientationPageID/:subcontentID",
+  sudoAdminAuth,
+  deleteSubcontent
+);
+
+app.post(
+  "/orientation-page-title/:campusID/:orientationPageID",
+  sudoAdminAuth,
+  editOrientationPageTitle
+);
+
+app.post(
+  "/orientation-page-header/:campusID/:orientationPageID",
+  sudoAdminAuth,
+  editOrientationPageHeader
+);
+
+app.delete(
+  "/orientation-page/:campusID/:orientationPageID",
+  sudoAdminAuth,
+  deleteOrientationPage
+);
 
 exports.api = functions.region("asia-southeast1").https.onRequest(app);
