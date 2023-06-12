@@ -32,21 +32,19 @@ export default function Login() {
     defaultValues: {},
   });
 
-  const [loading, setLoading] = useState(false);
   const [generalErrors, setGeneralErrors] = useState("");
 
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const state = useSelector((state) => state.user);
+  const loading = useSelector((state) => state.UI.loading);
 
   useEffect(() => {
     if (state.authenticated) navigate("/");
   }, []);
 
   const onFormSubmit = (data) => {
-    setLoading(true);
-
     let loginData = {
       email: data["email"],
       password: data["password"],
