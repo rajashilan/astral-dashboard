@@ -44,7 +44,7 @@ const {
 } = require("./handlers/campusAdmin");
 
 const {
-  createOrientationOverview,
+  getOrientationOverview,
   editOrientationOverview,
   createOrientationPage,
   createNewSubcontent,
@@ -128,6 +128,8 @@ app.post("/deactivate-admin/:campusID", sudoAdminAuth, deactivateAdmin);
 app.post("/reactivate-admin/:campusID", sudoAdminAuth, reactivateAdmin);
 
 //orientation routes ==============================================================
+
+app.get("/orientation/:campusID", sudoAdminAuth, getOrientationOverview);
 
 app.post(
   "/orientation/:campusID/:orientationID",

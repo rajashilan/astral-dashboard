@@ -47,7 +47,26 @@ exports.createOrientationOverview = (req, res) => {
 
 //get orientation overview
 exports.getOrientationOverview = (req, res) => {
-  const orientationID = req.params.orientationID;
+  const campusID = req.params.campusID;
+
+  let orientationData;
+
+  db.collection("orientations")
+    .where("campusID", "==", campusID)
+    .get()
+    .then((data) => {
+      data.forEach((doc) => {
+        orientationData = {
+          ...doc.data(),
+          orientationID: doc.id,
+        };
+      });
+      return res.status(200).json(orientationData);
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
 };
 
 //edit orientation overview (video and title)
