@@ -51,9 +51,11 @@ export default function Menu() {
           college
         </p>
       </Link>
-      <p className="text-[46px] font-normal text-[#C4FFF9] cursor-pointer">
-        orientation
-      </p>
+      <Link to="/orientation">
+        <p className="text-[46px] font-normal text-[#C4FFF9] cursor-pointer">
+          orientation
+        </p>
+      </Link>
       <p className="text-[46px] font-normal text-[#C4FFF9] cursor-pointer">
         clubs
       </p>

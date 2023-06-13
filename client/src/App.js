@@ -15,6 +15,7 @@ import Signup from "./pages/signup";
 import Home from "./pages/home";
 import Menu from "./pages/menu";
 import College from "./pages/college";
+import Orientation from "./pages/orientation";
 
 //components
 import Navbar from "./components/Navbar";
@@ -50,6 +51,7 @@ function App() {
         <Route exact path="/:campusID/:linkID/:admin" element={<Signup />} />
         <Route exact path="/home" element={<Home />} />
         <Route exact path="/college" element={<College />} />
+        <Route exact path="/orientation" element={<Orientation />} />
       </Routes>
     </Router>
   );
