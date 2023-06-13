@@ -1,12 +1,21 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 import Admins from "../components/Admins";
 import RegisterAdmins from "../components/RegisterAdmins";
 
+import { useSelector } from "react-redux";
+
 export default function College() {
   //handle tab switching
   const [tab, setTab] = useState("admins");
+
+  const state = useSelector((state) => state.user);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!state.authenticated) navigate("/login");
+  }, []);
 
   let display = tab === "admins" ? <Admins /> : <RegisterAdmins />;
 
