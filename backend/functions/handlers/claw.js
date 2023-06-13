@@ -59,7 +59,15 @@ exports.addCollegeAndCampus = (req, res) => {
     adminCreated: false,
     linkID: crypto.randomBytes(10).toString("hex"),
     collegeID: "",
+    orientationID: "",
     sudoAdmins: 0,
+  };
+
+  let orientationData = {
+    title: `${campus.name}'s Orientation`,
+    campusID: "",
+    createdAt: new Date().toISOString(),
+    orientationID: "",
   };
 
   db.collection("colleges")
@@ -72,28 +80,40 @@ exports.addCollegeAndCampus = (req, res) => {
         .collection("campuses")
         .add(campus)
         .then((data) => {
+          orientationData.campusID = data.id;
+
           campus.departments.forEach((department) => {
             let departmentData = {
               name: department,
               campusID: data.id,
             };
 
-            admin
-              .firestore()
-              .collection("departments")
-              .add(departmentData)
-              .then((data) => {
-                return res.json({
-                  message: `${college.name} created successfully along with its campus ${campus.name}`,
-                  linkID: campus.linkID,
-                  campusID: data.id,
-                });
-              })
-              .catch((error) => {
-                console.error(error);
-                return res.status(500).json({ error: "Something went wrong" });
-              });
+            admin.firestore().collection("departments").add(departmentData);
           });
+        })
+        .then(() => {
+          //create orientation overview
+
+          db.collection("orientations")
+            .add(orientationData)
+            .then((data) => {
+              orientationData.orientationID = data.id;
+              return db
+                .doc(`/orientations/${orientationData.orientationID}`)
+                .update({ orientationID: orientationData.orientationID });
+            })
+            .then(() => {
+              return db
+                .doc(`/campuses/${orientationData.campusID}`)
+                .update({ orientationID: orientationData.orientationID });
+            })
+            .then(() => {
+              return res.status(201).json({
+                message: `${campus.name} created successfully`,
+                linkID: campus.linkID,
+                campusID: orientationData.campusID,
+              });
+            });
         });
     })
     .catch((error) => {
@@ -116,7 +136,15 @@ exports.addCampus = (req, res) => {
     adminCreated: false,
     linkID: crypto.randomBytes(10).toString("hex"),
     collegeID: "",
+    orientationID: "",
     sudoAdmins: 0,
+  };
+
+  let orientationData = {
+    title: `${campus.name}'s Orientation`,
+    campusID: "",
+    createdAt: new Date().toISOString(),
+    orientationID: "",
   };
 
   db.collection("colleges")
@@ -132,28 +160,40 @@ exports.addCampus = (req, res) => {
         .collection("campuses")
         .add(campus)
         .then((data) => {
+          orientationData.campusID = data.id;
+
           campus.departments.forEach((department) => {
             let departmentData = {
               name: department,
               campusID: data.id,
             };
 
-            admin
-              .firestore()
-              .collection("departments")
-              .add(departmentData)
-              .then((data) => {
-                return res.json({
-                  message: `${campus.name} created successfully`,
-                  linkID: campus.linkID,
-                  campusID: data.id,
-                });
-              })
-              .catch((error) => {
-                console.error(error);
-                return res.status(500).json({ error: "Something went wrong" });
-              });
+            admin.firestore().collection("departments").add(departmentData);
           });
+        })
+        .then(() => {
+          //create orientation overview
+
+          db.collection("orientations")
+            .add(orientationData)
+            .then((data) => {
+              orientationData.orientationID = data.id;
+              return db
+                .doc(`/orientations/${orientationData.orientationID}`)
+                .update({ orientationID: orientationData.orientationID });
+            })
+            .then(() => {
+              return db
+                .doc(`/campuses/${orientationData.campusID}`)
+                .update({ orientationID: orientationData.orientationID });
+            })
+            .then(() => {
+              return res.status(201).json({
+                message: `${campus.name} created successfully`,
+                linkID: campus.linkID,
+                campusID: orientationData.campusID,
+              });
+            });
         });
     })
     .catch((error) => {

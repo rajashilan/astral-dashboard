@@ -129,8 +129,6 @@ app.post("/reactivate-admin/:campusID", sudoAdminAuth, reactivateAdmin);
 
 //orientation routes ==============================================================
 
-app.post("/orientation/:campusID", sudoAdminAuth, createOrientationOverview);
-
 app.post(
   "/orientation/:campusID/:orientationID",
   sudoAdminAuth,

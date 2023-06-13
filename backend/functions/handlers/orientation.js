@@ -30,6 +30,11 @@ exports.createOrientationOverview = (req, res) => {
         .update({ orientationID: data.orientationID });
     })
     .then(() => {
+      return db
+        .doc(`/campuses/${campusID}`)
+        .update({ orientationID: data.orientationID });
+    })
+    .then(() => {
       return res
         .status(201)
         .json({ message: "Orientation overview created successfully" });
@@ -38,6 +43,11 @@ exports.createOrientationOverview = (req, res) => {
       console.error(error);
       return res.status(500).json({ error: "Something went wrong" });
     });
+};
+
+//get orientation overview
+exports.getOrientationOverview = (req, res) => {
+  const orientationID = req.params.orientationID;
 };
 
 //edit orientation overview (video and title)
