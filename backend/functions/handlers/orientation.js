@@ -120,6 +120,7 @@ exports.createOrientationPage = (req, res) => {
     orientationID: orientationID,
     title: req.body.title,
     header: req.body.header,
+    content: req.body.content,
     subcontent: [],
   };
 
@@ -136,6 +137,25 @@ exports.createOrientationPage = (req, res) => {
       return res
         .status(201)
         .json({ message: "Orientation page successfully created" });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
+exports.getOrientationPages = (req, res) => {
+  const orientationID = req.params.orientationID;
+
+  db.collection("orientationPages")
+    .where("orientationID", "==", orientationID)
+    .get()
+    .then((data) => {
+      let orientationPages = [];
+      data.forEach((doc) => {
+        orientationPages.push(doc.data());
+      });
+      return res.status(200).json(orientationPages);
     })
     .catch((error) => {
       console.error(error);
@@ -246,6 +266,23 @@ exports.editOrientationPageHeader = (req, res) => {
       return res
         .status(201)
         .json({ message: "Orientation page header updated successfully" });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
+//edit orientation page content
+exports.editOrientationPageContent = (req, res) => {
+  const orientationPageID = req.params.orientationPageID;
+
+  db.doc(`/orientationPages/${orientationPageID}`)
+    .update({ content: req.body.content })
+    .then(() => {
+      return res
+        .status(201)
+        .json({ message: "Orientation page content updated successfully" });
     })
     .catch((error) => {
       console.error(error);
