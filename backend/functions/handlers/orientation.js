@@ -114,7 +114,6 @@ exports.createOrientationPage = (req, res) => {
   const campusID = req.params.campusID;
 
   let data = {
-    orientationPageID: "",
     campusID: campusID,
     createdAt: new Date().toISOString(),
     orientationID: orientationID,
@@ -124,19 +123,19 @@ exports.createOrientationPage = (req, res) => {
     subcontent: [],
   };
 
+  let orientationPageID;
+
   db.collection("orientationPages")
     .add(data)
     .then((data) => {
-      data.orientationPageID = data.id;
+      orientationPageID = data.id;
 
       return db
-        .doc(`/orientationPages/${data.orientationPageID}`)
-        .update({ orientationPageID: data.orientationPageID });
+        .doc(`/orientationPages/${orientationPageID}`)
+        .update({ orientationPageID: orientationPageID });
     })
-    .then(() => {
-      return res
-        .status(201)
-        .json({ message: "Orientation page successfully created" });
+    .then((data) => {
+      return res.status(201).json({ orientationPageID: orientationPageID });
     })
     .catch((error) => {
       console.error(error);
@@ -145,10 +144,10 @@ exports.createOrientationPage = (req, res) => {
 };
 
 exports.getOrientationPages = (req, res) => {
-  const orientationID = req.params.orientationID;
+  const campusID = req.params.campusID;
 
   db.collection("orientationPages")
-    .where("orientationID", "==", orientationID)
+    .where("campusID", "==", campusID)
     .get()
     .then((data) => {
       let orientationPages = [];
@@ -283,6 +282,66 @@ exports.editOrientationPageContent = (req, res) => {
       return res
         .status(201)
         .json({ message: "Orientation page content updated successfully" });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
+//edit subcontent title
+exports.editSubcontentTitle = (req, res) => {
+  const orientationPageID = req.params.orientationPageID;
+  const subcontentID = req.params.subcontentID;
+
+  db.doc(`/orientationPages/${orientationPageID}`)
+    .get()
+    .then((doc) => {
+      let subcontent = doc.data().subcontent;
+
+      index = subcontent.findIndex(
+        (subcontent) => subcontent.subcontentID === subcontentID
+      );
+      subcontent[index].title = req.body.title;
+
+      return db
+        .doc(`/orientationPages/${orientationPageID}`)
+        .update({ subcontent: subcontent });
+    })
+    .then(() => {
+      return res
+        .status(200)
+        .json({ message: "Subcontent title updated successfully" });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
+//edit subcontent content
+exports.editSubcontentContent = (req, res) => {
+  const orientationPageID = req.params.orientationPageID;
+  const subcontentID = req.params.subcontentID;
+
+  db.doc(`/orientationPages/${orientationPageID}`)
+    .get()
+    .then((doc) => {
+      let subcontent = doc.data().subcontent;
+
+      index = subcontent.findIndex(
+        (subcontent) => subcontent.subcontentID === subcontentID
+      );
+      subcontent[index].content = req.body.content;
+
+      return db
+        .doc(`/orientationPages/${orientationPageID}`)
+        .update({ subcontent: subcontent });
+    })
+    .then(() => {
+      return res
+        .status(200)
+        .json({ message: "Subcontent content updated successfully" });
     })
     .catch((error) => {
       console.error(error);

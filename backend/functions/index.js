@@ -54,6 +54,8 @@ const {
   editOrientationPageHeader,
   editOrientationPageContent,
   deleteOrientationPage,
+  editSubcontentTitle,
+  editSubcontentContent,
 } = require("./handlers/orientation");
 
 app.use(
@@ -145,16 +147,24 @@ app.post(
   createOrientationPage
 );
 
-app.get(
-  "/orientation-page/:campusID/:orientationID",
-  sudoAdminAuth,
-  getOrientationPages
-);
+app.get("/orientation-page/:campusID", sudoAdminAuth, getOrientationPages);
 
 app.post(
   "/subcontent/:campusID/:orientationPageID",
   sudoAdminAuth,
   createNewSubcontent
+);
+
+app.post(
+  "/subcontent-title/:campusID/:orientationPageID/:subcontentID",
+  sudoAdminAuth,
+  editSubcontentTitle
+);
+
+app.post(
+  "/subcontent-content/:campusID/:orientationPageID/:subcontentID",
+  sudoAdminAuth,
+  editSubcontentContent
 );
 
 app.delete(
