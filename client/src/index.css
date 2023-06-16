@@ -42,3 +42,10 @@ code {
   -webkit-box-sizing: inherit;
   box-sizing: inherit;
 }
+
+.clamp-1 {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
