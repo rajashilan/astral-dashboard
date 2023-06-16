@@ -186,7 +186,7 @@ app.post(
 );
 
 app.post(
-  "/orientation-page-content/:campusID/:orientationID",
+  "/orientation-page-content/:campusID/:orientationPageID",
   sudoAdminAuth,
   editOrientationPageContent
 );
