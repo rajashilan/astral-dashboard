@@ -8,8 +8,14 @@ import TextInput from "../components/TextInput";
 import Button from "../components/Button";
 import ErrorLabel from "../components/ErrorLabel";
 
+import edit from "../assets/edit.svg";
+
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
+import {
+  getOrientationOverview,
+  updateOrientationOverviewTitle,
+} from "../redux/actions/dataActions";
 
 const formSchema = z.object({
   title: z.string().min(1, { message: "Please enter a Heading" }),
@@ -25,21 +31,13 @@ export default function OrientationOverview() {
     defaultValues: {},
   });
 
-  const [orientation, setOrientation] = useState({});
-
   const dispatch = useDispatch();
   const state = useSelector((state) => state.data);
+  const orientation = useSelector((state) => state.data.orientation.overview);
   const loading = useSelector((state) => state.data.loading);
 
-  const campusID = localStorage.getItem("AdminCampus");
-
   useEffect(() => {
-    axios
-      .get(`/orientation/${campusID}`)
-      .then((res) => {
-        setOrientation(res.data);
-      })
-      .catch((error) => console.error(error));
+    dispatch(getOrientationOverview());
   }, []);
 
   const onFormSubmit = (data) => {
@@ -47,43 +45,39 @@ export default function OrientationOverview() {
       title: data["title"],
     };
 
-    axios
-      .post(
-        `/orientation/${orientation.campusID}/${orientation.orientationID}`,
-        titleData
-      )
-      .then((res) => {
-        let temp = orientation;
-        temp.title = titleData.title;
-        setOrientation(temp);
-        alert("Orientation title updated successfully");
-      })
-      .catch((error) => console.error(error));
+    dispatch(
+      updateOrientationOverviewTitle(titleData, orientation.orientationID)
+    );
   };
 
   return (
-    <div className="mt-[26px] w-full items-center overflow-hidden shadow-md sm:rounded-lg">
+    <div className="mt-[26px] items-center overflow-hidden shadow-md sm:rounded-lg">
       <form
-        className="w-full space-y-[20px] flex flex-col items-center"
+        className="w-full flex flex-col items-center"
         onSubmit={handleSubmit(onFormSubmit)}
       >
-        <TextInput
-          type="text"
-          id="title"
-          placeholder={
-            orientation.title ? orientation.title : "Enter your title here"
-          }
-          register={register}
-          errors={errors}
-          disabled={loading}
-        />
+        <div className="flex flex-row space-x-[1rem]">
+          <div className="flex flex-col items-center">
+            <TextInput
+              type="text"
+              id="title"
+              className="!w-[400px]"
+              placeholder={
+                orientation.title ? orientation.title : "Enter your title here"
+              }
+              register={register}
+              errors={errors}
+              disabled={loading}
+            />
+          </div>
 
-        <Button
-          onClick={handleSubmit(onFormSubmit)}
-          text="update"
-          className="!mt-[26px]"
-          disabled={loading}
-        />
+          <Button
+            onClick={handleSubmit(onFormSubmit)}
+            img={edit}
+            className="!w-[72px] !h-[60px]"
+            disabled={loading}
+          />
+        </div>
       </form>
     </div>
   );

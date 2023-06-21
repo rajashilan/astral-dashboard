@@ -8,6 +8,14 @@ import {
   SET_GENERAL_ERRORS,
   CLEAR_GENERAL_ERRORS,
   SET_ADMIN_ACTIVATION,
+  SET_ORIENTATION_OVERVIEW,
+  UPDATE_ORIENTATION_OVERVIEW_TITLE,
+  SET_ORIENTATION_PAGES,
+  SET_ORIENTATION_PAGE_TITLE,
+  SET_ORIENTATION_PAGE_HEADER,
+  SET_ORIENTATION_PAGE_CONTENT,
+  SET_SUBCONTENT_TITLE,
+  SET_SUBCONTENT_CONTENT,
 } from "../types";
 import axios from "axios";
 
@@ -52,6 +60,245 @@ export const getDepartmentsForCampus = () => (dispatch) => {
       dispatch({ type: STOP_LOADING_DATA });
     });
 };
+
+export const getOrientationOverview = () => (dispatch) => {
+  dispatch({ type: LOADING_DATA });
+
+  const campusID = localStorage.getItem("AdminCampus");
+
+  axios
+    .get(`/orientation/${campusID}`)
+    .then((res) => {
+      dispatch({ type: SET_ORIENTATION_OVERVIEW, payload: res.data });
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({ type: CLEAR_GENERAL_ERRORS });
+    })
+    .catch((error) => {
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: error.response.data.error,
+      });
+      console.error(error);
+      dispatch({ type: STOP_LOADING_DATA });
+    });
+};
+
+export const updateOrientationOverviewTitle =
+  (data, orientationID) => (dispatch) => {
+    dispatch({ type: LOADING_DATA });
+
+    const campusID = localStorage.getItem("AdminCampus");
+
+    axios
+      .post(`/orientation/${campusID}/${orientationID}`, data)
+      .then((res) => {
+        dispatch({ type: STOP_LOADING_DATA });
+        dispatch({ type: CLEAR_GENERAL_ERRORS });
+        dispatch({
+          type: UPDATE_ORIENTATION_OVERVIEW_TITLE,
+          payload: data.title,
+        });
+        alert("Orientation title updated successfully");
+      })
+      .catch((error) => {
+        dispatch({
+          type: SET_GENERAL_ERRORS,
+          payload: error.response.data.error,
+        });
+        console.error(error);
+        dispatch({ type: STOP_LOADING_DATA });
+      });
+  };
+
+export const getOrientationPages = (orientationID) => (dispatch) => {
+  dispatch({ type: LOADING_DATA });
+
+  const campusID = localStorage.getItem("AdminCampus");
+
+  axios
+    .get(`/orientation-page/${campusID}`)
+    .then((res) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({ type: CLEAR_GENERAL_ERRORS });
+      dispatch({
+        type: SET_ORIENTATION_PAGES,
+        payload: res.data,
+      });
+    })
+    .catch((error) => {
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: error.response.data.error,
+      });
+      console.error(error);
+      dispatch({ type: STOP_LOADING_DATA });
+    });
+};
+
+export const updateOrientationPagesTitle =
+  (data, orientationPageID) => (dispatch) => {
+    dispatch({ type: LOADING_DATA });
+    const campusID = localStorage.getItem("AdminCampus");
+
+    let payload = {
+      title: data.title,
+      orientationPageID: orientationPageID,
+    };
+
+    axios
+      .post(`/orientation-page-title/${campusID}/${orientationPageID}`, data)
+      .then((res) => {
+        dispatch({ type: STOP_LOADING_DATA });
+        dispatch({ type: CLEAR_GENERAL_ERRORS });
+        dispatch({
+          type: SET_ORIENTATION_PAGE_TITLE,
+          payload: payload,
+        });
+        alert("Orientation page title updated successfully");
+      })
+      .catch((error) => {
+        dispatch({
+          type: SET_GENERAL_ERRORS,
+          payload: error.response.data.error,
+        });
+        console.error(error);
+        dispatch({ type: STOP_LOADING_DATA });
+      });
+  };
+
+export const updateOrientationPagesHeader =
+  (data, orientationPageID) => (dispatch) => {
+    dispatch({ type: LOADING_DATA });
+    const campusID = localStorage.getItem("AdminCampus");
+
+    let payload = {
+      header: data.header,
+      orientationPageID: orientationPageID,
+    };
+
+    axios
+      .post(`/orientation-page-header/${campusID}/${orientationPageID}`, data)
+      .then((res) => {
+        dispatch({ type: STOP_LOADING_DATA });
+        dispatch({ type: CLEAR_GENERAL_ERRORS });
+        dispatch({
+          type: SET_ORIENTATION_PAGE_HEADER,
+          payload: payload,
+        });
+        alert("Orientation page header updated successfully");
+      })
+      .catch((error) => {
+        dispatch({
+          type: SET_GENERAL_ERRORS,
+          payload: error.response.data.error,
+        });
+        console.error(error);
+        dispatch({ type: STOP_LOADING_DATA });
+      });
+  };
+
+export const updateOrientationPagesContent =
+  (data, orientationPageID) => (dispatch) => {
+    dispatch({ type: LOADING_DATA });
+    const campusID = localStorage.getItem("AdminCampus");
+
+    let payload = {
+      content: data.content,
+      orientationPageID: orientationPageID,
+    };
+
+    axios
+      .post(`/orientation-page-content/${campusID}/${orientationPageID}`, data)
+      .then((res) => {
+        dispatch({ type: STOP_LOADING_DATA });
+        dispatch({ type: CLEAR_GENERAL_ERRORS });
+        dispatch({
+          type: SET_ORIENTATION_PAGE_CONTENT,
+          payload: payload,
+        });
+        alert("Orientation page content updated successfully");
+      })
+      .catch((error) => {
+        dispatch({
+          type: SET_GENERAL_ERRORS,
+          payload: error.response.data.error,
+        });
+        console.error(error);
+        dispatch({ type: STOP_LOADING_DATA });
+      });
+  };
+
+export const updateSubcontentTitle =
+  (data, orientationPageID, subcontentID) => (dispatch) => {
+    dispatch({ type: LOADING_DATA });
+    const campusID = localStorage.getItem("AdminCampus");
+
+    let payload = {
+      title: data.title,
+      orientationPageID: orientationPageID,
+      subcontentID: subcontentID,
+    };
+
+    axios
+      .post(
+        `/subcontent-title/${campusID}/${orientationPageID}/${subcontentID}`,
+        data
+      )
+      .then((res) => {
+        dispatch({ type: STOP_LOADING_DATA });
+        dispatch({ type: CLEAR_GENERAL_ERRORS });
+        dispatch({
+          type: SET_SUBCONTENT_TITLE,
+          payload: payload,
+        });
+        alert("Post title updated successfully");
+      })
+      .catch((error) => {
+        dispatch({
+          type: SET_GENERAL_ERRORS,
+          payload: error.response.data.error,
+        });
+        console.error(error);
+        dispatch({ type: STOP_LOADING_DATA });
+      });
+  };
+
+export const updateSubcontentContent =
+  (data, orientationPageID, subcontentID) => (dispatch) => {
+    dispatch({ type: LOADING_DATA });
+    const campusID = localStorage.getItem("AdminCampus");
+
+    let payload = {
+      content: data.content,
+      orientationPageID: orientationPageID,
+      subcontentID: subcontentID,
+    };
+
+    console.log(payload);
+
+    axios
+      .post(
+        `/subcontent-content/${campusID}/${orientationPageID}/${subcontentID}`,
+        data
+      )
+      .then((res) => {
+        dispatch({ type: STOP_LOADING_DATA });
+        dispatch({ type: CLEAR_GENERAL_ERRORS });
+        dispatch({
+          type: SET_SUBCONTENT_CONTENT,
+          payload: payload,
+        });
+        alert("Post content updated successfully");
+      })
+      .catch((error) => {
+        dispatch({
+          type: SET_GENERAL_ERRORS,
+          payload: error.response.data.error,
+        });
+        console.error(error);
+        dispatch({ type: STOP_LOADING_DATA });
+      });
+  };
 
 export const updateAdminsRole = (data) => (dispatch) => {
   dispatch({ type: LOADING_DATA });
