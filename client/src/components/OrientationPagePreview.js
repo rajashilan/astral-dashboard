@@ -2,6 +2,8 @@ import React, { useState } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
 import {
+  deleteOrientationPage,
+  deleteSubcontent,
   updateOrientationPagesContent,
   updateOrientationPagesHeader,
   updateOrientationPagesTitle,
@@ -10,6 +12,7 @@ import {
 } from "../redux/actions/dataActions";
 
 import edit from "../assets/edit.svg";
+import bin from "../assets/bin.svg";
 
 import TextInput from "../components/TextInput";
 import Button from "../components/Button";
@@ -31,6 +34,9 @@ export default function OrientationPagePreview() {
   const [showEditSubcontentModal, setShowEditSubcontentModal] = useState(false);
   const [editSubcontentTitle, setEditSubcontentTitle] = useState("");
   const [editSubcontentContent, setEditSubcontentContent] = useState("");
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDeletePageModal, setShowDeletePageModal] = useState(false);
 
   const handleShowPageModal = (id) => {
     let data;
@@ -123,6 +129,34 @@ export default function OrientationPagePreview() {
     }
   };
 
+  const handleDeleteModal = () => {
+    setShowDeleteModal(!showDeleteModal);
+    setShowEditSubcontentModal(!showEditSubcontentModal);
+  };
+
+  const handleDeleteSubcontent = () => {
+    dispatch(
+      deleteSubcontent(
+        pageModalData.orientationPageID,
+        subcontentModalData.subcontentID
+      )
+    );
+
+    setShowDeleteModal(!showDeleteModal);
+    setShowPageModal(!showPageModal);
+  };
+
+  const handleDeletePageModal = () => {
+    setShowDeletePageModal(!showDeletePageModal);
+    setShowPageModal(!showPageModal);
+  };
+
+  const handleDeletePage = () => {
+    dispatch(deleteOrientationPage(pageModalData.orientationPageID));
+
+    setShowDeletePageModal(!showDeletePageModal);
+  };
+
   let pages = state.pages.map((page) => {
     return (
       <div
@@ -178,7 +212,13 @@ export default function OrientationPagePreview() {
         >
           <img src={edit} alt="edit" />
         </button>
-        <h1 className="text-[20px] font-bold text-[#DFE5F8] text-center">
+        <button
+          onClick={handleDeletePageModal}
+          className="btn-sm btn-square btn absolute right-28 top-4 p-1 bg-red-700"
+        >
+          <img src={bin} alt="delete" />
+        </button>
+        <h1 className="text-[20px] font-bold text-[#DFE5F8] text-center mt-[2rem]">
           {pageModalData.title}
         </h1>
         <h3 className="text-[16px] font-medium text-[#DFE5F8] text-center">
@@ -267,7 +307,12 @@ export default function OrientationPagePreview() {
         >
           ✕
         </button>
-
+        <button
+          onClick={handleDeleteModal}
+          className="btn-sm btn-square btn absolute right-16 top-4 p-1 bg-red-700"
+        >
+          <img src={bin} alt="delete" />
+        </button>
         <TextInput
           type="text"
           id="title"
@@ -308,12 +353,88 @@ export default function OrientationPagePreview() {
     </div>
   );
 
+  let confirmDeleteModal = (
+    <div
+      className={
+        "modal modal-middle h-auto " + (showDeleteModal ? "modal-open" : "")
+      }
+    >
+      <div className=" modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
+        <button
+          onClick={handleDeleteModal}
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+        >
+          ✕
+        </button>
+        <p className="text-[18px] text-[#DFE5F8] font-normal mt-[1rem] mb=[1rem]">
+          Are you sure you want to delete the following post?
+        </p>
+        <p className="text-[24px] text-[#DFE5F8] font-medium mb-[0.5rem]">
+          {subcontentModalData.title}
+        </p>
+        <Button
+          onClick={handleDeleteSubcontent}
+          text="delete"
+          x
+          className="w-full !bg-gray-600 !text-white"
+          disabled={loading}
+        />
+        <Button
+          onClick={handleDeleteModal}
+          text="cancel"
+          x
+          className="w-full"
+          disabled={loading}
+        />
+      </div>
+    </div>
+  );
+
+  let confirmDeletePageModal = (
+    <div
+      className={
+        "modal modal-middle h-auto " + (showDeletePageModal ? "modal-open" : "")
+      }
+    >
+      <div className=" modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
+        <button
+          onClick={handleDeletePageModal}
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+        >
+          ✕
+        </button>
+        <p className="text-[18px] text-[#DFE5F8] font-normal mt-[1rem] mb=[1rem]">
+          Are you sure you want to delete the following page?
+        </p>
+        <p className="text-[24px] text-[#DFE5F8] font-medium mb-[0.5rem]">
+          {pageModalData.title}
+        </p>
+        <Button
+          onClick={handleDeletePage}
+          text="delete"
+          x
+          className="w-full !bg-gray-600 !text-white"
+          disabled={loading}
+        />
+        <Button
+          onClick={handleDeletePageModal}
+          text="cancel"
+          x
+          className="w-full"
+          disabled={loading}
+        />
+      </div>
+    </div>
+  );
+
   return (
     <>
       {pages}
       {Modal}
       {EditPageModal}
       {EditSubcontentModal}
+      {confirmDeleteModal}
+      {confirmDeletePageModal}
     </>
   );
 }

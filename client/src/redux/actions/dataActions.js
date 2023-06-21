@@ -16,6 +16,8 @@ import {
   SET_ORIENTATION_PAGE_CONTENT,
   SET_SUBCONTENT_TITLE,
   SET_SUBCONTENT_CONTENT,
+  DELETE_SUBCONTENT,
+  DELETE_ORIENTATION_PAGE,
 } from "../types";
 import axios from "axios";
 
@@ -274,8 +276,6 @@ export const updateSubcontentContent =
       subcontentID: subcontentID,
     };
 
-    console.log(payload);
-
     axios
       .post(
         `/subcontent-content/${campusID}/${orientationPageID}/${subcontentID}`,
@@ -299,6 +299,67 @@ export const updateSubcontentContent =
         dispatch({ type: STOP_LOADING_DATA });
       });
   };
+
+export const deleteSubcontent =
+  (orientationPageID, subcontentID) => (dispatch) => {
+    dispatch({ type: LOADING_DATA });
+    const campusID = localStorage.getItem("AdminCampus");
+
+    let payload = {
+      orientationPageID: orientationPageID,
+      subcontentID: subcontentID,
+    };
+
+    axios
+      .delete(`/subcontent/${campusID}/${orientationPageID}/${subcontentID}`)
+      .then((res) => {
+        dispatch({ type: STOP_LOADING_DATA });
+        dispatch({ type: CLEAR_GENERAL_ERRORS });
+        dispatch({
+          type: DELETE_SUBCONTENT,
+          payload: payload,
+        });
+        alert("Post deleted successfully");
+      })
+      .catch((error) => {
+        dispatch({
+          type: SET_GENERAL_ERRORS,
+          payload: error.response.data.error,
+        });
+        console.error(error);
+        dispatch({ type: STOP_LOADING_DATA });
+      });
+  };
+
+export const deleteOrientationPage = (orientationPageID) => (dispatch) => {
+  dispatch({ type: LOADING_DATA });
+  const campusID = localStorage.getItem("AdminCampus");
+
+  let payload = {
+    orientationPageID: orientationPageID,
+  };
+
+  axios
+    .delete(`/orientation-page/${campusID}/${orientationPageID}`)
+    .then((res) => {
+      console.log("aifidhjksadhahd");
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({ type: CLEAR_GENERAL_ERRORS });
+      dispatch({
+        type: DELETE_ORIENTATION_PAGE,
+        payload: payload,
+      });
+      alert("Page deleted successfully");
+    })
+    .catch((error) => {
+      // dispatch({
+      //   type: SET_GENERAL_ERRORS,
+      //   payload: error.response.data.error,
+      // });
+      console.error(error);
+      dispatch({ type: STOP_LOADING_DATA });
+    });
+};
 
 export const updateAdminsRole = (data) => (dispatch) => {
   dispatch({ type: LOADING_DATA });

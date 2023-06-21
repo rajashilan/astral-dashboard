@@ -14,6 +14,8 @@ import {
   SET_ORIENTATION_PAGE_CONTENT,
   SET_SUBCONTENT_TITLE,
   SET_SUBCONTENT_CONTENT,
+  DELETE_SUBCONTENT,
+  DELETE_ORIENTATION_PAGE,
 } from "../types";
 
 const initialState = {
@@ -150,6 +152,33 @@ export default function (state = initialState, action) {
         ],
         content: action.payload.content,
       };
+      return {
+        ...state,
+      };
+    case DELETE_SUBCONTENT:
+      let deleteSubcontentPageIndex = state.orientation.pages.findIndex(
+        (page) => page.orientationPageID === action.payload.orientationPageID
+      );
+
+      let deleteSubcontentIndex = state.orientation.pages[
+        deleteSubcontentPageIndex
+      ].subcontent.findIndex(
+        (subcontent) => subcontent.subcontentID === action.payload.subcontentID
+      );
+
+      state.orientation.pages[deleteSubcontentPageIndex].subcontent.splice(
+        deleteSubcontentIndex,
+        1
+      );
+      return {
+        ...state,
+      };
+    case DELETE_ORIENTATION_PAGE:
+      let deleteOrientationPageIndex = state.orientation.pages.findIndex(
+        (page) => page.orientationPageID === action.payload.orientationPageID
+      );
+
+      state.orientation.pages.splice(deleteOrientationPageIndex, 1);
       return {
         ...state,
       };
