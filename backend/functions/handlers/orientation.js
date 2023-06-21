@@ -6,6 +6,7 @@ const { FieldValue } = require("firebase-admin/firestore");
 //orientation overview details required:
 //a possible video
 //a title
+//content
 //list of all orientation pages
 
 //only sudo and admins with general and focused:college can create this
@@ -184,6 +185,7 @@ exports.createNewSubcontent = (req, res) => {
     title: req.body.title,
     content: req.body.content,
     subcontentID: crypto.randomBytes(10).toString("hex"),
+    createdAt: new Date().toISOString(),
   };
 
   let tempData = [];
@@ -352,7 +354,6 @@ exports.editSubcontentContent = (req, res) => {
 //delete orientation page
 exports.deleteOrientationPage = (req, res) => {
   const orientationPageID = req.params.orientationPageID;
-
   db.doc(`/orientationPages/${orientationPageID}`)
     .delete()
     .then(() => {
