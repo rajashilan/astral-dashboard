@@ -201,9 +201,7 @@ exports.createNewSubcontent = (req, res) => {
         .doc(`/orientationPages/${orientationPageID}`)
         .update({ subcontent: tempData })
         .then(() => {
-          return res
-            .status(201)
-            .json({ message: "Subcontent created successfully" });
+          return res.status(201).json({ subcontent: data });
         });
     })
     .catch((error) => {
