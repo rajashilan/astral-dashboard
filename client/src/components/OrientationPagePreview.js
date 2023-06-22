@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
 import {
+  createNewOrientationPost,
   deleteOrientationPage,
   deleteSubcontent,
   updateOrientationPagesContent,
@@ -13,9 +14,11 @@ import {
 
 import edit from "../assets/edit.svg";
 import bin from "../assets/bin.svg";
+import add from "../assets/add.svg";
 
 import TextInput from "../components/TextInput";
 import Button from "../components/Button";
+import ErrorLabel from "./ErrorLabel";
 
 export default function OrientationPagePreview() {
   const dispatch = useDispatch();
@@ -37,6 +40,14 @@ export default function OrientationPagePreview() {
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDeletePageModal, setShowDeletePageModal] = useState(false);
+
+  const [showAddSubcontentModal, setShowAddSubcontentModal] = useState(false);
+  const [addSubcontentTitle, setAddSubcontentTitle] = useState("");
+  const [addSubcontentContent, setAddSubcontentContent] = useState("");
+  const [errors, setErrors] = useState({});
+
+  //subcontent
+  //title and content are both optional but must have at least one
 
   const handleShowPageModal = (id) => {
     let data;
@@ -157,6 +168,28 @@ export default function OrientationPagePreview() {
     setShowDeletePageModal(!showDeletePageModal);
   };
 
+  const handleAddNewPostModal = () => {
+    setShowAddSubcontentModal(!showAddSubcontentModal);
+    setShowPageModal(!showPageModal);
+    setAddSubcontentTitle("");
+    setAddSubcontentContent("");
+    setErrors({});
+  };
+
+  const handleAddNewPost = () => {
+    let data = {
+      title: addSubcontentTitle,
+      content: addSubcontentContent,
+    };
+
+    if (data.title === "" && data.content === "") {
+      setErrors({ error: "Please enter either a title or a content" });
+    } else {
+      dispatch(createNewOrientationPost(data, pageModalData.orientationPageID));
+      handleAddNewPostModal();
+    }
+  };
+
   let pages = state.pages.map((page) => {
     return (
       <div
@@ -228,9 +261,17 @@ export default function OrientationPagePreview() {
           {pageModalData.content}
         </p>
         <hr className="border border-solid border-gray-500 border-[1px] w-full my-[2rem]" />
-        <h1 className="text-[20px] font-bold text-[#DFE5F8] text-center mb-[1rem] -mt-[1rem]">
-          Posts
-        </h1>
+        <div className="flex flex-row items-center justify-center space-x-[2rem] mb-[1rem] -mt-[1rem]">
+          <h1 className="text-[20px] font-bold text-[#DFE5F8] text-center]">
+            Posts
+          </h1>
+          <button
+            onClick={handleAddNewPostModal}
+            className="btn-sm btn-square btn p-1 bg-[#07BEB8]"
+          >
+            <img src={add} alt="add" />
+          </button>
+        </div>
         {subcontent}
       </div>
     </div>
@@ -427,6 +468,55 @@ export default function OrientationPagePreview() {
     </div>
   );
 
+  let AddSubcontentModal = (
+    <div
+      className={
+        "modal modal-middle h-auto " +
+        (showAddSubcontentModal ? "modal-open" : "")
+      }
+    >
+      <div className=" modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
+        <button
+          onClick={handleAddNewPostModal}
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+        >
+          ✕
+        </button>
+        <h1 className="text-[24px] text-[#DFE5F8] font-medium mb-[1rem]">
+          Add a new post
+        </h1>
+        <div className="flex flex-col space-y-[1rem]">
+          <TextInput
+            type="text"
+            id="title"
+            placeholder="Enter the post's title here (either one)"
+            className="w-full !bg-[#232F52]"
+            disabled={loading}
+            onChange={(e) => setAddSubcontentTitle(e.target.value)}
+            value={addSubcontentTitle}
+          />
+          <TextInput
+            type="text"
+            id="content"
+            className="w-full !bg-[#232F52]"
+            placeholder="Enter the page's content here (either one)"
+            disabled={loading}
+            onChange={(e) => setAddSubcontentContent(e.target.value)}
+            value={addSubcontentContent}
+            textarea={true}
+          />
+        </div>
+        {errors.error && <ErrorLabel>{errors.error}</ErrorLabel>}
+        <Button
+          onClick={handleAddNewPost}
+          text="create"
+          className="!mt-[0.625rem]"
+          disabled={loading}
+        />
+      </div>
+    </div>
+  );
+
   return (
     <>
       {pages}
@@ -435,6 +525,7 @@ export default function OrientationPagePreview() {
       {EditSubcontentModal}
       {confirmDeleteModal}
       {confirmDeletePageModal}
+      {AddSubcontentModal}
     </>
   );
 }

@@ -16,6 +16,8 @@ import {
   SET_SUBCONTENT_CONTENT,
   DELETE_SUBCONTENT,
   DELETE_ORIENTATION_PAGE,
+  ADD_ORIENTATION_PAGE,
+  ADD_ORIENTATION_POST,
 } from "../types";
 
 const initialState = {
@@ -189,6 +191,24 @@ export default function (state = initialState, action) {
           overview: { ...state.orientation.overview },
           pages: [...action.payload],
         },
+      };
+    case ADD_ORIENTATION_PAGE:
+      state.orientation.pages.unshift(action.payload);
+      return {
+        ...state,
+      };
+    case ADD_ORIENTATION_POST:
+      let orientationPageAddPostIndex = state.orientation.pages.findIndex(
+        (page) => page.orientationPageID === action.payload.orientationPageID
+      );
+      console.log(
+        state.orientation.pages[orientationPageAddPostIndex].subcontent
+      );
+      state.orientation.pages[orientationPageAddPostIndex].subcontent.unshift(
+        action.payload
+      );
+      return {
+        ...state,
       };
     case LOADING_DATA:
       return {

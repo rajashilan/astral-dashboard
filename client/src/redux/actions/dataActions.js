@@ -18,6 +18,8 @@ import {
   SET_SUBCONTENT_CONTENT,
   DELETE_SUBCONTENT,
   DELETE_ORIENTATION_PAGE,
+  ADD_ORIENTATION_PAGE,
+  ADD_ORIENTATION_POST,
 } from "../types";
 import axios from "axios";
 
@@ -360,6 +362,61 @@ export const deleteOrientationPage = (orientationPageID) => (dispatch) => {
       dispatch({ type: STOP_LOADING_DATA });
     });
 };
+
+export const createNewOrientationPage = (data, orientationID) => (dispatch) => {
+  dispatch({ type: LOADING_DATA });
+  const campusID = localStorage.getItem("AdminCampus");
+
+  let pageData = {
+    ...data,
+    orientationPageID: "",
+  };
+
+  axios
+    .post(`/orientation-page/${campusID}/${orientationID}`, data)
+    .then((res) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({ type: CLEAR_GENERAL_ERRORS });
+      pageData.orientationPageID = res.data.orientationPageID;
+      dispatch({ type: ADD_ORIENTATION_PAGE, payload: pageData });
+      alert("Created orientation page successfully");
+    })
+    .catch((error) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: error.response.data.error,
+      });
+      console.error(error);
+    });
+};
+
+export const createNewOrientationPost =
+  (data, orientationPageID) => (dispatch) => {
+    dispatch({ type: LOADING_DATA });
+    const campusID = localStorage.getItem("AdminCampus");
+
+    axios
+      .post(`/subcontent/${campusID}/${orientationPageID}`, data)
+      .then((res) => {
+        dispatch({ type: STOP_LOADING_DATA });
+        dispatch({ type: CLEAR_GENERAL_ERRORS });
+        let payloadData = {
+          ...res.data.subcontent,
+          orientationPageID: orientationPageID,
+        };
+        dispatch({ type: ADD_ORIENTATION_POST, payload: payloadData });
+        alert("Created orientation post successfully");
+      })
+      .catch((error) => {
+        dispatch({ type: STOP_LOADING_DATA });
+        dispatch({
+          type: SET_GENERAL_ERRORS,
+          payload: error.response.data.error,
+        });
+        console.error(error);
+      });
+  };
 
 export const updateAdminsRole = (data) => (dispatch) => {
   dispatch({ type: LOADING_DATA });

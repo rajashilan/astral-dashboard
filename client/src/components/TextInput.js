@@ -12,6 +12,7 @@ function TextInput(props) {
     value,
     textarea,
     onChange,
+    manualErrors,
     ...rest
   } = props;
 
@@ -50,6 +51,9 @@ function TextInput(props) {
     <>
       {input}
       {errors && errors[id] && <ErrorLabel>{errors[id].message}</ErrorLabel>}
+      {manualErrors && manualErrors.error && (
+        <ErrorLabel>{manualErrors.error}</ErrorLabel>
+      )}
     </>
   );
 }
