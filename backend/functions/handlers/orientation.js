@@ -2,6 +2,7 @@ const { admin, db } = require("../utils/admin");
 const firebase = require("firebase");
 const crypto = require("crypto");
 const { FieldValue } = require("firebase-admin/firestore");
+const config = require("../utils/config");
 
 //orientation overview details required:
 //a possible video
@@ -184,6 +185,7 @@ exports.createNewSubcontent = (req, res) => {
   let data = {
     title: req.body.title,
     content: req.body.content,
+    image: req.body.image,
     subcontentID: crypto.randomBytes(10).toString("hex"),
     createdAt: new Date().toISOString(),
   };
@@ -363,4 +365,76 @@ exports.deleteOrientationPage = (req, res) => {
       console.error(error);
       return res.status(500).json({ error: "Something went wrong" });
     });
+};
+
+//upload image for posts
+
+//pass the folder name and the document collection name
+//use these values to upload to storage and update firestore
+exports.uploadPostImage = (req, res) => {
+  const BusBoy = require("busboy");
+  const path = require("path");
+  const os = require("os");
+  const fs = require("fs");
+
+  let request = "";
+
+  if (req.body.type === "orientationPost") request = "orientation%2Fpages%2F";
+  else if (req.body.type === "orientationOverview")
+    request = "orientation%overview%2F";
+
+  //need to get details from orientationPageID first
+  //look for the particular subcontent using subcontentID
+  //and update the subcontent
+
+  const busboy = new BusBoy({ headers: req.headers });
+
+  let imageFileName;
+  let imageToBeUploaded = {};
+  let imageUrl;
+
+  busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
+    if (mimetype !== "image/jpeg" && mimetype !== "image/png") {
+      return res.status(400).json({ error: "Wrong file type submitted" });
+    }
+
+    const imageExtension = filename.split(".")[filename.split(".").length - 1];
+
+    const randomNum = crypto.randomBytes(10).toString("hex");
+
+    imageFileName = `${randomNum}.${imageExtension}`;
+    const filepath = path.join(os.tmpdir(), imageFileName);
+
+    imageToBeUploaded = {
+      filepath,
+      mimetype,
+    };
+
+    file.pipe(fs.createWriteStream(filepath));
+  });
+
+  busboy.on("finish", () => {
+    admin
+      .storage()
+      .bucket()
+      .upload(imageToBeUploaded.filepath, {
+        destination: "orientation/pages/" + imageFileName,
+        resumable: false,
+        metadata: {
+          metadata: {
+            contentType: imageToBeUploaded.mimetype,
+          },
+        },
+      })
+      .then(() => {
+        imageUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${request}${imageFileName}?alt=media`;
+
+        return res.status(201).json({ downloadUrl: imageUrl });
+      })
+      .catch((error) => {
+        console.error(error);
+        return res.status(500).json({ error: error.code });
+      });
+  });
+  busboy.end(req.rawBody);
 };
