@@ -18,6 +18,7 @@ import {
   DELETE_ORIENTATION_PAGE,
   ADD_ORIENTATION_PAGE,
   ADD_ORIENTATION_POST,
+  SET_SUBCONTENT_IMAGE,
 } from "../types";
 
 const initialState = {
@@ -151,6 +152,28 @@ export default function (state = initialState, action) {
       ] = {
         ...state.orientation.pages[subcontentPageIndexContent].subcontent[
           subContentIndexContent
+        ],
+        content: action.payload.content,
+      };
+      return {
+        ...state,
+      };
+    case SET_SUBCONTENT_IMAGE:
+      let subcontentPageIndexImage = state.orientation.pages.findIndex(
+        (page) => page.orientationPageID === action.payload.orientationPageID
+      );
+
+      let subcontentIndexImage = state.orientation.pages[
+        subcontentPageIndexImage
+      ].subcontent.findIndex(
+        (subcontent) => subcontent.subcontentID === action.payload.subcontentID
+      );
+
+      state.orientation.pages[subcontentPageIndexImage].subcontent[
+        subcontentIndexImage
+      ] = {
+        ...state.orientation.pages[subcontentPageIndexImage].subcontent[
+          subcontentIndexImage
         ],
         content: action.payload.content,
       };

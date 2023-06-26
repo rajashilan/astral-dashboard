@@ -9,6 +9,7 @@ import {
   updateOrientationPagesHeader,
   updateOrientationPagesTitle,
   updateSubcontentContent,
+  updateSubcontentImage,
   updateSubcontentTitle,
 } from "../redux/actions/dataActions";
 
@@ -179,7 +180,15 @@ export default function OrientationPagePreview() {
     setShowPageModal(!showPageModal);
     setAddSubcontentTitle("");
     setAddSubcontentContent("");
-    // setImage(null);
+    setErrors({});
+  };
+
+  const handleAddNewPostModalImageNull = () => {
+    setShowAddSubcontentModal(!showAddSubcontentModal);
+    setShowPageModal(!showPageModal);
+    setAddSubcontentTitle("");
+    setAddSubcontentContent("");
+    setImage(null);
     setErrors({});
   };
 
@@ -221,6 +230,7 @@ export default function OrientationPagePreview() {
             console.error(error);
             dispatch({ type: STOP_LOADING_DATA });
           });
+        setImage(null);
       } else {
         dispatch(
           createNewOrientationPost(data, pageModalData.orientationPageID)
@@ -238,6 +248,50 @@ export default function OrientationPagePreview() {
   const handleImageChange = (event) => {
     const image = event.target.files[0];
     setImage(image);
+  };
+
+  //for editing image and files,
+  //upon setting the image, instantly update the image
+  //same thing goes for files
+
+  const handleUpdateImage = () => {
+    const fileInput = document.getElementById("imageUpdate");
+    fileInput.click();
+  };
+
+  const handleUpdateImageChange = (event) => {
+    const image = event.target.files[0];
+
+    const campusID = localStorage.getItem("AdminCampus");
+
+    const formData = new FormData();
+    formData.append("image", image, image.name);
+
+    let data = {
+      image: "",
+    };
+
+    dispatch({ type: LOADING_DATA });
+    axios
+      .post(`/subcontent-image/${campusID}`, formData)
+      .then((res) => {
+        data.image = res.data.downloadUrl;
+        return data;
+      })
+      .then((data) => {
+        //dispatch edit image function
+        dispatch(
+          updateSubcontentImage(
+            data,
+            pageModalData.orientationPageID,
+            subcontentModalData.subcontentID
+          )
+        );
+      })
+      .catch((error) => {
+        console.error(error);
+        dispatch({ type: STOP_LOADING_DATA });
+      });
   };
 
   let pages = state.pages.map((page) => {
@@ -286,10 +340,11 @@ export default function OrientationPagePreview() {
   let Modal = (
     <div
       className={
-        "modal modal-middle h-auto " + (showPageModal ? "modal-open" : "")
+        "modal modal-middle h-auto w-[100%] " +
+        (showPageModal ? "modal-open" : "")
       }
     >
-      <div className=" modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
+      <div className="w-9/12 max-w-3xl modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
         <button
           onClick={() => setShowPageModal(!showPageModal)}
           className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
@@ -398,9 +453,12 @@ export default function OrientationPagePreview() {
         (showEditSubcontentModal ? "modal-open" : "")
       }
     >
-      <div className=" modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
+      <div className="modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
         <button
-          onClick={justShowEditSubcontentData}
+          onClick={() => {
+            justShowEditSubcontentData();
+            setImage(null);
+          }}
           className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
         >
           ✕
@@ -424,19 +482,70 @@ export default function OrientationPagePreview() {
           onChange={(e) => setEditSubcontentTitle(e.target.value)}
           value={editSubcontentTitle}
         />
-        <TextInput
-          type="text"
-          id="content"
-          className="w-full !bg-[#232F52]"
-          placeholder={
-            subcontentModalData.content
-              ? subcontentModalData.content
-              : "Add your post content here"
-          }
+        <div className="h-full">
+          <TextInput
+            type="text"
+            id="content"
+            className="w-full !bg-[#232F52]"
+            placeholder={
+              subcontentModalData.content
+                ? subcontentModalData.content
+                : "Add your post content here"
+            }
+            disabled={loading}
+            onChange={(e) => setEditSubcontentContent(e.target.value)}
+            textarea={true}
+            value={editSubcontentContent}
+          />
+        </div>
+        {subcontentModalData.image ? (
+          <>
+            <WarningLabel className="!text-gray-300 !text-center">
+              Click on image to replace
+            </WarningLabel>
+            <img
+              onClick={handleUpdateImage}
+              className="my-[0.5rem] w-full h-auto cursor-pointer"
+              src={subcontentModalData.image}
+              alt="image"
+            />
+            <input
+              type="file"
+              id="imageUpdate"
+              accept="image/*"
+              onChange={handleUpdateImageChange}
+              hidden="hidden"
+            />
+          </>
+        ) : (
+          <>
+            <Button
+              onClick={handleUploadImage}
+              text={image ? "choose another image" : "upload image"}
+              className="!mt-[0.625rem] !bg-[#C4FFF9]"
+              disabled={loading}
+            />
+            <input
+              type="file"
+              id="imageInput"
+              accept="image/*"
+              onChange={handleImageChange}
+              hidden="hidden"
+            />
+          </>
+        )}
+        <Button
+          onClick={handleUploadImage}
+          text={image ? "choose another file" : "upload file"}
+          className="!mt-[0.625rem] !bg-[#C4FFF9]"
           disabled={loading}
-          onChange={(e) => setEditSubcontentContent(e.target.value)}
-          textarea={true}
-          value={editSubcontentContent}
+        />
+        <input
+          type="file"
+          id="imageInput"
+          accept="image/*"
+          onChange={handleImageChange}
+          hidden="hidden"
         />
         {editSubcontentTitle !== "" || editSubcontentContent !== "" ? (
           <Button
@@ -534,7 +643,7 @@ export default function OrientationPagePreview() {
     >
       <div className=" modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
         <button
-          onClick={handleAddNewPostModal}
+          onClick={handleAddNewPostModalImageNull}
           className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
         >
           ✕
