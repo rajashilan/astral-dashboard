@@ -175,7 +175,7 @@ export default function (state = initialState, action) {
         ...state.orientation.pages[subcontentPageIndexImage].subcontent[
           subcontentIndexImage
         ],
-        content: action.payload.content,
+        image: action.payload.image,
       };
       return {
         ...state,

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -52,9 +52,6 @@ export default function OrientationPagePreview() {
   const [errors, setErrors] = useState({});
 
   const [image, setImage] = useState(null);
-
-  //subcontent
-  //title and content are both optional but must have at least one
 
   const handleShowPageModal = (id) => {
     let data;
@@ -276,6 +273,7 @@ export default function OrientationPagePreview() {
       .post(`/subcontent-image/${campusID}`, formData)
       .then((res) => {
         data.image = res.data.downloadUrl;
+        subcontentModalData.image = data.image;
         return data;
       })
       .then((data) => {
