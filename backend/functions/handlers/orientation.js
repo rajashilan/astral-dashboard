@@ -122,6 +122,9 @@ exports.createOrientationPage = (req, res) => {
     title: req.body.title,
     header: req.body.header,
     content: req.body.content,
+    video: req.body.video,
+    image: req.body.image,
+    files: req.body.files,
     subcontent: [],
   };
 
@@ -186,6 +189,7 @@ exports.createNewSubcontent = (req, res) => {
     title: req.body.title,
     content: req.body.content,
     image: req.body.image,
+    files: req.body.files,
     subcontentID: crypto.randomBytes(10).toString("hex"),
     createdAt: new Date().toISOString(),
   };
@@ -371,17 +375,15 @@ exports.deleteOrientationPage = (req, res) => {
 
 //pass the folder name and the document collection name
 //use these values to upload to storage and update firestore
-exports.uploadPostImage = (req, res) => {
+exports.uploadOrientationPostImage = (req, res) => {
   const BusBoy = require("busboy");
   const path = require("path");
   const os = require("os");
   const fs = require("fs");
 
-  let request = "";
+  console.log(req.headers);
 
-  if (req.body.type === "orientationPost") request = "orientation%2Fpages%2F";
-  else if (req.body.type === "orientationOverview")
-    request = "orientation%overview%2F";
+  let request = "orientation%2Fpages%2Fimages%2F";
 
   //need to get details from orientationPageID first
   //look for the particular subcontent using subcontentID
@@ -418,7 +420,7 @@ exports.uploadPostImage = (req, res) => {
       .storage()
       .bucket()
       .upload(imageToBeUploaded.filepath, {
-        destination: "orientation/pages/" + imageFileName,
+        destination: "orientation/pages/images/" + imageFileName,
         resumable: false,
         metadata: {
           metadata: {
@@ -430,6 +432,73 @@ exports.uploadPostImage = (req, res) => {
         imageUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${request}${imageFileName}?alt=media`;
 
         return res.status(201).json({ downloadUrl: imageUrl });
+      })
+      .catch((error) => {
+        console.error(error);
+        return res.status(500).json({ error: error.code });
+      });
+  });
+  busboy.end(req.rawBody);
+};
+
+exports.uploadOrientationPostFile = (req, res) => {
+  const BusBoy = require("busboy");
+  const path = require("path");
+  const os = require("os");
+  const fs = require("fs");
+
+  let request = "orientation%2Fpages%2Ffiles%2F";
+
+  //need to get details from orientationPageID first
+  //look for the particular subcontent using subcontentID
+  //and update the subcontent
+
+  const busboy = new BusBoy({ headers: req.headers });
+
+  let imageFileName;
+  let imageToBeUploaded = {};
+  let imageUrl;
+
+  busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
+    console.log(mimetype);
+    if (mimetype === "image/jpeg" || mimetype === "image/png") {
+      return res.status(400).json({ error: "Wrong file type submitted" });
+    }
+
+    const imageExtension = filename.split(".")[filename.split(".").length - 1];
+
+    const randomNum = crypto.randomBytes(10).toString("hex");
+
+    imageFileName = `${randomNum}.${imageExtension}`;
+    const filepath = path.join(os.tmpdir(), imageFileName);
+
+    imageToBeUploaded = {
+      filepath,
+      mimetype,
+    };
+
+    console.log(imageToBeUploaded);
+
+    file.pipe(fs.createWriteStream(filepath));
+  });
+
+  busboy.on("finish", () => {
+    admin
+      .storage()
+      .bucket()
+      .upload(imageToBeUploaded.filepath, {
+        destination: "orientation/pages/files/" + imageFileName,
+        resumable: false,
+        metadata: {
+          metadata: {
+            contentType: imageToBeUploaded.mimetype,
+          },
+        },
+      })
+      .then(() => {
+        fileUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${request}${imageFileName}?alt=media`;
+
+        return res.status(201).json({ downloadUrl: fileUrl });
       })
       .catch((error) => {
         console.error(error);
