@@ -355,6 +355,36 @@ exports.editSubcontentContent = (req, res) => {
     });
 };
 
+//edit subcontent content
+exports.editSubcontentImage = (req, res) => {
+  const orientationPageID = req.params.orientationPageID;
+  const subcontentID = req.params.subcontentID;
+
+  db.doc(`/orientationPages/${orientationPageID}`)
+    .get()
+    .then((doc) => {
+      let subcontent = doc.data().subcontent;
+
+      index = subcontent.findIndex(
+        (subcontent) => subcontent.subcontentID === subcontentID
+      );
+      subcontent[index].image = req.body.image;
+
+      return db
+        .doc(`/orientationPages/${orientationPageID}`)
+        .update({ subcontent: subcontent });
+    })
+    .then(() => {
+      return res
+        .status(200)
+        .json({ message: "Subcontent image updated successfully" });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
 //delete orientation page
 exports.deleteOrientationPage = (req, res) => {
   const orientationPageID = req.params.orientationPageID;
