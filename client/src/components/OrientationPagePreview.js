@@ -19,6 +19,10 @@ import add from "../assets/add.svg";
 import TextInput from "../components/TextInput";
 import Button from "../components/Button";
 import ErrorLabel from "./ErrorLabel";
+import WarningLabel from "./WarningLabel";
+
+import axios from "axios";
+import { LOADING_DATA, STOP_LOADING_DATA } from "../redux/types";
 
 export default function OrientationPagePreview() {
   const dispatch = useDispatch();
@@ -45,6 +49,8 @@ export default function OrientationPagePreview() {
   const [addSubcontentTitle, setAddSubcontentTitle] = useState("");
   const [addSubcontentContent, setAddSubcontentContent] = useState("");
   const [errors, setErrors] = useState({});
+
+  const [image, setImage] = useState(null);
 
   //subcontent
   //title and content are both optional but must have at least one
@@ -173,6 +179,7 @@ export default function OrientationPagePreview() {
     setShowPageModal(!showPageModal);
     setAddSubcontentTitle("");
     setAddSubcontentContent("");
+    // setImage(null);
     setErrors({});
   };
 
@@ -180,14 +187,57 @@ export default function OrientationPagePreview() {
     let data = {
       title: addSubcontentTitle,
       content: addSubcontentContent,
+      image: "",
+      files: [],
     };
 
     if (data.title === "" && data.content === "") {
       setErrors({ error: "Please enter either a title or a content" });
     } else {
-      dispatch(createNewOrientationPost(data, pageModalData.orientationPageID));
-      handleAddNewPostModal();
+      //files can only be uploaded after
+
+      if (image) {
+        //get download url
+
+        const campusID = localStorage.getItem("AdminCampus");
+
+        const formData = new FormData();
+        formData.append("image", image, image.name);
+
+        dispatch({ type: LOADING_DATA });
+        axios
+          .post(`/subcontent-image/${campusID}`, formData)
+          .then((res) => {
+            data.image = res.data.downloadUrl;
+            return data;
+          })
+          .then((data) => {
+            dispatch(
+              createNewOrientationPost(data, pageModalData.orientationPageID)
+            );
+            handleAddNewPostModal();
+          })
+          .catch((error) => {
+            console.error(error);
+            dispatch({ type: STOP_LOADING_DATA });
+          });
+      } else {
+        dispatch(
+          createNewOrientationPost(data, pageModalData.orientationPageID)
+        );
+        handleAddNewPostModal();
+      }
     }
+  };
+
+  const handleUploadImage = () => {
+    const fileInput = document.getElementById("imageInput");
+    fileInput.click();
+  };
+
+  const handleImageChange = (event) => {
+    const image = event.target.files[0];
+    setImage(image);
   };
 
   let pages = state.pages.map((page) => {
@@ -222,6 +272,13 @@ export default function OrientationPagePreview() {
           <h2 className="text-[16px] font-normal text-[#DFE5F8] text-left">
             {content.content}
           </h2>
+          {content.image && (
+            <img
+              className="my-[0.5rem] w-full h-auto"
+              src={content.image}
+              alt="image"
+            />
+          )}
         </div>
       );
     });
@@ -506,6 +563,22 @@ export default function OrientationPagePreview() {
             textarea={true}
           />
         </div>
+        <Button
+          onClick={handleUploadImage}
+          text={image ? "choose another image" : "upload image"}
+          className="!mt-[0.625rem] !bg-[#C4FFF9]"
+          disabled={loading}
+        />
+        <input
+          type="file"
+          id="imageInput"
+          accept="image/*"
+          onChange={handleImageChange}
+          hidden="hidden"
+        />
+        <WarningLabel className="!text-gray-300 !text-center">
+          Files can only be uploaded after creating a post
+        </WarningLabel>
         {errors.error && <ErrorLabel>{errors.error}</ErrorLabel>}
         <Button
           onClick={handleAddNewPost}

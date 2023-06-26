@@ -370,6 +370,7 @@ export const createNewOrientationPage = (data, orientationID) => (dispatch) => {
   let pageData = {
     ...data,
     orientationPageID: "",
+    subcontent: [],
   };
 
   axios
