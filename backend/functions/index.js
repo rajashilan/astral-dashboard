@@ -184,8 +184,8 @@ app.post(
   editSubcontentFile
 );
 
-app.delete(
-  "/subcontent-file/:campusID/:orientationPageID/:subcontentID",
+app.post(
+  "/subcontent-file-delete/:campusID/:orientationPageID/:subcontentID",
   sudoAdminAuth,
   deleteSubcontentFile
 );

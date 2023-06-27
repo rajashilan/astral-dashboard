@@ -430,6 +430,8 @@ exports.deleteSubcontentFile = (req, res) => {
   const subcontentID = req.params.subcontentID;
   const url = req.body.url;
 
+  console.log(req.body.url);
+
   db.doc(`/orientationPages/${orientationPageID}`)
     .get()
     .then((doc) => {
@@ -442,6 +444,8 @@ exports.deleteSubcontentFile = (req, res) => {
       let temp = subcontent[index].files;
       fileIndex = temp.findIndex((file) => file.url === url);
       temp.splice(fileIndex, 1);
+
+      console.log(fileIndex);
 
       subcontent[index].files = [...temp];
 
