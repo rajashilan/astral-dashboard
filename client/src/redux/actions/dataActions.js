@@ -21,6 +21,7 @@ import {
   ADD_ORIENTATION_PAGE,
   ADD_ORIENTATION_POST,
   SET_SUBCONTENT_IMAGE,
+  SET_SUBCONTENT_FILE,
 } from "../types";
 import axios from "axios";
 
@@ -327,6 +328,44 @@ export const updateSubcontentImage =
           payload: payload,
         });
         alert("Post image updated successfully");
+      })
+      .catch((error) => {
+        dispatch({
+          type: SET_GENERAL_ERRORS,
+          payload: error.response.data.error,
+        });
+        console.error(error);
+        dispatch({ type: STOP_LOADING_DATA });
+      });
+  };
+
+export const updateSubcontentFile =
+  (data, orientationPageID, subcontentID) => (dispatch) => {
+    dispatch({ type: LOADING_DATA });
+    const campusID = localStorage.getItem("AdminCampus");
+
+    let payload = {
+      data: {
+        url: data.file,
+        filename: data.filename,
+      },
+      orientationPageID: orientationPageID,
+      subcontentID: subcontentID,
+    };
+
+    axios
+      .post(
+        `/subcontent-file/${campusID}/${orientationPageID}/${subcontentID}`,
+        data
+      )
+      .then((res) => {
+        dispatch({ type: STOP_LOADING_DATA });
+        dispatch({ type: CLEAR_GENERAL_ERRORS });
+        dispatch({
+          type: SET_SUBCONTENT_FILE,
+          payload: payload,
+        });
+        alert("Post file updated successfully");
       })
       .catch((error) => {
         dispatch({

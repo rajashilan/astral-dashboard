@@ -19,6 +19,7 @@ import {
   ADD_ORIENTATION_PAGE,
   ADD_ORIENTATION_POST,
   SET_SUBCONTENT_IMAGE,
+  SET_SUBCONTENT_FILE,
 } from "../types";
 
 const initialState = {
@@ -176,6 +177,36 @@ export default function (state = initialState, action) {
           subcontentIndexImage
         ],
         image: action.payload.image,
+      };
+      return {
+        ...state,
+      };
+    case SET_SUBCONTENT_FILE:
+      let subcontentPageIndexFile = state.orientation.pages.findIndex(
+        (page) => page.orientationPageID === action.payload.orientationPageID
+      );
+
+      let subcontentIndexFile = state.orientation.pages[
+        subcontentPageIndexFile
+      ].subcontent.findIndex(
+        (subcontent) => subcontent.subcontentID === action.payload.subcontentID
+      );
+
+      let temp =
+        state.orientation.pages[subcontentPageIndexFile].subcontent[
+          subcontentIndexFile
+        ].files;
+
+      if (temp.length === 0) temp.push(action.payload.data);
+      else temp.unshift(action.payload.data);
+
+      state.orientation.pages[subcontentPageIndexFile].subcontent[
+        subcontentIndexFile
+      ] = {
+        ...state.orientation.pages[subcontentPageIndexFile].subcontent[
+          subcontentIndexFile
+        ],
+        files: [...temp],
       };
       return {
         ...state,

@@ -9,6 +9,7 @@ import {
   updateOrientationPagesHeader,
   updateOrientationPagesTitle,
   updateSubcontentContent,
+  updateSubcontentFile,
   updateSubcontentImage,
   updateSubcontentTitle,
 } from "../redux/actions/dataActions";
@@ -292,6 +293,52 @@ export default function OrientationPagePreview() {
       });
   };
 
+  //files will be an array
+  //files will only be allowed to be uploaded one by one
+  //when a new file is uploaded, unshift to the files array for the subcontent
+
+  const handleUpdateFile = () => {
+    const fileInput = document.getElementById("fileUpdate");
+    fileInput.click();
+  };
+
+  const handleUpdateFileChange = (event) => {
+    const file = event.target.files[0];
+
+    const campusID = localStorage.getItem("AdminCampus");
+
+    const formData = new FormData();
+    formData.append("file", file, file.name);
+
+    let data = {
+      file: "",
+      filename: "",
+    };
+
+    dispatch({ type: LOADING_DATA });
+    axios
+      .post(`/subcontent-file/${campusID}`, formData)
+      .then((res) => {
+        data.file = res.data.downloadUrl;
+        data.filename = res.data.filename;
+        return data;
+      })
+      .then((data) => {
+        //dispatch edit file function
+        dispatch(
+          updateSubcontentFile(
+            data,
+            pageModalData.orientationPageID,
+            subcontentModalData.subcontentID
+          )
+        );
+      })
+      .catch((error) => {
+        console.error(error);
+        dispatch({ type: STOP_LOADING_DATA });
+      });
+  };
+
   let pages = state.pages.map((page) => {
     return (
       <div
@@ -331,6 +378,17 @@ export default function OrientationPagePreview() {
               alt="image"
             />
           )}
+          {content.files.map((file) => {
+            return (
+              <a
+                href={file.url}
+                target="_blank"
+                className="text-[18px] mt-[0.5rem] font-medium text-[#BE5007] text-left clamp-1"
+              >
+                {file.filename}
+              </a>
+            );
+          })}
         </div>
       );
     });
@@ -503,7 +561,7 @@ export default function OrientationPagePreview() {
             </WarningLabel>
             <img
               onClick={handleUpdateImage}
-              className="my-[0.5rem] w-full h-auto cursor-pointer"
+              className="mt-[0.5rem] w-full h-auto cursor-pointer mb-[2rem]"
               src={subcontentModalData.image}
               alt="image"
             />
@@ -520,7 +578,7 @@ export default function OrientationPagePreview() {
             <Button
               onClick={handleUploadImage}
               text={image ? "choose another image" : "upload image"}
-              className="!mt-[0.625rem] !bg-[#C4FFF9]"
+              className="!mt-[0.625rem] !mb-[2rem] !bg-[#C4FFF9]"
               disabled={loading}
             />
             <input
@@ -532,17 +590,37 @@ export default function OrientationPagePreview() {
             />
           </>
         )}
+        {subcontentModalData.files &&
+          subcontentModalData.files.map((file) => {
+            return (
+              <div className="flex flex-row items-center justify-between">
+                <a
+                  href={file.url}
+                  target="_blank"
+                  className="text-[18px] font-medium text-[#BE5007] text-left clamp-1 w-[84%]"
+                >
+                  {file.filename}
+                </a>
+                <button
+                  onClick={handleDeletePageModal}
+                  className="btn-sm btn-square btn p-1 bg-red-700"
+                >
+                  <img src={bin} alt="delete" />
+                </button>
+              </div>
+            );
+          })}
+
         <Button
-          onClick={handleUploadImage}
+          onClick={handleUpdateFile}
           text={image ? "choose another file" : "upload file"}
           className="!mt-[0.625rem] !bg-[#C4FFF9]"
           disabled={loading}
         />
         <input
           type="file"
-          id="imageInput"
-          accept="image/*"
-          onChange={handleImageChange}
+          id="fileUpdate"
+          onChange={handleUpdateFileChange}
           hidden="hidden"
         />
         {editSubcontentTitle !== "" || editSubcontentContent !== "" ? (
