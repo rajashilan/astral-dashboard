@@ -537,7 +537,7 @@ exports.uploadOrientationPostFile = (req, res) => {
     }
 
     const imageExtension = filename.split(".")[filename.split(".").length - 1];
-    originalImageFileName = path.parse(filename).name;
+    originalImageFileName = filename;
 
     const randomNum = crypto.randomBytes(10).toString("hex");
 
