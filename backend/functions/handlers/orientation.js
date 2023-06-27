@@ -528,6 +528,7 @@ exports.uploadOrientationPostFile = (req, res) => {
   let imageFileName;
   let imageToBeUploaded = {};
   let imageUrl;
+  let originalImageFileName = "";
 
   busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
     console.log(mimetype);
@@ -536,6 +537,7 @@ exports.uploadOrientationPostFile = (req, res) => {
     }
 
     const imageExtension = filename.split(".")[filename.split(".").length - 1];
+    originalImageFileName = path.parse(filename).name;
 
     const randomNum = crypto.randomBytes(10).toString("hex");
 
@@ -568,7 +570,9 @@ exports.uploadOrientationPostFile = (req, res) => {
       .then(() => {
         fileUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${request}${imageFileName}?alt=media`;
 
-        return res.status(201).json({ downloadUrl: fileUrl });
+        return res
+          .status(201)
+          .json({ downloadUrl: fileUrl, filename: originalImageFileName });
       })
       .catch((error) => {
         console.error(error);
