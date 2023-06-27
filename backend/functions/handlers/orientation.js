@@ -355,7 +355,7 @@ exports.editSubcontentContent = (req, res) => {
     });
 };
 
-//edit subcontent content
+//edit subcontent image
 exports.editSubcontentImage = (req, res) => {
   const orientationPageID = req.params.orientationPageID;
   const subcontentID = req.params.subcontentID;
@@ -378,6 +378,41 @@ exports.editSubcontentImage = (req, res) => {
       return res
         .status(200)
         .json({ message: "Subcontent image updated successfully" });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
+//edit subcontent file
+exports.editSubcontentFile = (req, res) => {
+  const orientationPageID = req.params.orientationPageID;
+  const subcontentID = req.params.subcontentID;
+
+  db.doc(`/orientationPages/${orientationPageID}`)
+    .get()
+    .then((doc) => {
+      let subcontent = doc.data().subcontent;
+
+      index = subcontent.findIndex(
+        (subcontent) => subcontent.subcontentID === subcontentID
+      );
+
+      let temp = subcontent[index].files;
+      if (temp.length === 0) temp.push(req.body.file);
+      else temp.unshift(req.body.file);
+
+      subcontent[index].files = [...temp];
+
+      return db
+        .doc(`/orientationPages/${orientationPageID}`)
+        .update({ subcontent: subcontent });
+    })
+    .then(() => {
+      return res
+        .status(200)
+        .json({ message: "Subcontent file updated successfully" });
     })
     .catch((error) => {
       console.error(error);
