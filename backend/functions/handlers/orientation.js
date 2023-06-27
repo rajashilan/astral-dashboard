@@ -390,6 +390,11 @@ exports.editSubcontentFile = (req, res) => {
   const orientationPageID = req.params.orientationPageID;
   const subcontentID = req.params.subcontentID;
 
+  let file = {
+    url: req.body.file,
+    filename: req.body.filename,
+  };
+
   db.doc(`/orientationPages/${orientationPageID}`)
     .get()
     .then((doc) => {
@@ -400,8 +405,8 @@ exports.editSubcontentFile = (req, res) => {
       );
 
       let temp = subcontent[index].files;
-      if (temp.length === 0) temp.push(req.body.file);
-      else temp.unshift(req.body.file);
+      if (temp.length === 0) temp.push(file);
+      else temp.unshift(file);
 
       subcontent[index].files = [...temp];
 
