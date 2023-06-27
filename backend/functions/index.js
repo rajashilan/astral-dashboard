@@ -60,6 +60,7 @@ const {
   uploadOrientationPostFile,
   editSubcontentImage,
   editSubcontentFile,
+  deleteSubcontentFile,
 } = require("./handlers/orientation");
 
 app.use(
@@ -181,6 +182,12 @@ app.post(
   "/subcontent-file/:campusID/:orientationPageID/:subcontentID",
   sudoAdminAuth,
   editSubcontentFile
+);
+
+app.delete(
+  "/subcontent-file/:campusID/:orientationPageID/:subcontentID",
+  sudoAdminAuth,
+  deleteSubcontentFile
 );
 
 app.delete(

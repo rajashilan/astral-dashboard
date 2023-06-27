@@ -425,6 +425,41 @@ exports.editSubcontentFile = (req, res) => {
     });
 };
 
+exports.deleteSubcontentFile = (req, res) => {
+  const orientationPageID = req.params.orientationPageID;
+  const subcontentID = req.params.subcontentID;
+  const url = req.body.url;
+
+  db.doc(`/orientationPages/${orientationPageID}`)
+    .get()
+    .then((doc) => {
+      let subcontent = doc.data().subcontent;
+
+      index = subcontent.findIndex(
+        (subcontent) => subcontent.subcontentID === subcontentID
+      );
+
+      let temp = subcontent[index].files;
+      fileIndex = temp.findIndex((file) => file.url === url);
+      temp.splice(fileIndex, 1);
+
+      subcontent[index].files = [...temp];
+
+      return db
+        .doc(`/orientationPages/${orientationPageID}`)
+        .update({ subcontent: subcontent });
+    })
+    .then(() => {
+      return res
+        .status(200)
+        .json({ message: "Subcontent file deleted successfully" });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
 //delete orientation page
 exports.deleteOrientationPage = (req, res) => {
   const orientationPageID = req.params.orientationPageID;
