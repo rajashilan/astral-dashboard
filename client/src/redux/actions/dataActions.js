@@ -22,6 +22,7 @@ import {
   ADD_ORIENTATION_POST,
   SET_SUBCONTENT_IMAGE,
   SET_SUBCONTENT_FILE,
+  DELETE_SUBCONTENT_FILE,
 } from "../types";
 import axios from "axios";
 
@@ -372,6 +373,40 @@ export const updateSubcontentFile =
           type: SET_GENERAL_ERRORS,
           payload: error.response.data.error,
         });
+        console.error(error);
+        dispatch({ type: STOP_LOADING_DATA });
+      });
+  };
+
+export const deleteSubcontentFile =
+  (data, orientationPageID, subcontentID) => (dispatch) => {
+    dispatch({ type: LOADING_DATA });
+    const campusID = localStorage.getItem("AdminCampus");
+
+    axios
+      .post(
+        `/subcontent-file-delete/${campusID}/${orientationPageID}/${subcontentID}`,
+        data
+      )
+      .then((res) => {
+        dispatch({ type: STOP_LOADING_DATA });
+        dispatch({ type: CLEAR_GENERAL_ERRORS });
+        let payload = {
+          files: { ...res.data.files },
+          url: data.url,
+          subcontentID,
+          orientationPageID,
+        };
+        dispatch({
+          type: DELETE_SUBCONTENT_FILE,
+          payload: payload,
+        });
+      })
+      .catch((error) => {
+        // dispatch({
+        //   type: SET_GENERAL_ERRORS,
+        //   payload: error.response.data.error,
+        // });
         console.error(error);
         dispatch({ type: STOP_LOADING_DATA });
       });

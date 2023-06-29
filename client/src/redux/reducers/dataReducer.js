@@ -20,6 +20,7 @@ import {
   ADD_ORIENTATION_POST,
   SET_SUBCONTENT_IMAGE,
   SET_SUBCONTENT_FILE,
+  DELETE_SUBCONTENT_FILE,
 } from "../types";
 
 const initialState = {
@@ -210,6 +211,45 @@ export default function (state = initialState, action) {
       };
       return {
         ...state,
+      };
+    case DELETE_SUBCONTENT_FILE:
+      let deleteSubcontentPageFileIndex = state.orientation.pages.findIndex(
+        (page) => page.orientationPageID === action.payload.orientationPageID
+      );
+
+      let deleteSubcontentFileIndex = state.orientation.pages[
+        deleteSubcontentPageFileIndex
+      ].subcontent.findIndex(
+        (subcontent) => subcontent.subcontentID === action.payload.subcontentID
+      );
+
+      let deleteSubcontentFileTemp =
+        state.orientation.pages[deleteSubcontentPageFileIndex].subcontent[
+          deleteSubcontentFileIndex
+        ].files;
+
+      let subcontentFileToDelete = deleteSubcontentFileTemp.findIndex(
+        (file) => file.url === action.payload.url
+      );
+
+      deleteSubcontentFileTemp.splice(subcontentFileToDelete, 1);
+
+      let pages = [...state.orientation.pages];
+
+      pages[deleteSubcontentPageFileIndex].subcontent[
+        deleteSubcontentFileIndex
+      ] = {
+        ...pages[deleteSubcontentPageFileIndex].subcontent[
+          deleteSubcontentFileIndex
+        ],
+        files: [...deleteSubcontentFileTemp],
+      };
+      return {
+        ...state,
+        orientation: {
+          overview: { ...state.orientation.overview },
+          pages: [...pages],
+        },
       };
     case DELETE_SUBCONTENT:
       let deleteSubcontentPageIndex = state.orientation.pages.findIndex(
