@@ -437,7 +437,7 @@ exports.deleteSubcontentFile = (req, res) => {
     .then((doc) => {
       let subcontent = doc.data().subcontent;
 
-      index = subcontent.findIndex(
+      let index = subcontent.findIndex(
         (subcontent) => subcontent.subcontentID === subcontentID
       );
 
@@ -454,9 +454,16 @@ exports.deleteSubcontentFile = (req, res) => {
         .update({ subcontent: subcontent });
     })
     .then(() => {
-      return res
-        .status(200)
-        .json({ message: "Subcontent file deleted successfully" });
+      return db.doc(`/orientationPages/${orientationPageID}`).get();
+    })
+    .then((doc) => {
+      //return only the new subcontent files data
+      let subcontent = doc.data().subcontent;
+      let index = subcontent.findIndex(
+        (subcontent) => subcontent.subcontentID === subcontentID
+      );
+      console.log(subcontent[index].files);
+      return res.status(200).json({ files: subcontent[index].files });
     })
     .catch((error) => {
       console.error(error);

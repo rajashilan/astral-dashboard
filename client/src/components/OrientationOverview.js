@@ -51,7 +51,7 @@ export default function OrientationOverview() {
   };
 
   return (
-    <div className="mt-[26px] items-center overflow-hidden shadow-md sm:rounded-lg">
+    <div className="mt-[26px] items-center">
       <form
         className="w-full flex flex-col items-center"
         onSubmit={handleSubmit(onFormSubmit)}

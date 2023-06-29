@@ -25,8 +25,8 @@ export default function College() {
     "cursor-pointer inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-[#DFE5F8] hover:[#DFE5F8] hover:";
 
   return (
-    <main className="items-center flex flex-col px-[32px] h-screen bg-[#0C111F]">
-      <div className="absolute top-[100px] flex flex-col items-center bg-[#131A2E] px-[140px] py-[60px] w-auto rounded-lg">
+    <main className="items-center flex flex-col min-h-screen bg-[#0C111F]">
+      <div className="max-w-[70%] py-[80px] items-center flex flex-col">
         <div className="text-[16px] font-normal text-center text-[#A7AFC7] border-b border-[#A7AFC7]">
           <ul className="flex flex-wrap -mb-px">
             <li onClick={() => setTab("admins")}>

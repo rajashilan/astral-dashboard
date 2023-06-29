@@ -5,6 +5,7 @@ import {
   createNewOrientationPost,
   deleteOrientationPage,
   deleteSubcontent,
+  deleteSubcontentFile,
   updateOrientationPagesContent,
   updateOrientationPagesHeader,
   updateOrientationPagesTitle,
@@ -51,6 +52,9 @@ export default function OrientationPagePreview() {
   const [addSubcontentTitle, setAddSubcontentTitle] = useState("");
   const [addSubcontentContent, setAddSubcontentContent] = useState("");
   const [errors, setErrors] = useState({});
+
+  const [showDeleteFileModal, setShowDeleteFileModal] = useState(false);
+  const [fileModalData, setFileModalData] = useState({});
 
   const [image, setImage] = useState(null);
 
@@ -188,6 +192,28 @@ export default function OrientationPagePreview() {
     setAddSubcontentContent("");
     setImage(null);
     setErrors({});
+  };
+
+  const handleDeleteFileModal = (url, filename) => {
+    if ((url, filename)) setFileModalData({ url, filename });
+    setShowDeleteFileModal(!showDeleteFileModal);
+    setShowEditSubcontentModal(!showEditSubcontentModal);
+  };
+
+  const handleDeleteFile = () => {
+    let data = {
+      url: fileModalData.url,
+    };
+
+    dispatch(
+      deleteSubcontentFile(
+        data,
+        pageModalData.orientationPageID,
+        subcontentModalData.subcontentID
+      )
+    );
+    setShowDeleteFileModal(!showDeleteFileModal);
+    setShowPageModal(!showPageModal);
   };
 
   const handleAddNewPost = () => {
@@ -371,24 +397,26 @@ export default function OrientationPagePreview() {
           <h2 className="text-[16px] font-normal text-[#DFE5F8] text-left">
             {content.content}
           </h2>
-          {content.image && (
+          {content.image.length !== 0 && (
             <img
               className="my-[0.5rem] w-full h-auto"
               src={content.image}
               alt="image"
             />
           )}
-          {content.files.map((file) => {
-            return (
-              <a
-                href={file.url}
-                target="_blank"
-                className="text-[18px] mt-[0.5rem] font-medium text-[#BE5007] text-left clamp-1"
-              >
-                {file.filename}
-              </a>
-            );
-          })}
+          <hr className="border border-solid border-gray-500 border-[1px] w-full my-[2rem]" />
+          {content.files.length !== 0 &&
+            content.files.map((file) => {
+              return (
+                <a
+                  href={file.url}
+                  target="_blank"
+                  className="text-[18px] mt-[0.5rem] font-medium text-[#BE5007] text-left clamp-1"
+                >
+                  {file.filename}
+                </a>
+              );
+            })}
         </div>
       );
     });
@@ -561,7 +589,7 @@ export default function OrientationPagePreview() {
             </WarningLabel>
             <img
               onClick={handleUpdateImage}
-              className="mt-[0.5rem] w-full h-auto cursor-pointer mb-[2rem]"
+              className="my-[0.5rem] w-full h-auto cursor-pointer"
               src={subcontentModalData.image}
               alt="image"
             />
@@ -578,7 +606,7 @@ export default function OrientationPagePreview() {
             <Button
               onClick={handleUploadImage}
               text={image ? "choose another image" : "upload image"}
-              className="!mt-[0.625rem] !mb-[2rem] !bg-[#C4FFF9]"
+              className="!my-[0.625rem] !bg-[#C4FFF9]"
               disabled={loading}
             />
             <input
@@ -590,6 +618,7 @@ export default function OrientationPagePreview() {
             />
           </>
         )}
+        <hr className="border border-solid border-gray-500 border-[1px] w-full my-[2rem]" />
         {subcontentModalData.files &&
           subcontentModalData.files.map((file) => {
             return (
@@ -602,7 +631,7 @@ export default function OrientationPagePreview() {
                   {file.filename}
                 </a>
                 <button
-                  onClick={handleDeletePageModal}
+                  onClick={() => handleDeleteFileModal(file.url, file.filename)}
                   className="btn-sm btn-square btn p-1 bg-red-700"
                 >
                   <img src={bin} alt="delete" />
@@ -710,6 +739,43 @@ export default function OrientationPagePreview() {
     </div>
   );
 
+  let confirmDeleteFileModal = (
+    <div
+      className={
+        "modal modal-middle h-auto " + (showDeleteFileModal ? "modal-open" : "")
+      }
+    >
+      <div className=" modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
+        <button
+          onClick={handleDeleteFileModal}
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+        >
+          ✕
+        </button>
+        <p className="text-[18px] text-[#DFE5F8] font-normal mt-[1rem] mb=[1rem]">
+          Are you sure you want to delete the following file?
+        </p>
+        <p className="text-[24px] text-[#DFE5F8] font-medium mb-[0.5rem] clamp-2">
+          {fileModalData.filename}
+        </p>
+        <Button
+          onClick={handleDeleteFile}
+          text="delete"
+          x
+          className="w-full !bg-gray-600 !text-white"
+          disabled={loading}
+        />
+        <Button
+          onClick={handleDeleteFileModal}
+          text="cancel"
+          x
+          className="w-full"
+          disabled={loading}
+        />
+      </div>
+    </div>
+  );
+
   let AddSubcontentModal = (
     <div
       className={
@@ -781,9 +847,10 @@ export default function OrientationPagePreview() {
       {Modal}
       {EditPageModal}
       {EditSubcontentModal}
+      {AddSubcontentModal}
       {confirmDeleteModal}
       {confirmDeletePageModal}
-      {AddSubcontentModal}
+      {confirmDeleteFileModal}
     </>
   );
 }

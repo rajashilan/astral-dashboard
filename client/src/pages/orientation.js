@@ -130,9 +130,9 @@ export default function Orientation() {
   );
 
   return (
-    <main className="absolute top-0 overflow-auto py-[100px] scrollbar-hide flex h-full w-full justify-center items-center bg-[#0C111F]">
-      <div className="mt-[180px] flex flex-col items-center bg-[#131A2E] px-[140px] py-[60px] max-w-[80%] rounded-lg">
-        <h1 className="text-[24px] text-[#DFE5F8] font-medium">
+    <main className="flex flex-col justify-center min-h-screen items-center bg-[#0C111F]">
+      <div className="max-w-[70%] py-[80px]">
+        <h1 className="text-[24px] text-[#DFE5F8] text-center font-medium">
           Orientation title
         </h1>
         <OrientationOverview />
@@ -148,7 +148,7 @@ export default function Orientation() {
         </div>
         <OrientationSubcontent />
       </div>
-      <div className="h-[80px] bg-[#0C111F] flex-col"></div>
+      {/* <div className="h-[80px] bg-[#0C111F] flex-col"></div> */}
       {AddPageModal}
     </main>
   );

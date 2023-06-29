@@ -24,7 +24,7 @@ export default function OrientationSubcontent() {
   }, []);
 
   return (
-    <div className="mt-[26px] w-full items-center shadow-md sm:rounded-lg space-y-[1rem]">
+    <div className="mt-[26px] w-full items-center  space-y-[1rem]">
       <OrientationPagePreview />
     </div>
   );
