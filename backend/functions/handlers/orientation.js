@@ -117,6 +117,10 @@ exports.editOrientationOverviewVideos = (req, res) => {
     .get()
     .then((doc) => {
       temp = doc.data().videos;
+
+      if (temp.length === 3)
+        return res.status(400).json({ error: "Video cap reached" });
+
       temp.push(video);
 
       return db.doc(`/orientations/${orientationID}`).update({ videos: temp });
