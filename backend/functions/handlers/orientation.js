@@ -3,16 +3,18 @@ const firebase = require("firebase");
 const crypto = require("crypto");
 const { FieldValue } = require("firebase-admin/firestore");
 const config = require("../utils/config");
+const { ExportBundleInfo } = require("firebase-functions/v1/analytics");
 
-//orientation overview details required:
-//a possible video
-//a title
-//content
-//list of all orientation pages
+//orientation overview should also contain
+//content, photo, files, and a video
+//photo, files, and videos are in array format
 
-//only sudo and admins with general and focused:college can create this
+//what if they want to have more images
+//or more videos?
 
-//create new orientation overview (video and title)
+//in the app, more than 1 image turns into a carousel
+//videos are just shown one after another
+
 exports.createOrientationOverview = (req, res) => {
   const campusID = req.params.campusID;
 
@@ -21,6 +23,10 @@ exports.createOrientationOverview = (req, res) => {
     campusID: campusID,
     createdAt: new Date().toISOString(),
     orientationID: "",
+    images: req.body.images,
+    videos: req.body.videos,
+    content: req.body.content,
+    files: req.body.files,
   };
 
   db.collection("orientations")
@@ -91,6 +97,8 @@ exports.editOrientationOverview = (req, res) => {
       return res.status(500).json({ error: "Something went wrong" });
     });
 };
+
+exports.editOrientationOverviewVideos = (req, res) => {};
 
 // orientationPages:
 // {
@@ -404,11 +412,7 @@ exports.editSubcontentFile = (req, res) => {
         (subcontent) => subcontent.subcontentID === subcontentID
       );
 
-      let temp = subcontent[index].files;
-      if (temp.length === 0) temp.push(file);
-      else temp.unshift(file);
-
-      subcontent[index].files = [...temp];
+      subcontent[index].files.push(file);
 
       return db
         .doc(`/orientationPages/${orientationPageID}`)
@@ -606,6 +610,214 @@ exports.uploadOrientationPostFile = (req, res) => {
       .bucket()
       .upload(imageToBeUploaded.filepath, {
         destination: "orientation/pages/files/" + imageFileName,
+        resumable: false,
+        metadata: {
+          metadata: {
+            contentType: imageToBeUploaded.mimetype,
+          },
+        },
+      })
+      .then(() => {
+        fileUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${request}${imageFileName}?alt=media`;
+
+        return res
+          .status(201)
+          .json({ downloadUrl: fileUrl, filename: originalImageFileName });
+      })
+      .catch((error) => {
+        console.error(error);
+        return res.status(500).json({ error: error.code });
+      });
+  });
+  busboy.end(req.rawBody);
+};
+
+exports.uploadOrientationOverviewImage = (req, res) => {
+  const BusBoy = require("busboy");
+  const path = require("path");
+  const os = require("os");
+  const fs = require("fs");
+
+  console.log(req.headers);
+
+  let request = "orientation%2Foverview%2Fimages%2F";
+
+  //need to get details from orientationPageID first
+  //look for the particular subcontent using subcontentID
+  //and update the subcontent
+
+  const busboy = new BusBoy({ headers: req.headers });
+
+  let imageFileName;
+  let imageToBeUploaded = {};
+  let imageUrl;
+
+  busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
+    if (mimetype !== "image/jpeg" && mimetype !== "image/png") {
+      return res.status(400).json({ error: "Wrong file type submitted" });
+    }
+
+    const imageExtension = filename.split(".")[filename.split(".").length - 1];
+
+    const randomNum = crypto.randomBytes(10).toString("hex");
+
+    imageFileName = `${randomNum}.${imageExtension}`;
+    const filepath = path.join(os.tmpdir(), imageFileName);
+
+    imageToBeUploaded = {
+      filepath,
+      mimetype,
+    };
+
+    file.pipe(fs.createWriteStream(filepath));
+  });
+
+  busboy.on("finish", () => {
+    admin
+      .storage()
+      .bucket()
+      .upload(imageToBeUploaded.filepath, {
+        destination: "orientation/overview/images/" + imageFileName,
+        resumable: false,
+        metadata: {
+          metadata: {
+            contentType: imageToBeUploaded.mimetype,
+          },
+        },
+      })
+      .then(() => {
+        imageUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${request}${imageFileName}?alt=media`;
+
+        return res.status(201).json({ downloadUrl: imageUrl });
+      })
+      .catch((error) => {
+        console.error(error);
+        return res.status(500).json({ error: error.code });
+      });
+  });
+  busboy.end(req.rawBody);
+};
+
+exports.uploadOrientationOverviewFile = (req, res) => {
+  const BusBoy = require("busboy");
+  const path = require("path");
+  const os = require("os");
+  const fs = require("fs");
+
+  let request = "orientation%2Foverview%2Ffiles%2F";
+
+  //need to get details from orientationPageID first
+  //look for the particular subcontent using subcontentID
+  //and update the subcontent
+
+  const busboy = new BusBoy({ headers: req.headers });
+
+  let imageFileName;
+  let imageToBeUploaded = {};
+  let imageUrl;
+  let originalImageFileName = "";
+
+  busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
+    console.log(mimetype);
+    if (mimetype === "image/jpeg" || mimetype === "image/png") {
+      return res.status(400).json({ error: "Wrong file type submitted" });
+    }
+
+    const imageExtension = filename.split(".")[filename.split(".").length - 1];
+    originalImageFileName = filename;
+
+    const randomNum = crypto.randomBytes(10).toString("hex");
+
+    imageFileName = `${randomNum}.${imageExtension}`;
+    const filepath = path.join(os.tmpdir(), imageFileName);
+
+    imageToBeUploaded = {
+      filepath,
+      mimetype,
+    };
+
+    console.log(imageToBeUploaded);
+
+    file.pipe(fs.createWriteStream(filepath));
+  });
+
+  busboy.on("finish", () => {
+    admin
+      .storage()
+      .bucket()
+      .upload(imageToBeUploaded.filepath, {
+        destination: "orientation/overview/files/" + imageFileName,
+        resumable: false,
+        metadata: {
+          metadata: {
+            contentType: imageToBeUploaded.mimetype,
+          },
+        },
+      })
+      .then(() => {
+        fileUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${request}${imageFileName}?alt=media`;
+
+        return res
+          .status(201)
+          .json({ downloadUrl: fileUrl, filename: originalImageFileName });
+      })
+      .catch((error) => {
+        console.error(error);
+        return res.status(500).json({ error: error.code });
+      });
+  });
+  busboy.end(req.rawBody);
+};
+
+exports.uploadOrientationOverviewVideo = (req, res) => {
+  const BusBoy = require("busboy");
+  const path = require("path");
+  const os = require("os");
+  const fs = require("fs");
+
+  let request = "orientation%2Foverview%2Fvideos%2F";
+
+  //need to get details from orientationPageID first
+  //look for the particular subcontent using subcontentID
+  //and update the subcontent
+
+  const busboy = new BusBoy({ headers: req.headers });
+
+  let imageFileName;
+  let imageToBeUploaded = {};
+  let imageUrl;
+  let originalImageFileName = "";
+
+  busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
+    console.log(mimetype);
+    if (mimetype !== "video/mp4") {
+      return res.status(400).json({ error: "Please only upload mp4 videos" });
+    }
+
+    const imageExtension = filename.split(".")[filename.split(".").length - 1];
+    originalImageFileName = filename;
+
+    const randomNum = crypto.randomBytes(10).toString("hex");
+
+    imageFileName = `${randomNum}.${imageExtension}`;
+    const filepath = path.join(os.tmpdir(), imageFileName);
+
+    imageToBeUploaded = {
+      filepath,
+      mimetype,
+    };
+
+    console.log(imageToBeUploaded);
+
+    file.pipe(fs.createWriteStream(filepath));
+  });
+
+  busboy.on("finish", () => {
+    admin
+      .storage()
+      .bucket()
+      .upload(imageToBeUploaded.filepath, {
+        destination: "orientation/overview/videos/" + imageFileName,
         resumable: false,
         metadata: {
           metadata: {

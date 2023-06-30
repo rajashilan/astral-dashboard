@@ -61,6 +61,9 @@ const {
   editSubcontentImage,
   editSubcontentFile,
   deleteSubcontentFile,
+  uploadOrientationOverviewImage,
+  uploadOrientationOverviewFile,
+  uploadOrientationOverviewVideo,
 } = require("./handlers/orientation");
 
 app.use(
@@ -206,6 +209,24 @@ app.post(
   "/subcontent-file/:campusID",
   sudoAdminAuth,
   uploadOrientationPostFile
+);
+
+app.post(
+  "/overview-image/:campusID",
+  sudoAdminAuth,
+  uploadOrientationOverviewImage
+);
+
+app.post(
+  "/overview-file/:campusID",
+  sudoAdminAuth,
+  uploadOrientationOverviewFile
+);
+
+app.post(
+  "/overview-video/:campusID",
+  sudoAdminAuth,
+  uploadOrientationOverviewVideo
 );
 
 app.post(
