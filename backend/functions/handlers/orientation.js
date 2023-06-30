@@ -98,7 +98,37 @@ exports.editOrientationOverview = (req, res) => {
     });
 };
 
-exports.editOrientationOverviewVideos = (req, res) => {};
+//videos = max of 5
+//photos = max of 10
+
+exports.editOrientationOverviewVideos = (req, res) => {
+  const orientationID = req.params.orientationID;
+
+  let video = {
+    filename: req.body.filename,
+    url: req.body.url,
+    createdAt: new Date().toISOString(),
+  };
+
+  let temp;
+
+  //first get the videos
+  db.doc(`/orientations/${orientationID}`)
+    .get()
+    .then((doc) => {
+      temp = doc.data().videos;
+      temp.push(video);
+
+      return db.doc(`/orientations/${orientationID}`).update({ videos: temp });
+    })
+    .then(() => {
+      return res.status(200).json({ videos: temp });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
 
 // orientationPages:
 // {
@@ -433,6 +463,7 @@ exports.deleteSubcontentFile = (req, res) => {
   const orientationPageID = req.params.orientationPageID;
   const subcontentID = req.params.subcontentID;
   const url = req.body.url;
+  let temp;
 
   console.log(req.body.url);
 
@@ -445,11 +476,9 @@ exports.deleteSubcontentFile = (req, res) => {
         (subcontent) => subcontent.subcontentID === subcontentID
       );
 
-      let temp = subcontent[index].files;
+      temp = subcontent[index].files;
       fileIndex = temp.findIndex((file) => file.url === url);
       temp.splice(fileIndex, 1);
-
-      console.log(fileIndex);
 
       subcontent[index].files = [...temp];
 
@@ -458,16 +487,7 @@ exports.deleteSubcontentFile = (req, res) => {
         .update({ subcontent: subcontent });
     })
     .then(() => {
-      return db.doc(`/orientationPages/${orientationPageID}`).get();
-    })
-    .then((doc) => {
-      //return only the new subcontent files data
-      let subcontent = doc.data().subcontent;
-      let index = subcontent.findIndex(
-        (subcontent) => subcontent.subcontentID === subcontentID
-      );
-      console.log(subcontent[index].files);
-      return res.status(200).json({ files: subcontent[index].files });
+      return res.status(200).json({ files: temp });
     })
     .catch((error) => {
       console.error(error);
