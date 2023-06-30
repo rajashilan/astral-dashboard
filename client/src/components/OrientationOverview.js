@@ -4,11 +4,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
+import ReactPlayer from "react-player";
+
 import TextInput from "../components/TextInput";
 import Button from "../components/Button";
 import ErrorLabel from "../components/ErrorLabel";
 
 import edit from "../assets/edit.svg";
+import bin from "../assets/bin.svg";
 
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
@@ -32,8 +35,7 @@ export default function OrientationOverview() {
   });
 
   const dispatch = useDispatch();
-  const state = useSelector((state) => state.data);
-  const orientation = useSelector((state) => state.data.orientation.overview);
+  const state = useSelector((state) => state.data.orientation.overview);
   const loading = useSelector((state) => state.data.loading);
 
   useEffect(() => {
@@ -45,10 +47,70 @@ export default function OrientationOverview() {
       title: data["title"],
     };
 
-    dispatch(
-      updateOrientationOverviewTitle(titleData, orientation.orientationID)
-    );
+    dispatch(updateOrientationOverviewTitle(titleData, state.orientationID));
   };
+
+  //if 1 video, only show that video
+  //if more than 1 video, show a a grid of 2
+  let videos = state.videos ? (
+    state.videos.length === 1 ? (
+      <div className="flex mt-[2rem] items-center justify-center">
+        <div className="flex flex-row">
+          <ReactPlayer
+            controls={true}
+            width="auto"
+            height="360px"
+            playIcon
+            url={state.videos[0].url}
+          />
+          <div className="flex flex-col ml-[0.5rem] space-y-[0.5rem]">
+            <button
+              onClick={() => {}}
+              className="btn-sm btn-square btn p-1 bg-[#07BEB8]"
+            >
+              <img src={edit} alt="edit" />
+            </button>
+            <button
+              onClick={() => {}}
+              className="btn-sm btn-square btn p-1 bg-red-700"
+            >
+              <img src={bin} alt="delete" />
+            </button>
+          </div>
+        </div>
+      </div>
+    ) : (
+      <div className="grid grid-flow-row-dense grid-cols-3 gap-[2rem] mt-[2rem] items-center justify-center">
+        {state.videos.map((video) => {
+          return (
+            <div className="flex flex-row">
+              <ReactPlayer
+                controls={true}
+                width="auto"
+                height="auto"
+                playIcon
+                url={video.url}
+              />
+              <div className="flex flex-col ml-[0.5rem] space-y-[0.5rem]">
+                <button
+                  onClick={() => {}}
+                  className="btn-sm btn-square btn p-1 bg-[#07BEB8]"
+                >
+                  <img src={edit} alt="edit" />
+                </button>
+                <button
+                  onClick={() => {}}
+                  className="btn-sm btn-square btn p-1 bg-red-700"
+                >
+                  <img src={bin} alt="delete" />
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    )
+  ) : null;
 
   return (
     <div className="mt-[26px] items-center">
@@ -62,9 +124,7 @@ export default function OrientationOverview() {
               type="text"
               id="title"
               className="!w-[400px]"
-              placeholder={
-                orientation.title ? orientation.title : "Enter your title here"
-              }
+              placeholder={state.title ? state.title : "Enter your title here"}
               register={register}
               errors={errors}
               disabled={loading}
@@ -79,6 +139,7 @@ export default function OrientationOverview() {
           />
         </div>
       </form>
+      {videos}
     </div>
   );
 }
