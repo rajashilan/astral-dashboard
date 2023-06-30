@@ -358,6 +358,8 @@ export default function OrientationPagePreview() {
             subcontentModalData.subcontentID
           )
         );
+        setShowEditSubcontentModal(!showEditSubcontentModal);
+        setShowPageModal(!showPageModal);
       })
       .catch((error) => {
         console.error(error);

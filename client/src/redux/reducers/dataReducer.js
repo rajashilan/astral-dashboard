@@ -198,8 +198,7 @@ export default function (state = initialState, action) {
           subcontentIndexFile
         ].files;
 
-      if (temp.length === 0) temp.push(action.payload.data);
-      else temp.unshift(action.payload.data);
+      temp.push(action.payload.data);
 
       state.orientation.pages[subcontentPageIndexFile].subcontent[
         subcontentIndexFile

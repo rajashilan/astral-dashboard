@@ -401,6 +401,7 @@ export const deleteSubcontentFile =
           type: DELETE_SUBCONTENT_FILE,
           payload: payload,
         });
+        alert("Post file deleted successfully");
       })
       .catch((error) => {
         // dispatch({
