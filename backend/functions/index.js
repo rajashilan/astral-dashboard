@@ -207,8 +207,8 @@ app.post(
   editOrientationOverviewVideos
 );
 
-app.delete(
-  "/overview-video/:campusID/:orientationID",
+app.post(
+  "/overview-video-delete/:campusID/:orientationID",
   sudoAdminAuth,
   deleteOrientationOverviewVideo
 );

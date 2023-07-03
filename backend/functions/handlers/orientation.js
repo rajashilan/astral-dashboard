@@ -145,6 +145,8 @@ exports.deleteOrientationOverviewVideo = (req, res) => {
       videos = doc.data().videos;
 
       let index = videos.findIndex((video) => video.url === url);
+      console.log(url);
+      console.log(index);
 
       videos.splice(index, 1);
 
