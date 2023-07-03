@@ -17,10 +17,12 @@ import video from "../assets/video.svg";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import {
+  addOrientationOverviewVideo,
   deleteOrientationOverviewVideo,
   getOrientationOverview,
   updateOrientationOverviewTitle,
 } from "../redux/actions/dataActions";
+import { LOADING_DATA, STOP_LOADING_DATA } from "../redux/types";
 
 const formSchema = z.object({
   title: z.string().min(1, { message: "Please enter a Heading" }),
@@ -42,6 +44,7 @@ export default function OrientationOverview() {
 
   const [showDeleteVideoModal, setShowDeleteVideoModal] = useState(false);
   const [deleteVideoUrl, setDeleteVideoUrl] = useState("");
+  const [addVideo, setAddVideo] = useState(null);
 
   useEffect(() => {
     dispatch(getOrientationOverview());
@@ -56,9 +59,42 @@ export default function OrientationOverview() {
   };
 
   const handleAddVideo = () => {
-    //first get download url
-    //then dispatch
+    const fileInput = document.getElementById("videoInput");
+    fileInput.click();
   };
+
+  const handleVideoChange = (event) => {
+    const video = event.target.files[0];
+    setAddVideo(video);
+  };
+
+  useEffect(() => {
+    if (addVideo) {
+      const campusID = localStorage.getItem("AdminCampus");
+
+      const formData = new FormData();
+      formData.append("video", addVideo, addVideo.name);
+
+      dispatch({ type: LOADING_DATA });
+      axios
+        .post(`/overview-video/${campusID}`, formData)
+        .then((res) => {
+          let data = {
+            filename: res.data.filename,
+            url: res.data.downloadUrl,
+          };
+          return data;
+        })
+        .then((data) => {
+          dispatch(addOrientationOverviewVideo(data, state.orientationID));
+        })
+        .catch((error) => {
+          console.error(error);
+          dispatch({ type: STOP_LOADING_DATA });
+        });
+      setAddVideo(null);
+    }
+  }, [addVideo]);
 
   //first show delete video modal
   //set the delete video data in state
@@ -74,9 +110,10 @@ export default function OrientationOverview() {
   };
 
   const handleDeleteVideo = () => {
-    dispatch(
-      deleteOrientationOverviewVideo(deleteVideoUrl, state.orientationID)
-    );
+    let data = {
+      url: deleteVideoUrl,
+    };
+    dispatch(deleteOrientationOverviewVideo(data, state.orientationID));
     handleDeleteVideoModal();
   };
 
@@ -147,14 +184,21 @@ export default function OrientationOverview() {
           </div>
         </div>
         <Button
-          onClick={handleSubmit(onFormSubmit)}
+          onClick={handleAddVideo}
           img={video}
           className="!w-full !h-full"
           imgClassName="!w-[56px] !h-[42px]"
           disabled={loading}
         />
+        <input
+          type="file"
+          id="videoInput"
+          accept="video/mp4"
+          onChange={handleVideoChange}
+          hidden="hidden"
+        />
       </div>
-    ) : (
+    ) : state.videos.length > 1 ? (
       <div className="grid grid-flow-row-dense grid-cols-3 gap-[2rem] mt-[2rem] items-center justify-center">
         {state.videos &&
           state.videos.map((video) => {
@@ -182,14 +226,40 @@ export default function OrientationOverview() {
           })}
         {/* only show video button if there is less than 3 videos */}
         {state.videos && state.videos.length < 3 ? (
-          <Button
-            onClick={handleSubmit(onFormSubmit)}
-            img={video}
-            className="!w-full !h-full"
-            imgClassName="!w-[56px] !h-[42px]"
-            disabled={loading}
-          />
+          <>
+            <Button
+              onClick={handleAddVideo}
+              img={video}
+              className="!w-full !h-full"
+              imgClassName="!w-[56px] !h-[42px]"
+              disabled={loading}
+            />
+            <input
+              type="file"
+              id="videoInput"
+              accept="video/mp4"
+              onChange={handleVideoChange}
+              hidden="hidden"
+            />
+          </>
         ) : null}
+      </div>
+    ) : (
+      <div className="flex justify-center mt-[2rem]">
+        <Button
+          onClick={handleAddVideo}
+          img={video}
+          className="!w-auto !h-auto !px-[100px] justify-self-center"
+          imgClassName="!w-[56px] !h-[42px]"
+          disabled={loading}
+        />
+        <input
+          type="file"
+          id="videoInput"
+          accept="video/mp4"
+          onChange={handleVideoChange}
+          hidden="hidden"
+        />
       </div>
     )
   ) : null;

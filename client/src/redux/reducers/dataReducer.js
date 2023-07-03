@@ -22,6 +22,7 @@ import {
   SET_SUBCONTENT_FILE,
   DELETE_SUBCONTENT_FILE,
   DELETE_ORIENTATION_OVERVIEW_VIDEO,
+  UPDATE_ORIENTATION_OVERVIEW_VIDEO,
 } from "../types";
 
 const initialState = {
@@ -251,7 +252,7 @@ export default function (state = initialState, action) {
           pages: [...pages],
         },
       };
-    case DELETE_ORIENTATION_OVERVIEW_VIDEO:
+    case UPDATE_ORIENTATION_OVERVIEW_VIDEO:
       return {
         ...state,
         orientation: {
