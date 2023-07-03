@@ -134,6 +134,33 @@ exports.editOrientationOverviewVideos = (req, res) => {
     });
 };
 
+exports.deleteOrientationOverviewVideo = (req, res) => {
+  const orientationID = req.params.orientationID;
+  const url = req.body.url;
+  let videos;
+
+  db.doc(`/orientations/${orientationID}`)
+    .get()
+    .then((doc) => {
+      videos = doc.data().videos;
+
+      let index = videos.findIndex((video) => video.url === url);
+
+      videos.splice(index, 1);
+
+      return db
+        .doc(`/orientations/${orientationID}`)
+        .update({ videos: videos });
+    })
+    .then(() => {
+      return res.status(200).json({ videos: videos });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
 // orientationPages:
 // {
 //     orienatationPageID: id,

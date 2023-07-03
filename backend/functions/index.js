@@ -65,6 +65,7 @@ const {
   uploadOrientationOverviewFile,
   uploadOrientationOverviewVideo,
   editOrientationOverviewVideos,
+  deleteOrientationOverviewVideo,
 } = require("./handlers/orientation");
 
 app.use(
@@ -204,6 +205,12 @@ app.post(
   "/overview-video/:campusID/:orientationID",
   sudoAdminAuth,
   editOrientationOverviewVideos
+);
+
+app.delete(
+  "/overview-video/:campusID/:orientationID",
+  sudoAdminAuth,
+  deleteOrientationOverviewVideo
 );
 
 app.post(
