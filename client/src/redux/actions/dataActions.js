@@ -23,6 +23,7 @@ import {
   SET_SUBCONTENT_IMAGE,
   SET_SUBCONTENT_FILE,
   DELETE_SUBCONTENT_FILE,
+  DELETE_ORIENTATION_OVERVIEW_VIDEO,
 } from "../types";
 import axios from "axios";
 
@@ -404,10 +405,36 @@ export const deleteSubcontentFile =
         alert("Post file deleted successfully");
       })
       .catch((error) => {
-        // dispatch({
-        //   type: SET_GENERAL_ERRORS,
-        //   payload: error.response.data.error,
-        // });
+        dispatch({
+          type: SET_GENERAL_ERRORS,
+          payload: error.response.data.error,
+        });
+        console.error(error);
+        dispatch({ type: STOP_LOADING_DATA });
+      });
+  };
+
+export const deleteOrientationOverviewVideo =
+  (data, orientationID) => (dispatch) => {
+    dispatch({ type: LOADING_DATA });
+    const campusID = localStorage.getItem("AdminCampus");
+
+    axios
+      .delete(`/overview-video/${campusID}/${orientationID}`, data)
+      .then((res) => {
+        dispatch({ type: STOP_LOADING_DATA });
+        dispatch({ type: CLEAR_GENERAL_ERRORS });
+        dispatch({
+          type: DELETE_ORIENTATION_OVERVIEW_VIDEO,
+          payload: res.data,
+        });
+        alert("Orientation video deleted successfully");
+      })
+      .catch((error) => {
+        dispatch({
+          type: SET_GENERAL_ERRORS,
+          payload: error.response.data.error,
+        });
         console.error(error);
         dispatch({ type: STOP_LOADING_DATA });
       });

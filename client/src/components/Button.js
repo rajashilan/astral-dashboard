@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 
 function Button(props) {
-  const { text, img, className, onClick, ...rest } = props;
+  const { text, img, imgClassName, className, onClick, ...rest } = props;
   return (
     <button
       className={clsx(
@@ -12,7 +12,14 @@ function Button(props) {
       {...rest}
       onClick={onClick}
     >
-      {img ? <img src={img} className="h-[20px] w-[20px] m-auto" /> : text}
+      {img ? (
+        <img
+          src={img}
+          className={clsx("h-[20px] w-[20px] m-auto", imgClassName)}
+        />
+      ) : (
+        text
+      )}
     </button>
   );
 }

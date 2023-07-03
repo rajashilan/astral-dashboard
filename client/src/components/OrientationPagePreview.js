@@ -367,23 +367,25 @@ export default function OrientationPagePreview() {
       });
   };
 
-  let pages = state.pages.map((page) => {
-    return (
-      <div
-        onClick={() => handleShowPageModal(page.orientationPageID)}
-        key={page.orientationPageID}
-        className="border-none rounded-lg bg-[#232F52] flex-col py-[1rem] px-[2rem] cursor-pointer"
-      >
-        <h1 className="text-[20px] text-[#DFE5F8] font-bold">{page.title}</h1>
-        <h2 className="text-[16px] text-[#DFE5F8] font-medium mt-[8px]">
-          {page.header}
-        </h2>
-        <p className="text-[14px] text-[#C6CDE2] font-normal clamp-1">
-          {page.content}
-        </p>
-      </div>
-    );
-  });
+  let pages =
+    state.pages &&
+    state.pages.map((page) => {
+      return (
+        <div
+          onClick={() => handleShowPageModal(page.orientationPageID)}
+          key={page.orientationPageID}
+          className="border-none rounded-lg bg-[#232F52] flex-col py-[1rem] px-[2rem] cursor-pointer"
+        >
+          <h1 className="text-[20px] text-[#DFE5F8] font-bold">{page.title}</h1>
+          <h2 className="text-[16px] text-[#DFE5F8] font-medium mt-[8px]">
+            {page.header}
+          </h2>
+          <p className="text-[14px] text-[#C6CDE2] font-normal clamp-1">
+            {page.content}
+          </p>
+        </div>
+      );
+    });
 
   let subcontent =
     pageModalData.subcontent &&
