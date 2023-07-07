@@ -154,7 +154,7 @@ export default function OrientationOverview() {
 
   const handleDeleteVideo = () => {
     let data = {
-      url: deleteVideoID,
+      videoID: deleteVideoID,
     };
     dispatch(deleteOrientationOverviewVideo(data, state.orientationID));
     handleDeleteVideoModal();
