@@ -108,6 +108,7 @@ exports.editOrientationOverviewVideos = (req, res) => {
     filename: req.body.filename,
     url: req.body.url,
     createdAt: new Date().toISOString(),
+    videoID: crypto.randomBytes(10).toString("hex"),
   };
 
   let temp;
@@ -822,24 +823,96 @@ exports.uploadOrientationOverviewFile = (req, res) => {
   busboy.end(req.rawBody);
 };
 
+// exports.uploadOrientationOverviewVideo = (req, res) => {
+//   const BusBoy = require("busboy");
+//   const path = require("path");
+//   const os = require("os");
+//   const fs = require("fs");
+//   const ffmpeg = require("fluent-ffmpeg");
+
+//   let request = "orientation%2Foverview%2Fvideos%2F";
+
+//   //need to get details from orientationPageID first
+//   //look for the particular subcontent using subcontentID
+//   //and update the subcontent
+
+//   const busboy = new BusBoy({ headers: req.headers });
+
+//   let imageFileName;
+//   let compressedFileName;
+//   let imageToBeUploaded = {};
+//   let imageUrl;
+//   let originalImageFileName = "";
+
+//   busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
+//     console.log(mimetype);
+//     if (mimetype !== "video/mp4") {
+//       return res.status(400).json({ error: "Please only upload mp4 videos" });
+//     }
+
+//     const imageExtension = filename.split(".")[filename.split(".").length - 1];
+//     originalImageFileName = filename;
+
+//     const randomNum = crypto.randomBytes(10).toString("hex");
+
+//     imageFileName = `${randomNum}.${imageExtension}`;
+//     compressedFileName = `${randomNum}-compressed.${imageExtension}`;
+//     const filepath = path.join(os.tmpdir(), imageFileName);
+
+//     imageToBeUploaded = {
+//       filepath,
+//       mimetype,
+//     };
+
+//     file.pipe(fs.createWriteStream(filepath));
+//   });
+
+//   busboy.on("finish", () => {
+//     admin
+//       .storage()
+//       .bucket()
+//       .upload(imageToBeUploaded.filepath, {
+//         destination: "orientation/overview/videos/" + imageFileName,
+//         resumable: false,
+//         metadata: {
+//           metadata: {
+//             contentType: imageToBeUploaded.mimetype,
+//           },
+//         },
+//       })
+//       .then(() => {
+//         fileUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${request}${imageFileName}?alt=media`;
+
+//         return res
+//           .status(201)
+//           .json({ downloadUrl: fileUrl, filename: originalImageFileName });
+//       })
+//       .catch((error) => {
+//         console.error(error);
+//         return res.status(500).json({ error: error.code });
+//       });
+//   });
+//   busboy.end(req.rawBody);
+// };
+
 exports.uploadOrientationOverviewVideo = (req, res) => {
   const BusBoy = require("busboy");
   const path = require("path");
   const os = require("os");
   const fs = require("fs");
-
-  let request = "orientation%2Foverview%2Fvideos%2F";
-
-  //need to get details from orientationPageID first
-  //look for the particular subcontent using subcontentID
-  //and update the subcontent
+  const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
+  const ffmpeg = require("fluent-ffmpeg");
+  ffmpeg.setFfmpegPath(ffmpegPath);
 
   const busboy = new BusBoy({ headers: req.headers });
 
-  let imageFileName;
-  let imageToBeUploaded = {};
-  let imageUrl;
-  let originalImageFileName = "";
+  let videoFileName;
+  let compressedFileName;
+  let videoToBeUploaded = {};
+  let videoUrl;
+  let originalVideoFileName = "";
+
+  let request = "orientation%2Foverview%2Fvideos%2F";
 
   busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
     console.log(mimetype);
@@ -847,48 +920,58 @@ exports.uploadOrientationOverviewVideo = (req, res) => {
       return res.status(400).json({ error: "Please only upload mp4 videos" });
     }
 
-    const imageExtension = filename.split(".")[filename.split(".").length - 1];
-    originalImageFileName = filename;
+    const videoExtension = filename.split(".")[filename.split(".").length - 1];
+    originalVideoFileName = filename;
 
     const randomNum = crypto.randomBytes(10).toString("hex");
 
-    imageFileName = `${randomNum}.${imageExtension}`;
-    const filepath = path.join(os.tmpdir(), imageFileName);
+    videoFileName = `${randomNum}.${videoExtension}`;
+    compressedFileName = `${randomNum}-compressed.${videoExtension}`;
+    const videoPath = path.join(os.tmpdir(), videoFileName);
+    const compressedVideoPath = path.join(os.tmpdir(), compressedFileName);
 
-    imageToBeUploaded = {
-      filepath,
+    videoToBeUploaded = {
+      videoPath,
+      compressedVideoPath,
       mimetype,
     };
 
-    console.log(imageToBeUploaded);
-
-    file.pipe(fs.createWriteStream(filepath));
+    file.pipe(fs.createWriteStream(videoPath));
   });
 
   busboy.on("finish", () => {
-    admin
-      .storage()
-      .bucket()
-      .upload(imageToBeUploaded.filepath, {
-        destination: "orientation/overview/videos/" + imageFileName,
-        resumable: false,
-        metadata: {
-          metadata: {
-            contentType: imageToBeUploaded.mimetype,
-          },
-        },
-      })
-      .then(() => {
-        fileUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${request}${imageFileName}?alt=media`;
+    ffmpeg(videoToBeUploaded.videoPath)
+      .outputOptions(["-s 1280x720"]) // Set output resolution to 720p
+      .save(videoToBeUploaded.compressedVideoPath)
+      .on("end", () => {
+        admin
+          .storage()
+          .bucket(config.storageBucket)
+          .upload(videoToBeUploaded.compressedVideoPath, {
+            destination: "orientation/overview/videos/" + compressedFileName,
+            resumable: false,
+            metadata: {
+              contentType: videoToBeUploaded.mimetype,
+            },
+          })
+          .then(() => {
+            videoUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${request}${compressedFileName}?alt=media`;
 
-        return res
-          .status(201)
-          .json({ downloadUrl: fileUrl, filename: originalImageFileName });
+            return res.status(201).json({
+              downloadUrl: videoUrl,
+              filename: originalVideoFileName,
+            });
+          })
+          .catch((error) => {
+            console.error(error);
+            return res.status(500).json({ error: error.code });
+          });
       })
-      .catch((error) => {
+      .on("error", (error) => {
         console.error(error);
-        return res.status(500).json({ error: error.code });
+        return res.status(500).json({ error: "Video compression failed" });
       });
   });
+
   busboy.end(req.rawBody);
 };

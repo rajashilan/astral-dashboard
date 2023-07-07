@@ -74,6 +74,9 @@ app.use(
   })
 );
 
+app.use(express.json({ limit: 52428800 }));
+app.use(express.urlencoded({ limit: 52428800 }));
+
 //claw routes ==============================================================
 
 //theClaw login
