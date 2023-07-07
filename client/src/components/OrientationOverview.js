@@ -43,8 +43,11 @@ export default function OrientationOverview() {
   const loading = useSelector((state) => state.data.loading);
 
   const [showDeleteVideoModal, setShowDeleteVideoModal] = useState(false);
-  const [deleteVideoUrl, setDeleteVideoUrl] = useState("");
-  const [addVideo, setAddVideo] = useState(null);
+  const [deleteVideoID, setDeleteVideoID] = useState("");
+
+  const [showAddVideoModal, setShowAddVideoModal] = useState(false);
+  const [addVideo, setAddVideo] = useState("");
+  const [filename, setFilename] = useState("");
 
   useEffect(() => {
     dispatch(getOrientationOverview());
@@ -58,60 +61,100 @@ export default function OrientationOverview() {
     dispatch(updateOrientationOverviewTitle(titleData, state.orientationID));
   };
 
+  //for adding video, instead of choosing a file,
+  //show an input asking user to copy paste their google drive video url
+  //not ideal, but this is the best case scenario for video uploads for now
+
   const handleAddVideo = () => {
-    const fileInput = document.getElementById("videoInput");
-    fileInput.click();
+    //show a modal to get the url
+    //replace everything after the last slash with preview
+    //get the filename?
+    let data = {
+      filename: filename,
+      url: addVideo,
+    };
+
+    data.url = data.url.replace(/[^/]*$/, "preview");
+    console.log(data);
+    dispatch(addOrientationOverviewVideo(data, state.orientationID));
+    handleAddVideoModal();
   };
 
-  const handleVideoChange = (event) => {
-    const video = event.target.files[0];
-    setAddVideo(video);
+  const handleAddVideoModal = () => {
+    setShowAddVideoModal(!showAddVideoModal);
+    setAddVideo("");
+    setFilename("");
   };
 
-  useEffect(() => {
-    if (addVideo) {
-      const campusID = localStorage.getItem("AdminCampus");
-
-      const formData = new FormData();
-      formData.append("video", addVideo, addVideo.name);
-
-      dispatch({ type: LOADING_DATA });
-      axios
-        .post(`/overview-video/${campusID}`, formData)
-        .then((res) => {
-          let data = {
-            filename: res.data.filename,
-            url: res.data.downloadUrl,
-          };
-          return data;
-        })
-        .then((data) => {
-          dispatch(addOrientationOverviewVideo(data, state.orientationID));
-        })
-        .catch((error) => {
-          console.error(error);
-          dispatch({ type: STOP_LOADING_DATA });
-        });
-      setAddVideo(null);
-    }
-  }, [addVideo]);
+  let AddVideoModal = (
+    <div
+      className={
+        "modal modal-middle h-auto " + (showAddVideoModal ? "modal-open" : "")
+      }
+    >
+      <div className=" modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
+        <button
+          onClick={handleAddVideoModal}
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+        >
+          ✕
+        </button>
+        <Label className="!text-center">
+          Adding videos
+          <br />
+          To add videos, first upload your video to Google Drive.
+          <br />
+          Ensure the sharing settings is enabled for everyone who has the link.
+          <br />
+          Then, copy and paste the sharing link here.
+        </Label>
+        <TextInput
+          type="text"
+          id="videoUrl"
+          className="w-full !mt-[24px] !bg-[#232F52]"
+          placeholder="Enter your Google Drive video link here"
+          disabled={loading}
+          onChange={(e) => setAddVideo(e.target.value)}
+          value={addVideo}
+        />
+        <TextInput
+          type="text"
+          id="videoFilename"
+          className="w-full !bg-[#232F52]"
+          placeholder="Enter your video title"
+          disabled={loading}
+          onChange={(e) => setFilename(e.target.value)}
+          value={filename}
+        />
+        {addVideo !== "" && filename !== "" ? (
+          <Button
+            onClick={handleAddVideo}
+            text="add video"
+            x
+            className="w-full"
+            disabled={loading}
+          />
+        ) : null}
+      </div>
+    </div>
+  );
 
   //first show delete video modal
   //set the delete video data in state
   //if confirm, dispatch
-  const handleDeleteVideoModal = (url) => {
-    if (url !== "") {
-      setDeleteVideoUrl(url);
+  const handleDeleteVideoModal = (videoID) => {
+    if (videoID !== "") {
+      setDeleteVideoID(videoID);
       setShowDeleteVideoModal(!showDeleteVideoModal);
     } else {
-      setDeleteVideoUrl("");
+      setDeleteVideoID("");
       setShowDeleteVideoModal(!showDeleteVideoModal);
     }
   };
 
   const handleDeleteVideo = () => {
     let data = {
-      url: deleteVideoUrl,
+      url: deleteVideoID,
     };
     dispatch(deleteOrientationOverviewVideo(data, state.orientationID));
     handleDeleteVideoModal();
@@ -139,7 +182,7 @@ export default function OrientationOverview() {
           width="auto"
           height="320px"
           playIcon
-          url={deleteVideoUrl}
+          url={deleteVideoID}
         />
         <Button
           onClick={handleDeleteVideo}
@@ -163,40 +206,36 @@ export default function OrientationOverview() {
   //if more than 1 video, show a a grid of 2
   let videos = state.videos ? (
     state.videos.length === 1 ? (
-      <div className="grid grid-flow-row-dense grid-cols-2 gap-[2rem] mt-[2rem] items-center justify-center">
-        <div className="flex flex-row">
-          <ReactPlayer
+      <div className="flex items-center justify-center  mt-[2rem]">
+        <div className="grid grid-flow-row-dense grid-cols-2 gap-[2rem]">
+          <div className="flex flex-row">
+            {/* <ReactPlayer
             controls={true}
             width="auto"
             height="auto"
             playIcon
             url={state.videos[0].url}
-          />
-          <div className="flex flex-col ml-[0.5rem] space-y-[0.5rem]">
-            <button
-              onClick={() => {
-                handleDeleteVideoModal(state.videos[0].url);
-              }}
-              className="btn-sm btn-square btn p-1 bg-red-700"
-            >
-              <img src={bin} alt="delete" />
-            </button>
+          /> */}
+            <iframe src={state.videos[0].url} width="auto" height="auto" />
+            <div className="flex flex-col ml-[0.5rem] space-y-[0.5rem]">
+              <button
+                onClick={() => {
+                  handleDeleteVideoModal(state.videos[0].videoID);
+                }}
+                className="btn-sm btn-square btn p-1 bg-red-700"
+              >
+                <img src={bin} alt="delete" />
+              </button>
+            </div>
           </div>
+          <Button
+            onClick={handleAddVideoModal}
+            img={video}
+            className="!w-full !h-full !max-w-[320px]"
+            imgClassName="!w-[56px] !h-[42px]"
+            disabled={loading}
+          />
         </div>
-        <Button
-          onClick={handleAddVideo}
-          img={video}
-          className="!w-full !h-full"
-          imgClassName="!w-[56px] !h-[42px]"
-          disabled={loading}
-        />
-        <input
-          type="file"
-          id="videoInput"
-          accept="video/mp4"
-          onChange={handleVideoChange}
-          hidden="hidden"
-        />
       </div>
     ) : state.videos.length > 1 ? (
       <div className="grid grid-flow-row-dense grid-cols-3 gap-[2rem] mt-[2rem] items-center justify-center">
@@ -204,17 +243,11 @@ export default function OrientationOverview() {
           state.videos.map((video) => {
             return (
               <div className="flex flexrow">
-                <ReactPlayer
-                  controls={true}
-                  width="auto"
-                  height="auto"
-                  playIcon
-                  url={video.url}
-                />
+                <iframe src={video.url} width="auto" height="auto" />
                 <div className="fle-x flex-col ml-[0.5rem] space-y-[0.5rem]">
                   <button
                     onClick={() => {
-                      handleDeleteVideoModal(video.url);
+                      handleDeleteVideoModal(video.videoID);
                     }}
                     className="btn-sm btn-square btn p-1 bg-red-700"
                   >
@@ -228,18 +261,11 @@ export default function OrientationOverview() {
         {state.videos && state.videos.length < 3 ? (
           <>
             <Button
-              onClick={handleAddVideo}
+              onClick={handleAddVideoModal}
               img={video}
               className="!w-full !h-full"
-              imgClassName="!w-[56px] !h-[42px]"
+              imgClassName="!w-[56px] !h-[42px] !max-w-[320px]"
               disabled={loading}
-            />
-            <input
-              type="file"
-              id="videoInput"
-              accept="video/mp4"
-              onChange={handleVideoChange}
-              hidden="hidden"
             />
           </>
         ) : null}
@@ -247,18 +273,11 @@ export default function OrientationOverview() {
     ) : (
       <div className="flex justify-center mt-[2rem]">
         <Button
-          onClick={handleAddVideo}
+          onClick={handleAddVideoModal}
           img={video}
           className="!w-auto !h-auto !px-[100px] justify-self-center"
-          imgClassName="!w-[56px] !h-[42px]"
+          imgClassName="!w-[56px] !h-[42px] !max-w-[320px]"
           disabled={loading}
-        />
-        <input
-          type="file"
-          id="videoInput"
-          accept="video/mp4"
-          onChange={handleVideoChange}
-          hidden="hidden"
         />
       </div>
     )
@@ -301,6 +320,7 @@ export default function OrientationOverview() {
       </form>
       {videos}
       {videoCapText}
+      {AddVideoModal}
       {confirmDeleteVideoModal}
     </div>
   );
