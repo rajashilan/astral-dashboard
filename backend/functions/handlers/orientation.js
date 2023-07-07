@@ -137,7 +137,7 @@ exports.editOrientationOverviewVideos = (req, res) => {
 
 exports.deleteOrientationOverviewVideo = (req, res) => {
   const orientationID = req.params.orientationID;
-  const url = req.body.url;
+  const videoID = req.body.videoID;
   let videos;
 
   db.doc(`/orientations/${orientationID}`)
@@ -145,10 +145,7 @@ exports.deleteOrientationOverviewVideo = (req, res) => {
     .then((doc) => {
       videos = doc.data().videos;
 
-      let index = videos.findIndex((video) => video.url === url);
-      console.log(url);
-      console.log(index);
-
+      let index = videos.findIndex((video) => video.videoID === videoID);
       videos.splice(index, 1);
 
       return db
