@@ -105,6 +105,7 @@ export default function OrientationPagePreview() {
       dispatch(
         updateOrientationPagesTitle(data, pageModalData.orientationPageID)
       );
+      pageModalData.title = data.title;
     }
 
     if (editPageHeader !== "") {
@@ -114,6 +115,7 @@ export default function OrientationPagePreview() {
       dispatch(
         updateOrientationPagesHeader(data, pageModalData.orientationPageID)
       );
+      pageModalData.header = data.header;
     }
 
     if (editPageContent !== "") {
@@ -123,7 +125,11 @@ export default function OrientationPagePreview() {
       dispatch(
         updateOrientationPagesContent(data, pageModalData.orientationPageID)
       );
+      pageModalData.content = data.content;
     }
+
+    setShowEditPageModal(!showEditPageModal);
+    setShowPageModal(!showPageModal);
   };
 
   const handleUpdateEditSubcontent = () => {
@@ -539,7 +545,11 @@ export default function OrientationPagePreview() {
           type="text"
           id="header"
           className="w-full !bg-[#232F52]"
-          placeholder={pageModalData.header}
+          placeholder={
+            pageModalData.header
+              ? pageModalData.header
+              : "Enter the page's header here (optional)"
+          }
           disabled={loading}
           onChange={(e) => setEditPageHeader(e.target.value)}
           value={editPageHeader}
@@ -548,7 +558,11 @@ export default function OrientationPagePreview() {
           type="text"
           id="content"
           className="w-full !bg-[#232F52]"
-          placeholder={pageModalData.content}
+          placeholder={
+            pageModalData.content
+              ? pageModalData.content
+              : "Enter the page's content here (optional)"
+          }
           disabled={loading}
           onChange={(e) => setEditPageContent(e.target.value)}
           textarea={true}
