@@ -437,16 +437,15 @@ exports.editSubcontentImage = (req, res) => {
       index = subcontent.findIndex(
         (subcontent) => subcontent.subcontentID === subcontentID
       );
-      subcontent[index].image = req.body.image;
+
+      subcontent[index].image = [...req.body.image];
 
       return db
         .doc(`/orientationPages/${orientationPageID}`)
         .update({ subcontent: subcontent });
     })
     .then(() => {
-      return res
-        .status(200)
-        .json({ message: "Subcontent image updated successfully" });
+      return res.status(200).json({ image: [...req.body.image] });
     })
     .catch((error) => {
       console.error(error);
