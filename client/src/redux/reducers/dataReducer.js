@@ -23,6 +23,7 @@ import {
   DELETE_SUBCONTENT_FILE,
   DELETE_ORIENTATION_OVERVIEW_VIDEO,
   UPDATE_ORIENTATION_OVERVIEW_VIDEO,
+  DELETE_SUBCONTENT_IMAGE,
 } from "../types";
 
 const initialState = {
@@ -180,6 +181,28 @@ export default function (state = initialState, action) {
           subcontentIndexImage
         ],
         image: [...action.payload.image],
+      };
+      return {
+        ...state,
+      };
+    case DELETE_SUBCONTENT_IMAGE:
+      let subcontentPageIndexImageDelete = state.orientation.pages.findIndex(
+        (page) => page.orientationPageID === action.payload.orientationPageID
+      );
+
+      let subcontentImageIndexDelete = state.orientation.pages[
+        subcontentPageIndexImageDelete
+      ].subcontent.findIndex(
+        (subcontent) => subcontent.subcontentID === action.payload.subcontentID
+      );
+
+      state.orientation.pages[subcontentPageIndexImageDelete].subcontent[
+        subcontentImageIndexDelete
+      ] = {
+        ...state.orientation.pages[subcontentPageIndexImageDelete].subcontent[
+          subcontentImageIndexDelete
+        ],
+        image: [],
       };
       return {
         ...state,

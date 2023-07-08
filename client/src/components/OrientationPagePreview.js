@@ -6,6 +6,7 @@ import {
   deleteOrientationPage,
   deleteSubcontent,
   deleteSubcontentFile,
+  deleteSubcontentImage,
   updateOrientationPagesContent,
   updateOrientationPagesHeader,
   updateOrientationPagesTitle,
@@ -60,6 +61,7 @@ export default function OrientationPagePreview() {
   const [fileModalData, setFileModalData] = useState({});
 
   const [image, setImage] = useState([]);
+  const [showResetImageModal, setShowResetImageModal] = useState(false);
 
   const handleShowPageModal = (id) => {
     let data;
@@ -335,6 +337,17 @@ export default function OrientationPagePreview() {
           dispatch({ type: STOP_LOADING_DATA });
         });
     });
+  };
+
+  const handleDeleteImages = () => {
+    dispatch(
+      deleteSubcontentImage(
+        pageModalData.orientationPageID,
+        subcontentModalData.subcontentID
+      )
+    );
+    setShowResetImageModal(!showResetImageModal);
+    setShowPageModal(!showPageModal);
   };
 
   //files will be an array
@@ -622,6 +635,15 @@ export default function OrientationPagePreview() {
                   })}
                 </Carousel>
               )}
+            <Button
+              onClick={() => {
+                setShowResetImageModal(!showResetImageModal);
+                setShowEditSubcontentModal(!showEditSubcontentModal);
+              }}
+              text="reset images"
+              className="!mt-[0.625rem] !bg-[#C4FFF9]"
+              disabled={loading}
+            />
           </>
         ) : (
           <>
@@ -826,6 +848,57 @@ export default function OrientationPagePreview() {
     </div>
   );
 
+  let confirmResetImageModal = (
+    <div
+      className={
+        "modal modal-middle h-auto " + (showResetImageModal ? "modal-open" : "")
+      }
+    >
+      <div className=" modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
+        <button
+          onClick={() => {
+            setShowResetImageModal(!showResetImageModal);
+            setShowEditSubcontentModal(!showEditSubcontentModal);
+          }}
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+        >
+          ✕
+        </button>
+        <p className="text-[18px] text-[#DFE5F8] font-normal mt-[1rem] mb=[1rem]">
+          Are you sure you want to reset these images for the post?
+        </p>
+        {subcontentModalData.image && (
+          <Carousel infiniteLoop={true} height="auto">
+            {subcontentModalData.image.map((image) => {
+              return (
+                <div>
+                  <img src={image} />
+                </div>
+              );
+            })}
+          </Carousel>
+        )}
+        <Button
+          onClick={handleDeleteImages}
+          text="delete"
+          x
+          className="w-full !bg-gray-600 !text-white"
+          disabled={loading}
+        />
+        <Button
+          onClick={() => {
+            setShowResetImageModal(!showResetImageModal);
+            setShowEditSubcontentModal(!showEditSubcontentModal);
+          }}
+          text="cancel"
+          x
+          className="w-full"
+          disabled={loading}
+        />
+      </div>
+    </div>
+  );
+
   let AddSubcontentModal = (
     <div
       className={
@@ -919,6 +992,7 @@ export default function OrientationPagePreview() {
       {confirmDeleteModal}
       {confirmDeletePageModal}
       {confirmDeleteFileModal}
+      {confirmResetImageModal}
     </>
   );
 }
