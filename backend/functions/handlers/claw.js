@@ -68,6 +68,7 @@ exports.addCollegeAndCampus = (req, res) => {
     campusID: "",
     createdAt: new Date().toISOString(),
     orientationID: "",
+    videos: [],
   };
 
   db.collection("colleges")
@@ -145,6 +146,7 @@ exports.addCampus = (req, res) => {
     campusID: "",
     createdAt: new Date().toISOString(),
     orientationID: "",
+    videos: [],
   };
 
   db.collection("colleges")

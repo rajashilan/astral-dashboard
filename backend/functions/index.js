@@ -46,6 +46,7 @@ const {
 const {
   getOrientationOverview,
   editOrientationOverview,
+  editOrientationOverviewContent,
   createOrientationPage,
   getOrientationPages,
   createNewSubcontent,
@@ -74,9 +75,6 @@ app.use(
     origin: ["http://localhost:3000", "https://web.postman.co/"],
   })
 );
-
-app.use(express.json({ limit: 52428800 }));
-app.use(express.urlencoded({ limit: 52428800 }));
 
 //claw routes ==============================================================
 
@@ -153,6 +151,12 @@ app.post(
   "/orientation/:campusID/:orientationID",
   sudoAdminAuth,
   editOrientationOverview
+);
+
+app.post(
+  "/orientation-content/:campusID/:orientationID",
+  sudoAdminAuth,
+  editOrientationOverviewContent
 );
 
 app.post(
@@ -233,18 +237,6 @@ app.post(
   "/subcontent-file/:campusID",
   sudoAdminAuth,
   uploadOrientationPostFile
-);
-
-app.post(
-  "/overview-image/:campusID",
-  sudoAdminAuth,
-  uploadOrientationOverviewImage
-);
-
-app.post(
-  "/overview-file/:campusID",
-  sudoAdminAuth,
-  uploadOrientationOverviewFile
 );
 
 app.post(
