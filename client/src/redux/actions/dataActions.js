@@ -312,7 +312,7 @@ export const updateSubcontentImage =
     const campusID = localStorage.getItem("AdminCampus");
 
     let payload = {
-      image: data.image,
+      image: [...data.image],
       orientationPageID: orientationPageID,
       subcontentID: subcontentID,
     };

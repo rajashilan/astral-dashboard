@@ -27,6 +27,9 @@ import WarningLabel from "./WarningLabel";
 import axios from "axios";
 import { LOADING_DATA, STOP_LOADING_DATA } from "../redux/types";
 
+import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
+import { Carousel } from "react-responsive-carousel";
+
 export default function OrientationPagePreview() {
   const dispatch = useDispatch();
   const state = useSelector((state) => state.data.orientation);
@@ -56,7 +59,7 @@ export default function OrientationPagePreview() {
   const [showDeleteFileModal, setShowDeleteFileModal] = useState(false);
   const [fileModalData, setFileModalData] = useState({});
 
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState([]);
 
   const handleShowPageModal = (id) => {
     let data;
@@ -190,7 +193,7 @@ export default function OrientationPagePreview() {
     setShowPageModal(!showPageModal);
     setAddSubcontentTitle("");
     setAddSubcontentContent("");
-    setImage(null);
+    setImage([]);
     setErrors({});
   };
 
@@ -216,11 +219,18 @@ export default function OrientationPagePreview() {
     setShowPageModal(!showPageModal);
   };
 
+  //for images
+  //as long as the number of images is less than 10,
+  //show add another image button when user adds an image
+  //then, get the image download urls and add them to an array in the correct order
+  //upload to firebase
+  //display the images as carousel
+
   const handleAddNewPost = () => {
     let data = {
       title: addSubcontentTitle,
       content: addSubcontentContent,
-      image: "",
+      image: [],
       files: [],
     };
 
@@ -229,32 +239,41 @@ export default function OrientationPagePreview() {
     } else {
       //files can only be uploaded after
 
-      if (image) {
+      if (image.length > 0) {
         //get download url
 
         const campusID = localStorage.getItem("AdminCampus");
 
-        const formData = new FormData();
-        formData.append("image", image, image.name);
+        image.forEach((img) => {
+          const formData = new FormData();
+          formData.append("image", img, img.name);
 
-        dispatch({ type: LOADING_DATA });
-        axios
-          .post(`/subcontent-image/${campusID}`, formData)
-          .then((res) => {
-            data.image = res.data.downloadUrl;
-            return data;
-          })
-          .then((data) => {
-            dispatch(
-              createNewOrientationPost(data, pageModalData.orientationPageID)
-            );
-            handleAddNewPostModal();
-          })
-          .catch((error) => {
-            console.error(error);
-            dispatch({ type: STOP_LOADING_DATA });
-          });
-        setImage(null);
+          dispatch({ type: LOADING_DATA });
+          axios
+            .post(`/subcontent-image/${campusID}`, formData)
+            .then((res) => {
+              let temp = [...data.image];
+              temp.push(res.data.downloadUrl);
+              data.image = [...temp];
+              return data;
+            })
+            .then((data) => {
+              if (data.image.length === image.length) {
+                dispatch(
+                  createNewOrientationPost(
+                    data,
+                    pageModalData.orientationPageID
+                  )
+                );
+                handleAddNewPostModal();
+              }
+              setImage([]);
+            })
+            .catch((error) => {
+              console.error(error);
+              dispatch({ type: STOP_LOADING_DATA });
+            });
+        });
       } else {
         dispatch(
           createNewOrientationPost(data, pageModalData.orientationPageID)
@@ -270,53 +289,52 @@ export default function OrientationPagePreview() {
   };
 
   const handleImageChange = (event) => {
-    const image = event.target.files[0];
-    setImage(image);
+    const imageFile = event.target.files[0];
+    if (imageFile) {
+      let temp = [...image];
+      temp.push(imageFile);
+      setImage([...temp]);
+    }
   };
-
-  //for editing image and files,
-  //upon setting the image, instantly update the image
-  //same thing goes for files
 
   const handleUpdateImage = () => {
-    const fileInput = document.getElementById("imageUpdate");
-    fileInput.click();
-  };
-
-  const handleUpdateImageChange = (event) => {
-    const image = event.target.files[0];
-
     const campusID = localStorage.getItem("AdminCampus");
-
-    const formData = new FormData();
-    formData.append("image", image, image.name);
-
     let data = {
-      image: "",
+      image: [],
     };
 
-    dispatch({ type: LOADING_DATA });
-    axios
-      .post(`/subcontent-image/${campusID}`, formData)
-      .then((res) => {
-        data.image = res.data.downloadUrl;
-        subcontentModalData.image = data.image;
-        return data;
-      })
-      .then((data) => {
-        //dispatch edit image function
-        dispatch(
-          updateSubcontentImage(
-            data,
-            pageModalData.orientationPageID,
-            subcontentModalData.subcontentID
-          )
-        );
-      })
-      .catch((error) => {
-        console.error(error);
-        dispatch({ type: STOP_LOADING_DATA });
-      });
+    image.forEach((img) => {
+      const formData = new FormData();
+      formData.append("image", img, img.name);
+
+      dispatch({ type: LOADING_DATA });
+      axios
+        .post(`/subcontent-image/${campusID}`, formData)
+        .then((res) => {
+          let temp = [...data.image];
+          temp.push(res.data.downloadUrl);
+          data.image = [...temp];
+          return data;
+        })
+        .then((data) => {
+          if (data.image.length === image.length) {
+            dispatch(
+              updateSubcontentImage(
+                data,
+                pageModalData.orientationPageID,
+                subcontentModalData.subcontentID
+              )
+            );
+            setShowEditSubcontentModal(!showEditSubcontentModal);
+            setShowPageModal(!showPageModal);
+          }
+          setImage([]);
+        })
+        .catch((error) => {
+          console.error(error);
+          dispatch({ type: STOP_LOADING_DATA });
+        });
+    });
   };
 
   //files will be an array
@@ -402,11 +420,15 @@ export default function OrientationPagePreview() {
             {content.content}
           </h2>
           {content.image.length !== 0 && (
-            <img
-              className="my-[0.5rem] w-full h-auto"
-              src={content.image}
-              alt="image"
-            />
+            <Carousel infiniteLoop={true} height="auto">
+              {content.image.map((image) => {
+                return (
+                  <div>
+                    <img src={image} />
+                  </div>
+                );
+              })}
+            </Carousel>
           )}
           <hr className="border border-solid border-gray-500 border-[1px] w-full my-[2rem]" />
           {content.files.length !== 0 &&
@@ -545,7 +567,7 @@ export default function OrientationPagePreview() {
         <button
           onClick={() => {
             justShowEditSubcontentData();
-            setImage(null);
+            setImage([]);
           }}
           className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
         >
@@ -586,40 +608,64 @@ export default function OrientationPagePreview() {
             value={editSubcontentContent}
           />
         </div>
-        {subcontentModalData.image ? (
+        {subcontentModalData.image && subcontentModalData.image.length > 0 ? (
           <>
-            <WarningLabel className="!text-gray-300 !text-center">
-              Click on image to replace
-            </WarningLabel>
-            <img
-              onClick={handleUpdateImage}
-              className="my-[0.5rem] w-full h-auto cursor-pointer"
-              src={subcontentModalData.image}
-              alt="image"
-            />
-            <input
-              type="file"
-              id="imageUpdate"
-              accept="image/*"
-              onChange={handleUpdateImageChange}
-              hidden="hidden"
-            />
+            {subcontentModalData.image &&
+              subcontentModalData.image.length !== 0 && (
+                <Carousel infiniteLoop={true} height="auto">
+                  {subcontentModalData.image.map((image) => {
+                    return (
+                      <div>
+                        <img src={image} />
+                      </div>
+                    );
+                  })}
+                </Carousel>
+              )}
           </>
         ) : (
           <>
-            <Button
-              onClick={handleUploadImage}
-              text={image ? "choose another image" : "upload image"}
-              className="!my-[0.625rem] !bg-[#C4FFF9]"
-              disabled={loading}
-            />
-            <input
-              type="file"
-              id="imageInput"
-              accept="image/*"
-              onChange={handleImageChange}
-              hidden="hidden"
-            />
+            <WarningLabel className="!text-gray-100 !text-center">
+              {image.length > 0 && image.length < 10
+                ? `${image.length} image(s) selected`
+                : image.length === 10
+                ? `Maximum cap of 10 images reached.`
+                : null}
+            </WarningLabel>
+            {image.length < 10 ? (
+              <>
+                <Button
+                  onClick={handleUploadImage}
+                  text={
+                    image.length > 0 ? "choose another image" : "upload image"
+                  }
+                  className="!mt-[0.625rem] !bg-[#C4FFF9]"
+                  disabled={loading}
+                />
+                <input
+                  type="file"
+                  id="imageInput"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  hidden="hidden"
+                />
+              </>
+            ) : (
+              <Button
+                onClick={() => setImage([])}
+                text="reset images"
+                className="!mt-[0.625rem] !bg-[#C4FFF9]"
+                disabled={loading}
+              />
+            )}
+            {image.length > 0 && (
+              <Button
+                onClick={handleUpdateImage}
+                text={"update image"}
+                className="!mt-[1rem]"
+                disabled={loading}
+              />
+            )}
           </>
         )}
         <hr className="border border-solid border-gray-500 border-[1px] w-full my-[2rem]" />
@@ -646,7 +692,7 @@ export default function OrientationPagePreview() {
 
         <Button
           onClick={handleUpdateFile}
-          text={image ? "choose another file" : "upload file"}
+          text="upload file"
           className="!mt-[0.625rem] !bg-[#C4FFF9]"
           disabled={loading}
         />
@@ -818,19 +864,37 @@ export default function OrientationPagePreview() {
             textarea={true}
           />
         </div>
-        <Button
-          onClick={handleUploadImage}
-          text={image ? "choose another image" : "upload image"}
-          className="!mt-[0.625rem] !bg-[#C4FFF9]"
-          disabled={loading}
-        />
-        <input
-          type="file"
-          id="imageInput"
-          accept="image/*"
-          onChange={handleImageChange}
-          hidden="hidden"
-        />
+        <WarningLabel className="!text-gray-100 !text-center">
+          {image.length > 0 && image.length < 10
+            ? `${image.length} image(s) selected`
+            : image.length === 10
+            ? `Maximum cap of 10 images reached.`
+            : null}
+        </WarningLabel>
+        {image.length < 10 ? (
+          <>
+            <Button
+              onClick={handleUploadImage}
+              text={image.length > 0 ? "choose another image" : "upload image"}
+              className="!mt-[0.625rem] !bg-[#C4FFF9]"
+              disabled={loading}
+            />
+            <input
+              type="file"
+              id="imageInput"
+              accept="image/*"
+              onChange={handleImageChange}
+              hidden="hidden"
+            />
+          </>
+        ) : (
+          <Button
+            onClick={() => setImage([])}
+            text="reset images"
+            className="!mt-[0.625rem] !bg-[#C4FFF9]"
+            disabled={loading}
+          />
+        )}
         <WarningLabel className="!text-gray-300 !text-center">
           Files can only be uploaded after creating a post
         </WarningLabel>
