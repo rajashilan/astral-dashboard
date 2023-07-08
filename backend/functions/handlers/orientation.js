@@ -453,6 +453,35 @@ exports.editSubcontentImage = (req, res) => {
     });
 };
 
+//edit subcontent image
+exports.deleteSubcontentImage = (req, res) => {
+  const orientationPageID = req.params.orientationPageID;
+  const subcontentID = req.params.subcontentID;
+
+  db.doc(`/orientationPages/${orientationPageID}`)
+    .get()
+    .then((doc) => {
+      let subcontent = doc.data().subcontent;
+
+      index = subcontent.findIndex(
+        (subcontent) => subcontent.subcontentID === subcontentID
+      );
+
+      subcontent[index].image = [];
+
+      return db
+        .doc(`/orientationPages/${orientationPageID}`)
+        .update({ subcontent: subcontent });
+    })
+    .then(() => {
+      return res.status(200).json({ image: [] });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
 //edit subcontent file
 exports.editSubcontentFile = (req, res) => {
   const orientationPageID = req.params.orientationPageID;
