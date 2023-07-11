@@ -103,7 +103,11 @@ export default function OrientationPagePreview() {
         title: editPageTitle,
       };
       dispatch(
-        updateOrientationPagesTitle(data, pageModalData.orientationPageID)
+        updateOrientationPagesTitle(
+          data,
+          state.overview.orientationID,
+          pageModalData.orientationPageID
+        )
       );
       pageModalData.title = data.title;
     }
@@ -183,7 +187,12 @@ export default function OrientationPagePreview() {
   };
 
   const handleDeletePage = () => {
-    dispatch(deleteOrientationPage(pageModalData.orientationPageID));
+    dispatch(
+      deleteOrientationPage(
+        state.overview.orientationID,
+        pageModalData.orientationPageID
+      )
+    );
 
     setShowDeletePageModal(!showDeletePageModal);
   };

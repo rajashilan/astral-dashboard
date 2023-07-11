@@ -145,7 +145,7 @@ export const getOrientationPages = (orientationID) => (dispatch) => {
 };
 
 export const updateOrientationPagesTitle =
-  (data, orientationPageID) => (dispatch) => {
+  (data, orientationID, orientationPageID) => (dispatch) => {
     dispatch({ type: LOADING_DATA });
     const campusID = localStorage.getItem("AdminCampus");
 
@@ -155,7 +155,10 @@ export const updateOrientationPagesTitle =
     };
 
     axios
-      .post(`/orientation-page-title/${campusID}/${orientationPageID}`, data)
+      .post(
+        `/orientation-page-title/${campusID}/${orientationID}/${orientationPageID}`,
+        data
+      )
       .then((res) => {
         dispatch({ type: STOP_LOADING_DATA });
         dispatch({ type: CLEAR_GENERAL_ERRORS });
@@ -531,35 +534,38 @@ export const deleteSubcontent =
       });
   };
 
-export const deleteOrientationPage = (orientationPageID) => (dispatch) => {
-  dispatch({ type: LOADING_DATA });
-  const campusID = localStorage.getItem("AdminCampus");
+export const deleteOrientationPage =
+  (orientationID, orientationPageID) => (dispatch) => {
+    dispatch({ type: LOADING_DATA });
+    const campusID = localStorage.getItem("AdminCampus");
 
-  let payload = {
-    orientationPageID: orientationPageID,
-  };
+    let payload = {
+      orientationPageID: orientationPageID,
+    };
 
-  axios
-    .delete(`/orientation-page/${campusID}/${orientationPageID}`)
-    .then((res) => {
-      console.log("aifidhjksadhahd");
-      dispatch({ type: STOP_LOADING_DATA });
-      dispatch({ type: CLEAR_GENERAL_ERRORS });
-      dispatch({
-        type: DELETE_ORIENTATION_PAGE,
-        payload: payload,
+    axios
+      .delete(
+        `/orientation-page/${campusID}/${orientationID}/${orientationPageID}`
+      )
+      .then((res) => {
+        console.log("aifidhjksadhahd");
+        dispatch({ type: STOP_LOADING_DATA });
+        dispatch({ type: CLEAR_GENERAL_ERRORS });
+        dispatch({
+          type: DELETE_ORIENTATION_PAGE,
+          payload: payload,
+        });
+        alert("Page deleted successfully");
+      })
+      .catch((error) => {
+        // dispatch({
+        //   type: SET_GENERAL_ERRORS,
+        //   payload: error.response.data.error,
+        // });
+        console.error(error);
+        dispatch({ type: STOP_LOADING_DATA });
       });
-      alert("Page deleted successfully");
-    })
-    .catch((error) => {
-      // dispatch({
-      //   type: SET_GENERAL_ERRORS,
-      //   payload: error.response.data.error,
-      // });
-      console.error(error);
-      dispatch({ type: STOP_LOADING_DATA });
-    });
-};
+  };
 
 export const createNewOrientationPage = (data, orientationID) => (dispatch) => {
   dispatch({ type: LOADING_DATA });

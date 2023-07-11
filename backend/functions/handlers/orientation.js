@@ -26,6 +26,7 @@ exports.createOrientationOverview = (req, res) => {
     // videos: req.body.videos,
     // content: req.body.content,
     // files: req.body.files,
+    pages: [],
   };
 
   db.collection("orientations")
@@ -219,8 +220,23 @@ exports.createOrientationPage = (req, res) => {
         .doc(`/orientationPages/${orientationPageID}`)
         .update({ orientationPageID: orientationPageID });
     })
-    .then((data) => {
-      return res.status(201).json({ orientationPageID: orientationPageID });
+    .then(() => {
+      return db
+        .doc(`/orientations/${orientationID}`)
+        .get()
+        .then((doc) => {
+          let temp = [...doc.data().pages];
+          temp.push({
+            title: data.title,
+            orientationPageID,
+          });
+          return db
+            .doc(`/orientations/${data.orientationID}`)
+            .update({ pages: [...temp] });
+        })
+        .then(() => {
+          return res.status(201).json({ orientationPageID: orientationPageID });
+        });
     })
     .catch((error) => {
       console.error(error);
@@ -326,14 +342,31 @@ exports.deleteSubcontent = (req, res) => {
 
 //edit orientation page title
 exports.editOrientationPageTitle = (req, res) => {
+  const orientationID = req.params.orientationID;
   const orientationPageID = req.params.orientationPageID;
 
   db.doc(`/orientationPages/${orientationPageID}`)
     .update({ title: req.body.title })
     .then(() => {
-      return res
-        .status(201)
-        .json({ message: "Orientation page title updated successfully" });
+      return db
+        .doc(`/orientations/${orientationID}`)
+        .get()
+        .then((doc) => {
+          let temp = [...doc.data().pages];
+          let index = temp.findIndex(
+            (page) => page.orientationPageID === orientationPageID
+          );
+          temp[index].title = req.body.title;
+
+          return db
+            .doc(`/orientations/${orientationID}`)
+            .update({ pages: [...temp] });
+        })
+        .then(() => {
+          return res
+            .status(201)
+            .json({ message: "Orientation page title updated successfully" });
+        });
     })
     .catch((error) => {
       console.error(error);
@@ -567,13 +600,31 @@ exports.deleteSubcontentFile = (req, res) => {
 
 //delete orientation page
 exports.deleteOrientationPage = (req, res) => {
+  const orientationID = req.params.orientationID;
   const orientationPageID = req.params.orientationPageID;
+
   db.doc(`/orientationPages/${orientationPageID}`)
     .delete()
     .then(() => {
-      return res
-        .status(200)
-        .json({ message: "Orientation page deleted successfully" });
+      return db
+        .doc(`/orientations/${orientationID}`)
+        .get()
+        .then((doc) => {
+          let temp = [...doc.data().pages];
+          let index = temp.findIndex(
+            (page) => page.orientationPageID === orientationPageID
+          );
+          temp.splice(index, 1);
+
+          return db
+            .doc(`/orientations/${orientationID}`)
+            .update({ pages: [...temp] });
+        })
+        .then(() => {
+          return res
+            .status(200)
+            .json({ message: "Orientation page deleted successfully" });
+        });
     })
     .catch((error) => {
       console.error(error);

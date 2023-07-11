@@ -246,7 +246,7 @@ app.post(
 );
 
 app.post(
-  "/orientation-page-title/:campusID/:orientationPageID",
+  "/orientation-page-title/:campusID/:orientationID/:orientationPageID",
   sudoAdminAuth,
   editOrientationPageTitle
 );
@@ -264,7 +264,7 @@ app.post(
 );
 
 app.delete(
-  "/orientation-page/:campusID/:orientationPageID",
+  "/orientation-page/:campusID/:orientationID/:orientationPageID",
   sudoAdminAuth,
   deleteOrientationPage
 );
