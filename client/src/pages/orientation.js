@@ -56,9 +56,6 @@ export default function Orientation() {
       title: data["title"],
       header: pageHeader,
       content: pageContent,
-      video: "",
-      image: "",
-      files: [],
     };
     console.log(pageData);
     dispatch(createNewOrientationPage(pageData, state.orientationID));

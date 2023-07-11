@@ -26,19 +26,20 @@ export default function Menu() {
 
   useEffect(() => {
     if (!loading) {
-      console.log(state.role);
-      if (state.role === "sudo") return;
-      else if (state.role === "general") return;
-      else if (state.role.split(":")[0] === "focused") {
-        navigate(state.role.split(":")[1]);
-      } else if (state.role.split(":")[0] === "department") {
-        console.log("department");
-        navigate("/department", {
-          state: {
-            departmentID: state.role.split(":")[1],
-          },
-        });
-      }
+      if (state.role) {
+        if (state.role === "sudo") return;
+        else if (state.role === "general") return;
+        else if (state.role.split(":")[0] === "focused") {
+          navigate(state.role.split(":")[1]);
+        } else if (state.role.split(":")[0] === "department") {
+          console.log("department");
+          navigate("/department", {
+            state: {
+              departmentID: state.role.split(":")[1],
+            },
+          });
+        }
+      } else navigate("/login");
     }
   }, [loading]);
 

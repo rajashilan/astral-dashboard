@@ -22,10 +22,10 @@ exports.createOrientationOverview = (req, res) => {
     campusID: campusID,
     createdAt: new Date().toISOString(),
     orientationID: "",
-    images: req.body.images,
-    videos: req.body.videos,
-    content: req.body.content,
-    files: req.body.files,
+    // images: req.body.images,
+    // videos: req.body.videos,
+    // content: req.body.content,
+    // files: req.body.files,
   };
 
   db.collection("orientations")
@@ -205,9 +205,6 @@ exports.createOrientationPage = (req, res) => {
     title: req.body.title,
     header: req.body.header,
     content: req.body.content,
-    video: req.body.video,
-    image: req.body.image,
-    files: req.body.files,
     subcontent: [],
   };
 

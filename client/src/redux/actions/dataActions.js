@@ -590,6 +590,7 @@ export const createNewOrientationPage = (data, orientationID) => (dispatch) => {
     });
 };
 
+//create new subcontent
 export const createNewOrientationPost =
   (data, orientationPageID) => (dispatch) => {
     dispatch({ type: LOADING_DATA });
