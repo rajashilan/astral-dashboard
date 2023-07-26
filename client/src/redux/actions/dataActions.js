@@ -25,6 +25,8 @@ import {
   DELETE_SUBCONTENT_FILE,
   UPDATE_ORIENTATION_OVERVIEW_VIDEO,
   DELETE_SUBCONTENT_IMAGE,
+  SET_CLUBS,
+  APPROVE_CLUB,
 } from "../types";
 import axios from "axios";
 
@@ -635,6 +637,54 @@ export const updateAdminsRole = (data) => (dispatch) => {
       dispatch({ type: CLEAR_GENERAL_ERRORS });
       dispatch({ type: SET_UPDATED_ADMIN, payload: data });
       alert("Admin role updated");
+    })
+    .catch((error) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: error.response.data.error,
+      });
+      console.error(error);
+    });
+};
+
+export const getClubs = () => (dispatch) => {
+  dispatch({ type: LOADING_DATA });
+  const campusID = localStorage.getItem("AdminCampus");
+
+  axios
+    .get(`/clubs/${campusID}`)
+    .then((res) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({ type: CLEAR_GENERAL_ERRORS });
+      dispatch({ type: SET_CLUBS, payload: res.data });
+    })
+    .catch((error) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: error.response.data.error,
+      });
+      console.error(error);
+    });
+};
+
+export const approveClub = (club) => (dispatch) => {
+  dispatch({ type: LOADING_DATA });
+
+  let data = {
+    createdBy: club.createdBy,
+  };
+
+  club.approval = "approved";
+
+  axios
+    .post(`/clubs/approve/${club.campusID}/${club.clubID}`, data)
+    .then((res) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({ type: CLEAR_GENERAL_ERRORS });
+      dispatch({ type: APPROVE_CLUB, payload: club });
+      alert(`${club.name} approved successfully`);
     })
     .catch((error) => {
       dispatch({ type: STOP_LOADING_DATA });

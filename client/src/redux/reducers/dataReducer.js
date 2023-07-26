@@ -24,6 +24,8 @@ import {
   DELETE_ORIENTATION_OVERVIEW_VIDEO,
   UPDATE_ORIENTATION_OVERVIEW_VIDEO,
   DELETE_SUBCONTENT_IMAGE,
+  SET_CLUBS,
+  APPROVE_CLUB,
 } from "../types";
 
 const initialState = {
@@ -33,6 +35,7 @@ const initialState = {
     overview: {},
     pages: [],
   },
+  clubs: [],
   loading: false,
   newAdminLink: "",
 };
@@ -336,6 +339,17 @@ export default function (state = initialState, action) {
       state.orientation.pages[orientationPageAddPostIndex].subcontent.unshift(
         action.payload
       );
+    case SET_CLUBS:
+      return {
+        ...state,
+        clubs: [...action.payload],
+      };
+    case APPROVE_CLUB:
+      let findApproveClubIndex = state.clubs.findIndex(
+        (club) => club.clubID === action.payload.clubID
+      );
+      console.log(findApproveClubIndex);
+      state.clubs[findApproveClubIndex] = action.payload;
       return {
         ...state,
       };

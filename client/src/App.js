@@ -16,6 +16,7 @@ import Home from "./pages/home";
 import Menu from "./pages/menu";
 import College from "./pages/college";
 import Orientation from "./pages/orientation";
+import Clubs from "./pages/clubs";
 
 //components
 import Navbar from "./components/Navbar";
@@ -52,6 +53,7 @@ function App() {
         <Route exact path="/home" element={<Home />} />
         <Route exact path="/college" element={<College />} />
         <Route exact path="/orientation" element={<Orientation />} />
+        <Route exact path="/clubs" element={<Clubs />} />
       </Routes>
     </Router>
   );
