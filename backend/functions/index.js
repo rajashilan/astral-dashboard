@@ -281,4 +281,6 @@ app.get("/clubs/:campusID", sudoAdminAuth, getAllClubs);
 
 app.post(`/clubs/approve/:campusID/:clubID`, sudoAdminAuth, approveClub);
 
+app.post(`/clubs/reject/:campusID/:clubID`, sudoAdminAuth, rejectClub);
+
 exports.api = functions.region("asia-southeast1").https.onRequest(app);
