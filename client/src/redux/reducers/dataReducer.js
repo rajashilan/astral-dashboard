@@ -346,20 +346,24 @@ export default function (state = initialState, action) {
         clubs: [...action.payload],
       };
     case APPROVE_CLUB:
-      let findApproveClubIndex = state.clubs.findIndex(
+      let tempApprove = state.clubs;
+      let findApproveClubIndex = tempApprove.findIndex(
         (club) => club.clubID === action.payload.clubID
       );
-      state.clubs[findApproveClubIndex] = action.payload;
+      tempApprove[findApproveClubIndex] = action.payload;
       return {
         ...state,
+        clubs: [...tempApprove],
       };
     case REJECT_CLUB:
-      let findRejectClubIndex = state.clubs.findIndex(
+      let tempReject = state.clubs;
+      let findRejectClubIndex = tempReject.findIndex(
         (club) => club.clubID === action.payload.clubID
       );
-      state.clubs[findRejectClubIndex] = action.payload;
+      tempReject[findRejectClubIndex] = action.payload;
       return {
         ...state,
+        clubs: [...tempReject],
       };
     case LOADING_DATA:
       return {
