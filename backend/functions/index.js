@@ -283,4 +283,6 @@ app.post(`/clubs/approve/:campusID/:clubID`, sudoAdminAuth, approveClub);
 
 app.post(`/clubs/reject/:campusID/:clubID`, sudoAdminAuth, rejectClub);
 
+app.post(`/clubs/suspend/:campusID/:clubID`, sudoAdminAuth, suspendClub);
+
 exports.api = functions.region("asia-southeast1").https.onRequest(app);

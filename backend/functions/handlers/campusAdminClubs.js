@@ -123,18 +123,22 @@ exports.rejectClub = (req, res) => {
 //remove suspension and update in db from app
 exports.suspendClub = (req, res) => {
   const clubID = req.params.clubID;
-  const suspension = req.body.suspension;
+  const campusID = req.params.campusID;
+  let suspension = req.body.suspension;
 
-  //format:
-  //suspension:indefinetely
-  //suspension:timestampInMillis:7 -> days
+  if (suspension === "0") suspension = "suspended:0";
+  else suspension = `suspended:${suspension}`;
 
   db.doc(`/clubs/${clubID}`)
     .update({ status: suspension })
     .then(() => {
-      return db
-        .collection(`/clubsOverview/${campusID}`)
-        .update({ status: suspension });
+      return db.doc(`/clubsOverview/${campusID}`).get();
+    })
+    .then((doc) => {
+      let temp = [...doc.data().clubs];
+      let index = temp.findIndex((club) => club.clubID === clubID);
+      temp[index].status = suspension;
+      return db.doc(`/clubsOverview/${campusID}`).update({ clubs: [...temp] });
     })
     .then(() => {
       return res.status(200).json({ clubID });
