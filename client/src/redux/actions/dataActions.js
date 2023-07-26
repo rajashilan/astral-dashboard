@@ -28,6 +28,7 @@ import {
   SET_CLUBS,
   APPROVE_CLUB,
   REJECT_CLUB,
+  SUSPEND_CLUB,
 } from "../types";
 import axios from "axios";
 
@@ -715,6 +716,36 @@ export const rejectClub = (club, rejectionReason) => (dispatch) => {
       dispatch({ type: CLEAR_GENERAL_ERRORS });
       dispatch({ type: REJECT_CLUB, payload: club });
       alert(`${club.name} rejected successfully`);
+    })
+    .catch((error) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: error.response.data.error,
+      });
+      console.error(error);
+    });
+};
+
+export const suspendClub = (club, suspension) => (dispatch) => {
+  dispatch({ type: LOADING_DATA });
+
+  let data = {
+    suspension,
+  };
+
+  if (suspension === "0") suspension = "suspended:0";
+  else suspension = `suspended:${suspension}`;
+
+  club.status = suspension;
+
+  axios
+    .post(`/clubs/suspend/${club.campusID}/${club.clubID}`, data)
+    .then((res) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({ type: CLEAR_GENERAL_ERRORS });
+      dispatch({ type: SUSPEND_CLUB, payload: club });
+      alert(`${club.name} suspended successfully`);
     })
     .catch((error) => {
       dispatch({ type: STOP_LOADING_DATA });

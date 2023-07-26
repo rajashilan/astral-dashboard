@@ -27,6 +27,7 @@ import {
   SET_CLUBS,
   APPROVE_CLUB,
   REJECT_CLUB,
+  SUSPEND_CLUB,
 } from "../types";
 
 const initialState = {
@@ -364,6 +365,16 @@ export default function (state = initialState, action) {
       return {
         ...state,
         clubs: [...tempReject],
+      };
+    case SUSPEND_CLUB:
+      let tempSuspend = state.clubs;
+      let findSuspendClubIndex = tempSuspend.findIndex(
+        (club) => club.clubID === action.payload.clubID
+      );
+      tempSuspend[findSuspendClubIndex] = action.payload;
+      return {
+        ...state,
+        clubs: [...tempSuspend],
       };
     case LOADING_DATA:
       return {

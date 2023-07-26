@@ -48,7 +48,7 @@ export default function PendingClubs() {
 
   const handleShowRejectionModal = (data) => {
     if (data) setRejectionModalData(data);
-    else setShowRejectionModal({});
+    else setRejectionModalData({});
     clearErrors("rejectionReason");
     setShowRejectionModal(!showRejectionModal);
   };
