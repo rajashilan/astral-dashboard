@@ -9,7 +9,7 @@ import TextInput from "../components/TextInput";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { approveClub } from "../redux/actions/dataActions";
+import { approveClub, rejectClub } from "../redux/actions/dataActions";
 
 const formSchema = z.object({
   rejectionReason: z
@@ -46,19 +46,17 @@ export default function PendingClubs() {
     dispatch(approveClub(club));
   };
 
-  const handleReject = (data) => {
-    let rejectionData = {
-      rejectionReason: data["rejectionReason"],
-    };
-
-    console.log(rejectionData);
-  };
-
   const handleShowRejectionModal = (data) => {
     if (data) setRejectionModalData(data);
     else setShowRejectionModal({});
     clearErrors("rejectionReason");
     setShowRejectionModal(!showRejectionModal);
+  };
+
+  const handleReject = (data) => {
+    let rejectionReason = data["rejectionReason"];
+    dispatch(rejectClub(rejectionModalData, rejectionReason));
+    handleShowRejectionModal();
   };
 
   let RejectModal = (

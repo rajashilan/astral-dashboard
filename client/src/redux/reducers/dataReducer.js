@@ -26,6 +26,7 @@ import {
   DELETE_SUBCONTENT_IMAGE,
   SET_CLUBS,
   APPROVE_CLUB,
+  REJECT_CLUB,
 } from "../types";
 
 const initialState = {
@@ -348,8 +349,15 @@ export default function (state = initialState, action) {
       let findApproveClubIndex = state.clubs.findIndex(
         (club) => club.clubID === action.payload.clubID
       );
-      console.log(findApproveClubIndex);
       state.clubs[findApproveClubIndex] = action.payload;
+      return {
+        ...state,
+      };
+    case REJECT_CLUB:
+      let findRejectClubIndex = state.clubs.findIndex(
+        (club) => club.clubID === action.payload.clubID
+      );
+      state.clubs[findRejectClubIndex] = action.payload;
       return {
         ...state,
       };
