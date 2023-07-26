@@ -13,7 +13,7 @@ exports.getAllClubs = (req, res) => {
     .then((data) => {
       let clubs = [];
       data.forEach((doc) => {
-        clubs.push(...doc.data());
+        clubs.push(doc.data());
       });
       return res.status(200).json(clubs);
     })
@@ -40,7 +40,7 @@ exports.approveClub = (req, res) => {
     .get()
     .then((doc) => {
       let temp = doc.data().clubs;
-      let index = temp.findIndex((club) => clubID === clubID);
+      let index = temp.findIndex((club) => club.clubID === clubID);
       temp[index].approval = "approved";
 
       return db.doc(`/users/${createdBy}`).update({ clubs: [...temp] });
@@ -51,8 +51,9 @@ exports.approveClub = (req, res) => {
         .update({ approval: "approved", rejectionReason });
     })
     .then(() => {
+      //fix this shit
       return db
-        .collection(`/clubsOverview/${campusID}`)
+        .doc(`/clubsOverview/${campusID}`)
         .update({ approval: "approved", rejectionReason });
     })
     .then(() => {

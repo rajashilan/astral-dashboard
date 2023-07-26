@@ -70,6 +70,14 @@ const {
   deleteSubcontentImage,
 } = require("./handlers/orientation");
 
+const {
+  getAllClubs,
+  approveClub,
+  rejectClub,
+  suspendClub,
+  removeSuspension,
+} = require("./handlers/campusAdminClubs");
+
 app.use(
   cors({
     origin: ["http://localhost:3000", "https://web.postman.co/"],
@@ -268,5 +276,9 @@ app.delete(
   sudoAdminAuth,
   deleteOrientationPage
 );
+
+app.get("/clubs/:campusID", sudoAdminAuth, getAllClubs);
+
+app.post(`/clubs/approve/:campusID/:clubID`, sudoAdminAuth, approveClub);
 
 exports.api = functions.region("asia-southeast1").https.onRequest(app);
