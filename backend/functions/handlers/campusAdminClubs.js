@@ -42,6 +42,7 @@ exports.approveClub = (req, res) => {
       let temp = doc.data().clubs;
       let index = temp.findIndex((club) => club.clubID === clubID);
       temp[index].approval = "approved";
+      temp[index].rejectionReason = "";
 
       return db.doc(`/users/${createdBy}`).update({ clubs: [...temp] });
     })
@@ -52,9 +53,16 @@ exports.approveClub = (req, res) => {
     })
     .then(() => {
       //fix this shit
-      return db
-        .doc(`/clubsOverview/${campusID}`)
-        .update({ approval: "approved", rejectionReason });
+
+      //update the subarray according to clubID
+      return db.doc(`/clubsOverview/${campusID}`).get();
+    })
+    .then((doc) => {
+      let temp = [...doc.data().clubs];
+      let index = temp.findIndex((club) => club.clubID === clubID);
+      temp[index].approval = "approved";
+      temp[index].rejectionReason = "";
+      return db.doc(`/clubsOverview/${campusID}`).update({ clubs: [...temp] });
     })
     .then(() => {
       return res.status(200).json({ clubID });
