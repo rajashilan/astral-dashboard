@@ -42,3 +42,4 @@ export const SET_CLUBS = "SET_CLUBS";
 export const APPROVE_CLUB = "APPROVE_CLUB";
 export const REJECT_CLUB = "REJECT_CLUB";
 export const SUSPEND_CLUB = "SUSPEND_CLUB";
+export const REMOVE_SUSPENSION = "REMOVE_SUSPENSION";

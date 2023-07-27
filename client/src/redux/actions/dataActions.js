@@ -29,6 +29,7 @@ import {
   APPROVE_CLUB,
   REJECT_CLUB,
   SUSPEND_CLUB,
+  REMOVE_SUSPENSION,
 } from "../types";
 import axios from "axios";
 
@@ -746,6 +747,29 @@ export const suspendClub = (club, suspension) => (dispatch) => {
       dispatch({ type: CLEAR_GENERAL_ERRORS });
       dispatch({ type: SUSPEND_CLUB, payload: club });
       alert(`${club.name} suspended successfully`);
+    })
+    .catch((error) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: error.response.data.error,
+      });
+      console.error(error);
+    });
+};
+
+export const removeSuspension = (club) => (dispatch) => {
+  dispatch({ type: LOADING_DATA });
+
+  club.status = "active";
+
+  axios
+    .post(`/clubs/remove-suspension/${club.campusID}/${club.clubID}`)
+    .then((res) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({ type: CLEAR_GENERAL_ERRORS });
+      dispatch({ type: REMOVE_SUSPENSION, payload: club });
+      alert(`${club.name}'s suspension removed successfully`);
     })
     .catch((error) => {
       dispatch({ type: STOP_LOADING_DATA });
