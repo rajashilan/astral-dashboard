@@ -152,16 +152,19 @@ exports.suspendClub = (req, res) => {
 //lift club's suspension
 exports.removeSuspension = (req, res) => {
   const clubID = req.params.clubID;
-  const status = "active";
-
-  //format:
-  //suspension:indefinetely
-  //suspension:timestampInMillis:7 -> days
+  const campusID = req.params.campusID;
+  let suspension = "active";
 
   db.doc(`/clubs/${clubID}`)
-    .update({ status })
+    .update({ status: suspension })
     .then(() => {
-      return db.collection(`/clubsOverview/${campusID}`).update({ status });
+      return db.doc(`/clubsOverview/${campusID}`).get();
+    })
+    .then((doc) => {
+      let temp = [...doc.data().clubs];
+      let index = temp.findIndex((club) => club.clubID === clubID);
+      temp[index].status = suspension;
+      return db.doc(`/clubsOverview/${campusID}`).update({ clubs: [...temp] });
     })
     .then(() => {
       return res.status(200).json({ clubID });
