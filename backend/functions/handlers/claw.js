@@ -69,6 +69,7 @@ exports.addCollegeAndCampus = (req, res) => {
     createdAt: new Date().toISOString(),
     orientationID: "",
     videos: [],
+    pages: [],
   };
 
   db.collection("colleges")
@@ -113,6 +114,7 @@ exports.addCollegeAndCampus = (req, res) => {
                 message: `${campus.name} created successfully`,
                 linkID: campus.linkID,
                 campusID: orientationData.campusID,
+                link: `http://localhost:3000/${orientationData.campusID}/${campus.linkID}/1`,
               });
             });
         });
@@ -147,6 +149,7 @@ exports.addCampus = (req, res) => {
     createdAt: new Date().toISOString(),
     orientationID: "",
     videos: [],
+    pages: [],
   };
 
   db.collection("colleges")
@@ -194,6 +197,7 @@ exports.addCampus = (req, res) => {
                 message: `${campus.name} created successfully`,
                 linkID: campus.linkID,
                 campusID: orientationData.campusID,
+                link: `http://localhost:3000/${orientationData.campusID}/${campus.linkID}/1`,
               });
             });
         });
