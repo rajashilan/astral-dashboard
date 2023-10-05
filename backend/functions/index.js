@@ -78,9 +78,15 @@ const {
   removeSuspension,
 } = require("./handlers/campusAdminClubs");
 
+const { modifyPdf, testPdf, createGeneralForm } = require("./utils/pdf");
+
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://web.postman.co/"],
+    origin: [
+      "http://localhost:3000",
+      "https://web.postman.co/",
+      "exp://192.168.0.8:19000",
+    ],
   })
 );
 
@@ -290,5 +296,9 @@ app.post(
   sudoAdminAuth,
   removeSuspension
 );
+
+app.post("/pdf", modifyPdf);
+app.get("/pdf-test", testPdf);
+app.post("/add-pdf", createGeneralForm);
 
 exports.api = functions.region("asia-southeast1").https.onRequest(app);

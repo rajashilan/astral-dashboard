@@ -23,8 +23,10 @@
     "firebase-functions": "^4.4.0",
     "fluent-ffmpeg": "^2.1.2",
     "fs": "^0.0.1-security",
+    "node-fetch": "^2.7.0",
     "os": "^0.1.2",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "pdf-lib": "^1.17.1"
   },
   "devDependencies": {
     "firebase-functions-test": "^3.0.0"
