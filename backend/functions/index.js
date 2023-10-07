@@ -41,6 +41,9 @@ const {
   editAdminRole,
   deactivateAdmin,
   reactivateAdmin,
+  getAllClubActivities,
+  handleEventActivity,
+  handleGalleryActivity,
 } = require("./handlers/campusAdmin");
 
 const {
@@ -295,6 +298,18 @@ app.post(
   `/clubs/remove-suspension/:campusID/:clubID`,
   sudoAdminAuth,
   removeSuspension
+);
+
+app.get("/clubs/activities/:campusID", sudoAdminAuth, getAllClubActivities);
+app.post(
+  "/clubs/activities/event/:campusID",
+  sudoAdminAuth,
+  handleEventActivity
+);
+app.post(
+  "/clubs/activities/gallery/:campusID",
+  sudoAdminAuth,
+  handleGalleryActivity
 );
 
 app.post("/pdf", modifyPdf);

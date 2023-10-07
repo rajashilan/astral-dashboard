@@ -30,6 +30,8 @@ import {
   REJECT_CLUB,
   SUSPEND_CLUB,
   REMOVE_SUSPENSION,
+  SET_CLUB_ACTIVITIES,
+  UPDATE_CLUB_ACTIVITIES,
 } from "../types";
 import axios from "axios";
 
@@ -796,6 +798,78 @@ export const createNewAdminLink = (data) => (dispatch) => {
       dispatch({
         type: SET_GENERAL_ERRORS,
         payload: error.response.data.error,
+      });
+      console.error(error);
+    });
+};
+
+export const getClubActivities = () => (dispatch) => {
+  dispatch({ type: LOADING_DATA });
+  const campusID = localStorage.getItem("AdminCampus");
+
+  axios
+    .get(`/clubs/activities/${campusID}`)
+    .then((res) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({ type: SET_CLUB_ACTIVITIES, payload: res.data });
+    })
+    .catch((error) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: error,
+      });
+      console.error(error);
+    });
+};
+
+//functions to accept/reject event and gallery
+//must delete event and gallery from clubActivities after
+export const handleEventActivity = (event, statusData) => (dispatch) => {
+  dispatch({ type: LOADING_DATA });
+  const campusID = localStorage.getItem("AdminCampus");
+
+  let data = {
+    ...event,
+    ...statusData,
+  };
+
+  axios
+    .post(`/clubs/activities/event/${campusID}`, data)
+    .then((res) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({ type: UPDATE_CLUB_ACTIVITIES, payload: event.activityID });
+    })
+    .catch((error) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: error,
+      });
+      console.error(error);
+    });
+};
+
+export const handleGalleryActivity = (gallery, statusData) => (dispatch) => {
+  dispatch({ type: LOADING_DATA });
+  const campusID = localStorage.getItem("AdminCampus");
+
+  let data = {
+    ...gallery,
+    ...statusData,
+  };
+
+  axios
+    .post(`/clubs/activities/gallery/${campusID}`, data)
+    .then((res) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({ type: UPDATE_CLUB_ACTIVITIES, payload: gallery.activityID });
+    })
+    .catch((error) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: error,
       });
       console.error(error);
     });

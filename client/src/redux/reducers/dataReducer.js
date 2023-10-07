@@ -29,6 +29,8 @@ import {
   REJECT_CLUB,
   SUSPEND_CLUB,
   REMOVE_SUSPENSION,
+  SET_CLUB_ACTIVITIES,
+  UPDATE_CLUB_ACTIVITIES,
 } from "../types";
 
 const initialState = {
@@ -39,6 +41,7 @@ const initialState = {
     pages: [],
   },
   clubs: [],
+  clubActivities: [],
   loading: false,
   newAdminLink: "",
 };
@@ -342,6 +345,9 @@ export default function (state = initialState, action) {
       state.orientation.pages[orientationPageAddPostIndex].subcontent.unshift(
         action.payload
       );
+      return {
+        ...state,
+      };
     case SET_CLUBS:
       return {
         ...state,
@@ -386,6 +392,22 @@ export default function (state = initialState, action) {
       return {
         ...state,
         clubs: [...tempRemoveSuspend],
+      };
+    case SET_CLUB_ACTIVITIES:
+      return {
+        ...state,
+        clubActivities: [...action.payload],
+      };
+    case UPDATE_CLUB_ACTIVITIES:
+      let tempClubActivities = [...state.clubActivities];
+      let clubActivitiesIndex = tempClubActivities.findIndex(
+        (activity) => activity.activityID === action.payload
+      );
+      tempClubActivities.splice(clubActivitiesIndex, 1);
+
+      return {
+        ...state,
+        clubActivities: [...tempClubActivities],
       };
     case LOADING_DATA:
       return {

@@ -8,6 +8,7 @@ import RegisterAdmins from "../components/RegisterAdmins";
 
 import { useSelector, useDispatch } from "react-redux";
 import { getClubs } from "../redux/actions/dataActions";
+import ClubActivities from "../components/ClubActivities";
 
 export default function Clubs() {
   //handle tab switching
@@ -31,8 +32,10 @@ export default function Clubs() {
       <PendingClubs />
     ) : tab === "approved" ? (
       <ApprovedClubs />
-    ) : (
+    ) : tab === "suspended" ? (
       <SuspendedClubs />
+    ) : (
+      <ClubActivities />
     );
 
   let activeTabClass =
@@ -70,6 +73,15 @@ export default function Clubs() {
                 }
               >
                 Suspended Clubs
+              </p>
+            </li>
+            <li onClick={() => setTab("activities")}>
+              <p
+                className={
+                  tab === "activities" ? activeTabClass : inactiveTabClass
+                }
+              >
+                Clubs Activities
               </p>
             </li>
           </ul>

@@ -788,3 +788,100 @@ exports.reactivateAdmin = (req, res) => {
       return res.status(500).json({ error: "Something went wrong" });
     });
 };
+
+exports.getAllClubActivities = (req, res) => {
+  const campusID = req.params.campusID;
+  let temp = [];
+
+  db.collection("pendingEvents")
+    .where("campusID", "==", campusID)
+    .get()
+    .then((data) => {
+      data.forEach((doc) => {
+        temp.push({ ...doc.data() });
+      });
+
+      return db
+        .collection("pendingGallery")
+        .where("campusID", "==", campusID)
+        .get();
+    })
+    .then((data) => {
+      data.forEach((doc) => {
+        temp.push({ ...doc.data() });
+      });
+      return temp;
+    })
+    .then((arr) => {
+      console.log(temp);
+      return res.status(200).json(temp);
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
+exports.handleEventActivity = (req, res) => {
+  const activityID = req.body.activityID;
+  const clubID = req.body.clubID;
+  const eventID = req.body.eventID;
+  const status = req.body.status;
+
+  console.log(clubID);
+
+  //first update the approval status in events
+  //then delete the event from pendingEvents
+  db.doc(`/events/${clubID}`)
+    .get()
+    .then((doc) => {
+      let temp = [...doc.data().events];
+      let index = temp.findIndex((event) => event.eventID === eventID);
+      temp[index].approval = status;
+      if (status === "rejected")
+        temp[index].rejectionReason = req.body.rejectionReason;
+
+      return db.doc(`/events/${clubID}`).update({ events: [...temp] });
+    })
+    .then(() => {
+      return db.doc(`/pendingEvents/${activityID}`).delete();
+    })
+    .then(() => {
+      return res.status(201).json({ message: "Event approved successfully" });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
+exports.handleGalleryActivity = (req, res) => {
+  const activityID = req.body.activityID;
+  const clubID = req.body.clubID;
+  const galleryID = req.body.galleryID;
+  const status = req.body.status;
+
+  //first update the approval status in events
+  //then delete the event from pendingEvents
+  db.doc(`/gallery/${clubID}`)
+    .get()
+    .then((doc) => {
+      let temp = [...doc.data().gallery];
+      let index = temp.findIndex((gallery) => gallery.galleryID === galleryID);
+      temp[index].approval = status;
+      if (status === "rejected")
+        temp[index].rejectionReason = req.body.rejectionReason;
+
+      return db.doc(`/gallery/${clubID}`).update({ gallery: [...temp] });
+    })
+    .then(() => {
+      return db.doc(`/pendingGallery/${activityID}`).delete();
+    })
+    .then(() => {
+      return res.status(201).json({ message: "Gallery approved successfully" });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
