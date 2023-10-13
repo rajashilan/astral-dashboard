@@ -885,3 +885,31 @@ exports.handleGalleryActivity = (req, res) => {
       return res.status(500).json({ error: "Something went wrong" });
     });
 };
+
+exports.setClubEventToTrue = (req, res) => {
+  const clubID = req.body.clubID;
+
+  db.doc(`/clubs/${clubID}`)
+    .update({ events: true })
+    .then(() => {
+      return res.status(200).json({ message: "Club activated successfully" });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
+exports.setClubGalleryToTrue = (req, res) => {
+  const clubID = req.body.clubID;
+
+  db.doc(`/clubs/${clubID}`)
+    .update({ gallery: true })
+    .then(() => {
+      return res.status(200).json({ message: "Club activated successfully" });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};

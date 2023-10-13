@@ -905,3 +905,45 @@ export const adminActivation = (data) => (dispatch) => {
       console.error(error);
     });
 };
+
+export const setClubEventToTrue = (clubID) => (dispatch) => {
+  dispatch({ type: LOADING_DATA });
+  const campusID = localStorage.getItem("AdminCampus");
+
+  let data = { clubID };
+
+  axios
+    .post(`/clubs/events/true/${campusID}`, data)
+    .then(() => {
+      dispatch({ type: STOP_LOADING_DATA });
+    })
+    .catch((error) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: error.response.data.error,
+      });
+      console.error(error);
+    });
+};
+
+export const setClubGalleryToTrue = (clubID) => (dispatch) => {
+  dispatch({ type: LOADING_DATA });
+  const campusID = localStorage.getItem("AdminCampus");
+
+  let data = { clubID };
+
+  axios
+    .post(`/clubs/gallery/true/${campusID}`, data)
+    .then(() => {
+      dispatch({ type: STOP_LOADING_DATA });
+    })
+    .catch((error) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: error.response.data.error,
+      });
+      console.error(error);
+    });
+};

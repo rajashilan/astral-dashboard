@@ -10,6 +10,8 @@ import {
   getClubActivities,
   handleEventActivity,
   handleGalleryActivity,
+  setClubEventToTrue,
+  setClubGalleryToTrue,
 } from "../redux/actions/dataActions";
 
 import { useForm } from "react-hook-form";
@@ -32,6 +34,7 @@ export default function ClubActivities() {
     register,
     handleSubmit,
     clearErrors,
+    resetField,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(formSchema),
@@ -86,6 +89,7 @@ export default function ClubActivities() {
     setShowRejectModal(!showRejectModal);
     setGeneralErrors("");
     clearErrors("rejectionReason");
+    resetField("rejectionReason");
   };
 
   const handleApprove = () => {
@@ -95,8 +99,12 @@ export default function ClubActivities() {
     };
     if (activityModalData.activity === "Event") {
       dispatch(handleEventActivity(activityModalData, approvalData));
+      if (activityModalData.hasEvents === false)
+        dispatch(setClubEventToTrue(activityModalData.clubID));
     } else if (activityModalData.activity === "Gallery") {
       dispatch(handleGalleryActivity(activityModalData, approvalData));
+      if (activityModalData.hasGallery === false)
+        dispatch(setClubGalleryToTrue(activityModalData.clubID));
     }
     handleShowActivityModal();
   };

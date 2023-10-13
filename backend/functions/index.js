@@ -44,6 +44,8 @@ const {
   getAllClubActivities,
   handleEventActivity,
   handleGalleryActivity,
+  setClubEventToTrue,
+  setClubGalleryToTrue,
 } = require("./handlers/campusAdmin");
 
 const {
@@ -311,6 +313,9 @@ app.post(
   sudoAdminAuth,
   handleGalleryActivity
 );
+
+app.post("/clubs/events/true/:campusID", sudoAdminAuth, setClubEventToTrue);
+app.post("/clubs/gallery/true/:campusID", sudoAdminAuth, setClubGalleryToTrue);
 
 app.post("/pdf", modifyPdf);
 app.get("/pdf-test", testPdf);
