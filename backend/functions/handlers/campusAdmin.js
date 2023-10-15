@@ -913,3 +913,17 @@ exports.setClubGalleryToTrue = (req, res) => {
       return res.status(500).json({ error: "Something went wrong" });
     });
 };
+
+exports.getAClub = (req, res) => {
+  const clubID = req.params.clubID;
+
+  db.doc(`/clubs/${clubID}`)
+    .get()
+    .then((doc) => {
+      return res.status(200).json({ ...doc.data() });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};

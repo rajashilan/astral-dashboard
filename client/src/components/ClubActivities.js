@@ -7,6 +7,7 @@ import WarningLabel from "./WarningLabel";
 import ErrorLabel from "./ErrorLabel";
 import TextInput from "../components/TextInput";
 import {
+  createNotification,
   getClubActivities,
   handleEventActivity,
   handleGalleryActivity,
@@ -17,6 +18,8 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+
+import axios from "axios";
 
 const formSchema = z.object({
   rejectionReason: z
@@ -81,11 +84,54 @@ export default function ClubActivities() {
       rejectionReason,
     };
 
-    if (activityModalData.activity === "Event") {
-      dispatch(handleEventActivity(activityModalData, rejectionData));
-    } else if (activityModalData.activity === "Gallery") {
-      dispatch(handleGalleryActivity(activityModalData, rejectionData));
-    }
+    const campusID = localStorage.getItem("AdminCampus");
+
+    let notification = {
+      preText: "",
+      postText: "",
+      sourceID: "",
+      sourceName: "",
+      sourceImage: "",
+      sourceDestination: "",
+      defaultText: "",
+      read: false,
+      userID: "",
+      createdAt: new Date().toISOString(),
+      notificationID: "",
+    };
+
+    axios
+      .post(`/clubs/${activityModalData.clubID}/${campusID}`)
+      .then((res) => {
+        return res.data;
+      })
+      .then((club) => {
+        notification.sourceName = club.name;
+        notification.sourceID = club.clubID;
+        notification.sourceImage = club.image;
+        notification.sourceDestination = "ClubsPages";
+        notification.userID = club.roles["president"].userID;
+        notification.postText = "rejected. Visit your club's page for details.";
+
+        if (activityModalData.activity === "Event") {
+          dispatch(handleEventActivity(activityModalData, rejectionData));
+          //notification
+          notification.preText = "Event request for";
+
+          //Event request for Computer Science Club rejected. Visit your club's page for details.
+        } else if (activityModalData.activity === "Gallery") {
+          //notification
+          dispatch(handleGalleryActivity(activityModalData, rejectionData));
+          notification.preText = "Gallery request for";
+        }
+
+        let userIDs = [club.roles["president"].userID];
+        dispatch(createNotification(notification, userIDs));
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
     setShowRejectModal(!showRejectModal);
     setGeneralErrors("");
     clearErrors("rejectionReason");
@@ -97,15 +143,61 @@ export default function ClubActivities() {
     let approvalData = {
       status: "approved",
     };
-    if (activityModalData.activity === "Event") {
-      dispatch(handleEventActivity(activityModalData, approvalData));
-      if (activityModalData.hasEvents === false)
-        dispatch(setClubEventToTrue(activityModalData.clubID));
-    } else if (activityModalData.activity === "Gallery") {
-      dispatch(handleGalleryActivity(activityModalData, approvalData));
-      if (activityModalData.hasGallery === false)
-        dispatch(setClubGalleryToTrue(activityModalData.clubID));
-    }
+
+    const campusID = localStorage.getItem("AdminCampus");
+
+    let notification = {
+      preText: "",
+      postText: "",
+      sourceID: "",
+      sourceName: "",
+      sourceImage: "",
+      sourceDestination: "",
+      defaultText: "",
+      read: false,
+      userID: "",
+      createdAt: new Date().toISOString(),
+      notificationID: "",
+    };
+
+    axios
+      .post(`/clubs/${activityModalData.clubID}/${campusID}`)
+      .then((res) => {
+        return res.data;
+      })
+      .then((club) => {
+        notification.sourceName = club.name;
+        notification.sourceID = club.clubID;
+        notification.sourceImage = club.image;
+        notification.sourceDestination = "ClubsPages";
+        notification.userID = club.roles["president"].userID;
+        notification.postText = "has been approved.";
+
+        if (activityModalData.activity === "Event") {
+          dispatch(handleEventActivity(activityModalData, approvalData));
+
+          notification.preText = "Event request for";
+
+          if (activityModalData.hasEvents === false) {
+            dispatch(setClubEventToTrue(activityModalData.clubID));
+          }
+        } else if (activityModalData.activity === "Gallery") {
+          dispatch(handleGalleryActivity(activityModalData, approvalData));
+
+          notification.preText = "Gallery request for";
+
+          if (activityModalData.hasGallery === false) {
+            dispatch(setClubGalleryToTrue(activityModalData.clubID));
+          }
+        }
+
+        let userIDs = [club.roles["president"].userID];
+        dispatch(createNotification(notification, userIDs));
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
     handleShowActivityModal();
   };
 

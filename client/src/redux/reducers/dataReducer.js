@@ -31,6 +31,8 @@ import {
   REMOVE_SUSPENSION,
   SET_CLUB_ACTIVITIES,
   UPDATE_CLUB_ACTIVITIES,
+  SET_A_CLUB,
+  RESET_CLUB,
 } from "../types";
 
 const initialState = {
@@ -41,6 +43,7 @@ const initialState = {
     pages: [],
   },
   clubs: [],
+  club: {},
   clubActivities: [],
   loading: false,
   newAdminLink: "",
@@ -408,6 +411,16 @@ export default function (state = initialState, action) {
       return {
         ...state,
         clubActivities: [...tempClubActivities],
+      };
+    case SET_A_CLUB:
+      return {
+        ...state,
+        club: { ...action.payload },
+      };
+    case RESET_CLUB:
+      return {
+        ...state,
+        club: {},
       };
     case LOADING_DATA:
       return {

@@ -32,6 +32,7 @@ import {
   REMOVE_SUSPENSION,
   SET_CLUB_ACTIVITIES,
   UPDATE_CLUB_ACTIVITIES,
+  SET_A_CLUB,
 } from "../types";
 import axios from "axios";
 
@@ -937,6 +938,50 @@ export const setClubGalleryToTrue = (clubID) => (dispatch) => {
     .post(`/clubs/gallery/true/${campusID}`, data)
     .then(() => {
       dispatch({ type: STOP_LOADING_DATA });
+    })
+    .catch((error) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: error.response.data.error,
+      });
+      console.error(error);
+    });
+};
+
+export const createNotification = (notification, userIDs) => (dispatch) => {
+  dispatch({ type: LOADING_DATA });
+  const campusID = localStorage.getItem("AdminCampus");
+
+  let data = {
+    notification: { ...notification },
+    userIDs: [...userIDs],
+  };
+
+  axios
+    .post(`/notification/${campusID}`, data)
+    .then(() => {
+      dispatch({ type: STOP_LOADING_DATA });
+    })
+    .catch((error) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: error.response.data.error,
+      });
+      console.error(error);
+    });
+};
+
+export const getAClub = (clubID) => (dispatch) => {
+  dispatch({ type: LOADING_DATA });
+  const campusID = localStorage.getItem("AdminCampus");
+
+  axios
+    .post(`/clubs/${clubID}/${campusID}`)
+    .then((res) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({ type: SET_A_CLUB, payload: res.data });
     })
     .catch((error) => {
       dispatch({ type: STOP_LOADING_DATA });

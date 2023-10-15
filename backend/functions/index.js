@@ -46,6 +46,7 @@ const {
   handleGalleryActivity,
   setClubEventToTrue,
   setClubGalleryToTrue,
+  getAClub,
 } = require("./handlers/campusAdmin");
 
 const {
@@ -84,6 +85,8 @@ const {
 } = require("./handlers/campusAdminClubs");
 
 const { modifyPdf, testPdf, createGeneralForm } = require("./utils/pdf");
+
+const { createNotification } = require("./handlers/general");
 
 app.use(
   cors({
@@ -316,9 +319,12 @@ app.post(
 
 app.post("/clubs/events/true/:campusID", sudoAdminAuth, setClubEventToTrue);
 app.post("/clubs/gallery/true/:campusID", sudoAdminAuth, setClubGalleryToTrue);
+app.post("/clubs/:clubID/:campusID", sudoAdminAuth, getAClub);
 
 app.post("/pdf", modifyPdf);
 app.get("/pdf-test", testPdf);
 app.post("/add-pdf", createGeneralForm);
+
+app.post("/notification/:campusID", sudoAdminAuth, createNotification);
 
 exports.api = functions.region("asia-southeast1").https.onRequest(app);
