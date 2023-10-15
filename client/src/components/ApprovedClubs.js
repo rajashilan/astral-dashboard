@@ -28,7 +28,9 @@ export default function ApprovedClubs() {
   useEffect(() => {
     setApprovedClubs(
       state.clubs.filter(
-        (club) => club.approval === "approved" && club.status === "active"
+        (club) =>
+          (club.approval === "approved" && club.status === "active") ||
+          (club.approval === "approved" && club.status === "inactive")
       )
     );
   }, [state.clubs]);
