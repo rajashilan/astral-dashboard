@@ -9,7 +9,11 @@ import TextInput from "../components/TextInput";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { approveClub, rejectClub } from "../redux/actions/dataActions";
+import {
+  approveClub,
+  createNotification,
+  rejectClub,
+} from "../redux/actions/dataActions";
 
 const formSchema = z.object({
   rejectionReason: z
@@ -44,6 +48,32 @@ export default function PendingClubs() {
 
   const handleApprove = (club) => {
     dispatch(approveClub(club));
+
+    let notification = {
+      preText: "",
+      postText: "",
+      sourceID: "",
+      sourceName: "",
+      sourceImage: "",
+      sourceDestination: "",
+      defaultText: "",
+      read: false,
+      userID: "",
+      createdAt: new Date().toISOString(),
+      notificationID: "",
+    };
+
+    notification.sourceName = club.name;
+    notification.sourceID = club.clubID;
+    notification.sourceImage = club.image;
+    notification.sourceDestination = "Clubs";
+    notification.userID = club.roles["president"].userID;
+    notification.preText = "Club request for";
+    notification.postText =
+      "approved. Add details and activate for others to join.";
+
+    let userIDs = [club.roles["president"].userID];
+    dispatch(createNotification(notification, userIDs));
   };
 
   const handleShowRejectionModal = (data) => {
@@ -56,6 +86,31 @@ export default function PendingClubs() {
   const handleReject = (data) => {
     let rejectionReason = data["rejectionReason"];
     dispatch(rejectClub(rejectionModalData, rejectionReason));
+
+    let notification = {
+      preText: "",
+      postText: "",
+      sourceID: "",
+      sourceName: "",
+      sourceImage: "",
+      sourceDestination: "",
+      defaultText: "",
+      read: false,
+      userID: "",
+      createdAt: new Date().toISOString(),
+      notificationID: "",
+    };
+
+    notification.sourceName = rejectionModalData.name;
+    notification.sourceID = rejectionModalData.clubID;
+    notification.sourceImage = rejectionModalData.image;
+    notification.sourceDestination = "Clubs";
+    notification.userID = rejectionModalData.roles["president"].userID;
+    notification.preText = "Club request for";
+    notification.postText = "rejected. Visit club's page for details.";
+
+    let userIDs = [rejectionModalData.roles["president"].userID];
+    dispatch(createNotification(notification, userIDs));
     handleShowRejectionModal();
   };
 
