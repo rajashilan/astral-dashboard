@@ -158,7 +158,7 @@ export default function RegisterAdmins() {
             Link for admin created successfully! Copy the link below and send it
             to the admin so they can use it to sign up.
           </SuccessLabel>
-          <p className="text-[16px] font-normal text-white">
+          <p className="text-[16px] font-normal text-[#85A1FF]">
             {state.newAdminLink}
           </p>
           <WarningLabel>

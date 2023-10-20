@@ -164,6 +164,9 @@ export default function PendingClubs() {
             Name
           </th>
           <th scope="col" className="px-6 py-3">
+            FPF Form
+          </th>
+          <th scope="col" className="px-6 py-3">
             <span className="sr-only">Approve</span>
           </th>
           <th scope="col" className="px-6 py-3">
@@ -183,6 +186,14 @@ export default function PendingClubs() {
                 className="px-6 py-4 font-bold text-[#DFE5F8] whitespace-nowrap"
               >
                 {club.name}
+              </th>
+              <th
+                scope="row"
+                className="px-6 py-4 font-normal text-[#85A1FF] break-all"
+              >
+                <a href={club.fpfForms[0]} className="">
+                  Download FPF Form
+                </a>
               </th>
               <td className="px-6 py-4 text-right">
                 <button
