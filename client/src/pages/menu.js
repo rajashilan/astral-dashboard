@@ -27,25 +27,14 @@ export default function Menu() {
   useEffect(() => {
     if (!loading) {
       if (state.role) {
-        if (state.role === "sudo") return;
-        else if (state.role === "general") return;
-        else if (state.role.split(":")[0] === "focused") {
-          navigate(state.role.split(":")[1]);
-        } else if (state.role.split(":")[0] === "department") {
-          console.log("department");
-          navigate("/department", {
-            state: {
-              departmentID: state.role.split(":")[1],
-            },
-          });
-        }
+        return;
       } else navigate("/login");
     }
   }, [loading]);
 
   let menu = loading ? (
     <p>loading...</p>
-  ) : state.role === "sudo" ? (
+  ) : state.role[0] === "sudo" ? (
     <div className="flex flex-col text-center space-y-[0.5rem]">
       <Link to="/college">
         <p className="text-[46px] font-normal text-[#C4FFF9] cursor-pointer">
@@ -62,29 +51,32 @@ export default function Menu() {
           clubs
         </p>
       </Link>
-      <p className="text-[46px] font-normal text-[#C4FFF9] cursor-pointer">
-        departments
-      </p>
-      <p className="text-[46px] font-normal text-[#C4FFF9] cursor-pointer">
-        staff list
-      </p>
     </div>
-  ) : state.role === "general" ? (
+  ) : (
     <div className="flex flex-col text-center space-y-[0.5rem]">
-      <p className="text-[46px] font-normal text-[#C4FFF9] cursor-pointer">
-        orientation
-      </p>
-      <p className="text-[46px] font-normal text-[#C4FFF9] cursor-pointer">
-        clubs
-      </p>
-      <p className="text-[46px] font-normal text-[#C4FFF9] cursor-pointer">
-        departments
-      </p>
-      <p className="text-[46px] font-normal text-[#C4FFF9] cursor-pointer">
-        staff list
-      </p>
+      {state.role.includes("focused:college") && (
+        <Link to="/college">
+          <p className="text-[46px] font-normal text-[#C4FFF9] cursor-pointer">
+            college
+          </p>
+        </Link>
+      )}
+      {state.role.includes("focused:orientation") && (
+        <Link to="/orientation">
+          <p className="text-[46px] font-normal text-[#C4FFF9] cursor-pointer">
+            orientation
+          </p>
+        </Link>
+      )}
+      {state.role.includes("focused:clubs") && (
+        <Link to="/clubs">
+          <p className="text-[46px] font-normal text-[#C4FFF9] cursor-pointer">
+            clubs
+          </p>
+        </Link>
+      )}
     </div>
-  ) : null;
+  );
 
   return (
     <main className="absolute top-0 flex h-screen w-full flex-col justify-center items-center bg-[#0C111F]">
