@@ -784,9 +784,13 @@ export const removeSuspension = (club) => (dispatch) => {
     });
 };
 
-export const createNewAdminLink = (data) => (dispatch) => {
+export const createNewAdminLink = (roles) => (dispatch) => {
   dispatch({ type: LOADING_DATA });
   const campusID = localStorage.getItem("AdminCampus");
+
+  let data = {
+    role: [...roles],
+  };
 
   axios
     .post(`/generate-admin-link/${campusID}`, data)

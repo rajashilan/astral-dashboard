@@ -136,7 +136,7 @@ exports.adminFirstTimeSignUp = (req, res) => {
 
   const adminAccount = {
     name: req.body.name,
-    role: "sudo",
+    role: ["sudo"],
     email: req.body.email,
     userID: "",
     active: true,
@@ -239,7 +239,7 @@ exports.addedAdminSignUp = (req, res) => {
 
   const adminAccount = {
     name: req.body.name,
-    role: "",
+    role: [],
     email: req.body.email,
     userID: "",
     active: true,
@@ -268,7 +268,7 @@ exports.addedAdminSignUp = (req, res) => {
         adminLinks = doc.data().adminLinks;
         sudoAdmins = doc.data().sudoAdmins;
 
-        if (adminAccount.role === "sudo") sudoAdmins = sudoAdmins + 1;
+        if (adminAccount.role[0] === "sudo") sudoAdmins = sudoAdmins + 1;
 
         admin
           .firestore()
@@ -382,7 +382,7 @@ exports.generateNewAdminLink = (req, res) => {
     )
     .then(() => {
       return res.json({
-        message: `Link for admin with '${linkArray[0].role}' created`,
+        message: `Link for admin with roles: '${linkArray[0].role}' created`,
         linkID: linkArray[0].linkID,
         campusID: campusID,
       });
@@ -456,7 +456,7 @@ exports.getSessionData = (req, res) => {
     admin: {
       name: "",
       email: "",
-      role: "",
+      role: [],
     },
     campus: {
       college: "",
@@ -577,7 +577,7 @@ exports.editAdminRole = (req, res) => {
           .update(role)
           .then(() => {
             //if sudo admin, increase campus's sudoAdmins number
-            if (role.role === "sudo") {
+            if (role.role[0] === "sudo") {
               admin
                 .firestore()
                 .doc(`/campuses/${campusID}`)
@@ -594,7 +594,7 @@ exports.editAdminRole = (req, res) => {
                     message: "New sudo admin sucessfully updated.",
                   });
                 });
-            } else if (adminPreviousRole === "sudo") {
+            } else if (adminPreviousRole[0] === "sudo") {
               //first check the sudoAdmins count for the college, ensure more than 1
 
               admin
@@ -665,7 +665,7 @@ exports.deactivateAdmin = (req, res) => {
     .get()
     .then((doc) => {
       //check if admin role is sudo
-      if (doc.data().role === "sudo") {
+      if (doc.data().role[0] === "sudo") {
         //if it is, check if there is at least another sudo admin for the campus
         admin
           .firestore()
@@ -750,7 +750,7 @@ exports.reactivateAdmin = (req, res) => {
       role = doc.data().role;
       doc.ref.update({ active: true }).then(() => {
         //check if reactivating user is sudo
-        if (role === "sudo") {
+        if (role[0] === "sudo") {
           //update sudo admins
           admin
             .firestore()

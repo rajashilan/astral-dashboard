@@ -63,7 +63,7 @@ exports.sudoAdminAuth = (req, res, next) => {
           //has the same campus id as the requesting campusID
           //is active
           if (
-            doc.data().role === "sudo" &&
+            doc.data().role[0] === "sudo" &&
             doc.data().campusID === req.params.campusID &&
             doc.data().active === true
           ) {
