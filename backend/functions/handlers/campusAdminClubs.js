@@ -254,7 +254,7 @@ exports.getClubMembers = (req, res) => {
   db.doc(`/clubMembers/${clubID}`)
     .get()
     .then((doc) => {
-      return res.status(200).json({ ...doc.data().members });
+      return res.status(200).json([...doc.data().members]);
     })
     .catch((error) => {
       console.error(error);
