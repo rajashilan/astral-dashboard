@@ -33,6 +33,8 @@ import {
   SET_CLUB_ACTIVITIES,
   UPDATE_CLUB_ACTIVITIES,
   SET_A_CLUB,
+  CHANGE_CLUB_PRESIDENT,
+  SET_CLUB_MEMBERS,
 } from "../types";
 import axios from "axios";
 
@@ -989,6 +991,43 @@ export const getAClub = (clubID) => (dispatch) => {
     })
     .catch((error) => {
       dispatch({ type: STOP_LOADING_DATA });
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: error.response.data.error,
+      });
+      console.error(error);
+    });
+};
+
+export const changeClubPresident = (data) => (dispatch) => {
+  dispatch({ type: LOADING_DATA });
+  const campusID = localStorage.getItem("AdminCampus");
+
+  axios
+    .post(`/clubs/president/${campusID}`, data)
+    .then((res) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      alert("Club President has been changed");
+    })
+    .catch((error) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: error.response.data.error,
+      });
+      console.error(error);
+    });
+};
+
+export const getClubMembers = (clubID) => (dispatch) => {
+  const campusID = localStorage.getItem("AdminCampus");
+
+  axios
+    .post(`/clubs/members/${clubID}/${campusID}`)
+    .then((res) => {
+      dispatch({ type: SET_CLUB_MEMBERS, payload: res.data });
+    })
+    .catch((error) => {
       dispatch({
         type: SET_GENERAL_ERRORS,
         payload: error.response.data.error,
