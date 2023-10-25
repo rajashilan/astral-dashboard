@@ -160,11 +160,11 @@ export default function RegisterAdmins() {
       <h3 className="text-[24px] text-[#DFE5F8] text-center font-medium mb-4">
         Select roles for admin:
       </h3>
-      <ul className="space-y-2 mb-4">
+      <ul className="flex flex-col items-center space-y-2 mb-4">
         {roles.map((role, index) => {
           return (
             <li key={index}>
-              <div className="flex space-x-4 items-center">
+              <div className="flex space-x-4 justify-start w-40">
                 <input
                   className="w-6 h-6"
                   type="checkbox"
