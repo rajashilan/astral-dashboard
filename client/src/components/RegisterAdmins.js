@@ -16,7 +16,7 @@ export default function RegisterAdmins() {
   const dispatch = useDispatch();
   const state = useSelector((state) => state.data);
   const [roles, setRoles] = useState(["clubs", "orientation", "college"]);
-  const [checkedState, setCheckedState] = useState(new Array(6).fill(false));
+  const [checkedState, setCheckedState] = useState(new Array(3).fill(false));
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedRoles, setSelectedRoles] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState("");
@@ -87,11 +87,10 @@ export default function RegisterAdmins() {
       let temp = [...selectedRoles];
 
       //handle transforming chosen roles to the actual codes
-      if (temp.length === 4) temp = ["sudo"];
+      if (temp.length === 3) temp = ["sudo"];
       else
         temp.forEach((role, index) => {
-          if (role !== "sudo" && role !== "general")
-            temp[index] = `focused:${role.replace(" ", "")}`;
+          if (role !== "sudo") temp[index] = `focused:${role.replace(" ", "")}`;
         });
 
       dispatch(createNewAdminLink(temp));

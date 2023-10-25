@@ -18,50 +18,52 @@ export default function Admins() {
   const [generalErrors, setGeneralErrors] = useState("");
   const [showEditModal, setShowEditModal] = useState(false);
   const [editModalData, setEditModalData] = useState({});
-  const [roles, setRoles] = useState([
-    {
-      role: "sudo",
-    },
-    {
-      role: "general",
-    },
-    {
-      role: "clubs",
-    },
-    {
-      role: "orientation",
-    },
-    {
-      role: "college",
-    },
-    {
-      role: "staff list",
-    },
-    {
-      role: "department",
-      departmentList: state.departments,
-    },
-  ]);
+  const [roles, setRoles] = useState(["clubs", "orientation", "college"]);
+  const [checkedState, setCheckedState] = useState(new Array(3).fill(false));
   const [selectedRole, setSelectedRole] = useState("");
+  const [selectedRoles, setSelectedRoles] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState("");
 
   useEffect(() => {
     // retrieve all admins data for the particular campus on load
     dispatch(getAdminsForCampus());
     //get all departments
-    dispatch(getDepartmentsForCampus());
+    //dispatch(getDepartmentsForCampus());
   }, []);
 
-  useEffect(() => {
-    roles.pop();
-    let tempRoles = roles;
-    tempRoles.push({
-      role: "department",
-      departmentList: state.departments,
+  // useEffect(() => {
+  //   roles.pop();
+  //   let tempRoles = roles;
+  //   tempRoles.push({
+  //     role: "department",
+  //     departmentList: state.departments,
+  //   });
+
+  //   setRoles(tempRoles);
+  // }, [state.departments]);
+
+  const stringifyRoles = (roles) => {
+    if (roles[0] === "sudo") return roles[0];
+
+    let temp = [];
+    roles.forEach((role) => temp.push(role.split(":")[1]));
+    return temp.toString();
+  };
+
+  const handleOnChange = (position) => {
+    const updatedCheckedState = checkedState.map((item, index) =>
+      index === position ? !item : item
+    );
+
+    let temp = [];
+
+    updatedCheckedState.forEach((state, index) => {
+      if (state === true) temp.push(roles[index]);
     });
 
-    setRoles(tempRoles);
-  }, [state.departments]);
+    setSelectedRoles(temp);
+    setCheckedState(updatedCheckedState);
+  };
 
   const handleShowEditModal = (userID, name, role, active, email) => {
     setShowEditModal(!showEditModal);
@@ -76,43 +78,30 @@ export default function Admins() {
   };
 
   const handleSubmit = () => {
-    //check if role is not selected
-    //if role is department, check if department is not selected
     setGeneralErrors("");
-    if (selectedRole === "" || selectedRole === "Select new role")
-      setGeneralErrors("Please select a role");
-    else if (
-      (selectedRole === "department" && selectedDepartment === "") ||
-      selectedDepartment === "Select the department for the admin"
-    )
-      setGeneralErrors("Please select a department for the admin");
-    else {
-      let role = "";
-      //handle transforming chosen roles to the actual codes
-      if (
-        selectedRole !== "department" &&
-        selectedRole !== "sudo" &&
-        selectedRole !== "general"
-      )
-        role = `focused:${selectedRole.replace(" ", "")}`;
-      else if (selectedRole === "sudo" || selectedRole === "general")
-        role = selectedRole;
-      else if (selectedRole === "department") {
-        role = `${selectedRole}:${selectedDepartment}`;
-      }
-      if (role !== "") {
-        let data = {
-          role: role,
-          userID: editModalData.userID,
-          name: editModalData.name,
-          active: editModalData.active,
-          email: editModalData.email,
-        };
 
-        console.log(data);
-        dispatch(updateAdminsRole(data));
-        setShowEditModal(!showEditModal);
-      }
+    if (selectedRoles.length === 0)
+      setGeneralErrors("Please select at least one role for the admin");
+    else {
+      let temp = [...selectedRoles];
+
+      //handle transforming chosen roles to the actual codes
+      if (temp.length === 3) temp = ["sudo"];
+      else
+        temp.forEach((role, index) => {
+          if (role !== "sudo") temp[index] = `focused:${role.replace(" ", "")}`;
+        });
+
+      let data = {
+        role: [...temp],
+        userID: editModalData.userID,
+        name: editModalData.name,
+        active: editModalData.active,
+        email: editModalData.email,
+      };
+
+      dispatch(updateAdminsRole(data));
+      setShowEditModal(!showEditModal);
     }
   };
 
@@ -153,7 +142,7 @@ export default function Admins() {
             Name
           </th>
           <th scope="col" className="px-6 py-3">
-            Role
+            Role(s)
           </th>
           <th scope="col" class="px-6 py-3">
             <span class="sr-only">Edit Role</span>
@@ -177,7 +166,7 @@ export default function Admins() {
                 {admin.name}
               </th>
               <td className="px-6 py-4 font-normal text-[#DFE5F8]">
-                {admin.role}
+                {stringifyRoles(admin.role)}
               </td>
               <td className="px-6 py-4 text-right">
                 <button
@@ -259,46 +248,34 @@ export default function Admins() {
           Edit {editModalData.name}'s role
         </h1>
         <h2 className="text-[18px] font-normal text-[#DFE5F8] text-center">
-          Current role: {editModalData.role}
+          Current role(s): {editModalData.role && editModalData.role.toString()}
         </h2>
 
-        <select
-          id="roles"
-          class="mt-[14px] bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          onChange={(e) => {
-            setSelectedRole(e.target.value);
-            setSelectedDepartment("");
-          }}
-        >
-          <option selected>Select new role</option>
-          {roles.map((item) => (
-            <option key={item.role} value={item.role}>
-              {item.role}
-            </option>
-          ))}
-        </select>
-
-        {/* if selected department, show another dropdown to select the departments */}
-
-        {selectedRole === "department" && (
-          <select
-            id="departments"
-            class="mt-[6px] bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            onChange={(e) => setSelectedDepartment(e.target.value)}
-          >
-            <option selected>Select the department for the admin</option>
-            {Object.keys(roles[roles.length - 1].departmentList).map(
-              (item, index) => (
-                <option
-                  key={roles[roles.length - 1].departmentList[item].id}
-                  value={roles[roles.length - 1].departmentList[item].id}
-                >
-                  {roles[roles.length - 1].departmentList[item].name}
-                </option>
-              )
-            )}
-          </select>
-        )}
+        <ul className="space-y-2 mb-4 mt-4">
+          {roles.map((role, index) => {
+            return (
+              <li key={index}>
+                <div className="flex space-x-4 items-center">
+                  <input
+                    className="w-6 h-6"
+                    type="checkbox"
+                    id={`custom-checkbox-${index}`}
+                    name={role}
+                    value={role}
+                    checked={checkedState[index]}
+                    onChange={() => handleOnChange(index)}
+                  />
+                  <label
+                    className="text-[18px] text-[#DFE5F8] font-normal"
+                    htmlFor={`custom-checkbox-${index}`}
+                  >
+                    {role}
+                  </label>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
         <ErrorLabel className="!mt-[16px] !-mb-[10px]">
           {generalErrors}
         </ErrorLabel>
