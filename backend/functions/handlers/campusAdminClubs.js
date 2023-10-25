@@ -174,3 +174,76 @@ exports.removeSuspension = (req, res) => {
       return res.status(500).json({ error: "Something went wrong" });
     });
 };
+
+exports.changePresident = (req, res) => {
+  const clubID = req.body.clubID;
+  const previousPresident = req.body.previousPresident;
+  const newPresident = req.body.newPresident;
+
+  //update in clubs, clubMembers, and users
+  db.doc(`/clubs/${clubID}`)
+    .get()
+    .then((doc) => {
+      let temp = { ...doc.data().roles };
+      temp["president"].userID = newPresident.userID;
+      temp["president"].memberID = newPresident.memberID;
+
+      return db.doc(`/clubs/${clubID}`).update({ roles: { ...temp } });
+    })
+    .then(() => {
+      return db.doc(`/clubMembers/${clubID}`).get();
+    })
+    .then((doc) => {
+      let temp = [...doc.data().members];
+      //change previous president's role to member
+      let prevPresidentIndex = temp.findIndex(
+        (member) => member.userID === previousPresident.userID
+      );
+      temp[prevPresidentIndex].role = "member";
+
+      //change new president's role to president
+      let newPresidentIndex = temp.findIndex(
+        (member) => member.userID === newPresident.userID
+      );
+      temp[newPresidentIndex].role = "president";
+
+      return db.doc(`/clubMembers/${clubID}`).update({ members: [...temp] });
+    })
+    .then(() => {
+      //update old president's role in users
+      return db.doc(`/users/${previousPresident.userID}`).get();
+    })
+    .then((doc) => {
+      let temp = [...doc.data().clubs];
+
+      let clubIndex = temp.findIndex((club) => club.clubID === clubID);
+      temp[clubIndex].role = "member";
+
+      return db
+        .doc(`/users/${previousPresident.userID}`)
+        .update({ clubs: [...temp] });
+    })
+    .then(() => {
+      //update new president's role in users
+      return db.doc(`/users/${newPresident.userID}`).get();
+    })
+    .then((doc) => {
+      let temp = [...doc.data().clubs];
+
+      let clubIndex = temp.findIndex((club) => club.clubID === clubID);
+      temp[clubIndex].role = "president";
+
+      return db
+        .doc(`/users/${newPresident.userID}`)
+        .update({ clubs: [...temp] });
+    })
+    .then(() => {
+      return res
+        .status(200)
+        .json({ message: "Changed president successfully" });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
