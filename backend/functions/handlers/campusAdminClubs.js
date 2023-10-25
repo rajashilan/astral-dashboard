@@ -247,3 +247,17 @@ exports.changePresident = (req, res) => {
       return res.status(500).json({ error: "Something went wrong" });
     });
 };
+
+exports.getClubMembers = (req, res) => {
+  const clubID = req.params.clubID;
+
+  db.doc(`/clubMembers/${clubID}`)
+    .get()
+    .then((doc) => {
+      return res.status(200).json({ ...doc.data().members });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};

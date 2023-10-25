@@ -83,6 +83,7 @@ const {
   suspendClub,
   removeSuspension,
   changePresident,
+  getClubMembers,
 } = require("./handlers/campusAdminClubs");
 
 const { modifyPdf, testPdf, createGeneralForm } = require("./utils/pdf");
@@ -307,6 +308,8 @@ app.post(
 );
 
 app.post("/clubs/president/:campusID", sudoAdminAuth, changePresident);
+
+app.post("/clubs/members/:clubID/:campusID", sudoAdminAuth, getClubMembers);
 
 app.get("/clubs/activities/:campusID", sudoAdminAuth, getAllClubActivities);
 app.post(
