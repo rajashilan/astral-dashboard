@@ -185,6 +185,16 @@ exports.changePresident = (req, res) => {
     .get()
     .then((doc) => {
       let temp = { ...doc.data().roles };
+
+      //check if user has had a previous role, if yes, remove
+      for (role in temp) {
+        if (temp[role].userID === newPresident.userID) {
+          temp[role].userID = "";
+          temp[role].memberID = "";
+          break;
+        }
+      }
+
       temp["president"].userID = newPresident.userID;
       temp["president"].memberID = newPresident.memberID;
 
