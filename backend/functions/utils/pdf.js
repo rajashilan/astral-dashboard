@@ -88,7 +88,7 @@ exports.testPdf = (req, res) => {
   async function pdf() {
     try {
       const url =
-        "https://firebasestorage.googleapis.com/v0/b/astral-d3ff5.appspot.com/o/generalForms%2FLeave%20of%20Absence%20from%20Class%20Form_22Jan2019.pdf?alt=media";
+        "https://firebasestorage.googleapis.com/v0/b/astral-d3ff5.appspot.com/o/generalForms%2FFinance%20Appeal%20Form_22042020.pdf?alt=media&token=dc85e716-d108-4123-88c5-4c12eb5b427c&_gl=1*wr7gw6*_ga*NTQ3Njc0ODExLjE2ODA3MTQ2Mjg.*_ga_CW55HF8NVT*MTY5ODMxMTMwMy4xOTcuMS4xNjk4MzEyOTk1LjEzLjAuMA..";
       const existingPdfBytes = await fetch(url).then((res) =>
         res.arrayBuffer()
       );
@@ -114,104 +114,80 @@ exports.testPdf = (req, res) => {
       //run a forEach loop
 
       //max 80 characters
+      firstPage.drawText("28/10/2023", {
+        x: 44,
+        y: height - 30,
+        size: 8,
+        font: helveticaFont,
+        color: rgb(1, 0, 0),
+        lineHeight: 12,
+      });
+
       firstPage.drawText(
         "Muhammad Jamaluddin Jamal bin Muhammad Yusoof Taiyub Azman",
         {
-          x: 140,
+          x: 154,
           y: height - 104,
           size: 8,
           font: helveticaFont,
           color: rgb(1, 0, 0),
-          lineHeight: 12,
         }
       );
 
-      firstPage.drawText("AUG 2020", {
-        x: 430,
+      firstPage.drawText("p20012892", {
+        x: 390,
         y: height - 104,
         size: 8,
         font: helveticaFont,
         color: rgb(1, 0, 0),
       });
 
-      firstPage.drawText("p20012892", {
-        x: 140,
-        y: height - 124,
-        size: 8,
-        font: helveticaFont,
-        color: rgb(1, 0, 0),
-      });
-
       firstPage.drawText("BCSCU", {
-        x: 430,
-        y: height - 124,
+        x: 154,
+        y: height - 250,
         size: 8,
         font: helveticaFont,
         color: rgb(1, 0, 0),
       });
 
-      firstPage.drawText("p20012892@student.newinti.edu.my", {
-        x: 140,
-        y: height - 140,
+      firstPage.drawText("AUG 2020", {
+        x: 390,
+        y: height - 250,
         size: 8,
         font: helveticaFont,
         color: rgb(1, 0, 0),
       });
 
-      firstPage.drawText("0189457077", {
-        x: 430,
-        y: height - 140,
-        size: 8,
-        font: helveticaFont,
-        color: rgb(1, 0, 0),
-      });
-
-      firstPage.drawText("23/5/2023", {
-        x: 220,
-        y: height - 160,
-        size: 8,
-        font: helveticaFont,
-        color: rgb(1, 0, 0),
-      });
-
-      firstPage.drawText("26/5/2023", {
-        x: 405,
-        y: height - 160,
-        size: 8,
-        font: helveticaFont,
-        color: rgb(1, 0, 0),
-      });
-
-      //max 300 characters
       firstPage.drawText(
-        "I have a very important event that i need to attend to concerning a very important family function there i said it its a family function i really cant avoid im so sorry huhuhuhuhuhu i like kpop i lied i dont like them",
+        "30-13a, Luminari Residences, Jln Harbour Place, 12100 Butterworth, Pulau Pinang, Malaysia.",
         {
-          x: 40,
-          y: height - 200,
+          x: 158,
+          y: height - 280,
           size: 8,
           font: helveticaFont,
           color: rgb(1, 0, 0),
-          lineHeight: 12,
         }
       );
 
       firstPage.drawText("Jamal", {
-        x: 90,
-        y: height - 255,
+        x: 180,
+        y: height - 486,
         size: 14,
         font: signatureFont,
         color: rgb(1, 0, 0),
       });
 
       firstPage.drawText("22/5/2023", {
-        x: 430,
-        y: height - 255,
+        x: 386,
+        y: height - 486,
         size: 8,
         font: helveticaFont,
         color: rgb(1, 0, 0),
       });
 
-      pdfDoc.setTitle("Muhamman Jamaluddin LOA form 23/5/2023 - 30/5/2023");
+      pdfDoc.setTitle(
+        "Muhamman Jamaluddin Request of Utilisation of Student Fees"
+      );
       const pdfBytes = await pdfDoc.save();
 
       const bucket = admin.storage().bucket();
@@ -245,6 +221,15 @@ exports.createGeneralForm = (req, res) => {
     link: req.body.link,
     title: req.body.title,
     fields: req.body.fields,
+    type: req.body.type,
+  };
+
+  const overViewNotEasyFill = {
+    campusID: req.body.campusID,
+    generalFormID: "",
+    link: req.body.link,
+    title: req.body.title,
+    type: req.body.type,
   };
 
   var temp;
@@ -261,7 +246,16 @@ exports.createGeneralForm = (req, res) => {
     .then((doc) => {
       if (doc.exists) {
         let tempForms = doc.data().forms;
-        tempForms.push({ title: generalForm.title, generalFormID: temp });
+        if (generalForm.type === "easyFill")
+          tempForms.push({
+            title: generalForm.title,
+            generalFormID: temp,
+            type: generalForm.type,
+          });
+        else {
+          overViewNotEasyFill.generalFormID = temp;
+          tempForms.push(overViewNotEasyFill);
+        }
         return db
           .doc(`/generalFormsOverview/${generalForm.campusID}`)
           .update({ forms: [...tempForms] });
