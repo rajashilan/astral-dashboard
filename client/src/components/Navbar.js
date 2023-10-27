@@ -18,14 +18,6 @@ function Navbar() {
     ? "sticky top-0 h-[5.75rem] flex flex-row w-full bg-[#0C111F] px-[5rem] justify-between items-center"
     : "hidden";
 
-  useEffect(() => {
-    if (!loading) {
-      if (state.role) {
-        return;
-      } else navigate("/login");
-    }
-  }, [loading]);
-
   let menu = loading ? (
     <p>loading...</p>
   ) : state.role && state.role[0] === "sudo" ? (
