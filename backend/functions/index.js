@@ -21,6 +21,7 @@ const {
   addCollegeAndCampus,
   addCampus,
   deleteCollege,
+  changeID,
 } = require("./handlers/claw");
 
 //import college admin handlers
@@ -88,7 +89,10 @@ const {
 
 const { modifyPdf, testPdf, createGeneralForm } = require("./utils/pdf");
 
-const { createNotification } = require("./handlers/general");
+const {
+  createNotification,
+  sendEmailNotification,
+} = require("./handlers/general");
 
 app.use(
   cors({
@@ -113,6 +117,8 @@ app.post("/campus", addCampus);
 
 //delete a college
 app.delete("/college", deleteCollege);
+
+app.get("/changeid", changeID);
 
 //college routes ==============================================================
 
@@ -332,5 +338,6 @@ app.get("/pdf-test", testPdf);
 app.post("/add-pdf", createGeneralForm);
 
 app.post("/notification/:campusID", sudoAdminAuth, createNotification);
+app.post("/notification/email/:campusID", sudoAdminAuth, sendEmailNotification);
 
 exports.api = functions.region("asia-southeast1").https.onRequest(app);
