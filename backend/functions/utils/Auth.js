@@ -22,7 +22,6 @@ exports.NormalAuth = (req, res, next) => {
       //   return res.status(401).json({ general: "Please verify your email" });
       // }
       req.user = decodedToken;
-      console.log(req.user);
       return next();
     })
     .catch((error) => {

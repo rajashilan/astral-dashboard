@@ -29,9 +29,28 @@ exports.createNotification = (req, res) => {
 
 exports.sendEmailNotification = (req, res) => {
   const campusID = req.params.campusID;
+  const type = req.body.type;
+  const clubName = req.body.clubName;
 
   //different message templates according to notification types (req.body)
   //types: create a club, club resubmission, create an event, event resubmission, create a gallery, gallery resubmission
+
+  let message;
+
+  if (type === "createAClub")
+    message =
+      "<h1>New club request</h1></br><p>Head over to</p><a href='http://localhost:3000/clubs'>astral dashboard</a><p>to view the request.</p>";
+  else if (type === "clubResubmission")
+    message =
+      "<h1>New club resubmission</h1></br><p>Head over to</p><a href='http://localhost:3000/clubs'>astral dashboard</a><p>to view the request.</p>";
+  else if (type === "createAnEvent")
+    message = `<h1>Request to add new event from ${clubName}</h1></br><p>Head over to</p><a href='http://localhost:3000/clubs'>astral dashboard</a><p>to view the request.</p>`;
+  else if (type === "eventResubmission")
+    message = `<h1>New event resubmission from ${clubName}</h1></br><p>Head over to</p><a href='http://localhost:3000/clubs'>astral dashboard</a><p>to view the request.</p>`;
+  else if (type === "createAGallery")
+    message = `<h1>Request to add new gallery from ${clubName}</h1></br><p>Head over to</p><a href='http://localhost:3000/clubs'>astral dashboard</a><p>to view the request.</p>`;
+  else if (type === "galleryResubmission")
+    message = `<h1>New gallery resubmission from ${clubName}</h1></br><p>Head over to</p><a href='http://localhost:3000/clubs'>astral dashboard</a><p>to view the request.</p>`;
 
   db.collection("admins")
     .where("campusID", "==", campusID)
@@ -51,9 +70,9 @@ exports.sendEmailNotification = (req, res) => {
         .add({
           to: admins,
           message: {
-            subject: "Notification for astral",
-            text: "Notification test",
-            html: "<h1>New event request from Computer Science Club</h1></br><p>Head over to dashboard to approve or reject.</p>",
+            subject: "New request from astral.",
+            text: "",
+            html: message,
           },
         });
     })
