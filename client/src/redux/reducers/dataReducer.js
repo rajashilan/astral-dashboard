@@ -36,6 +36,7 @@ import {
   SET_CLUB_MEMBERS,
   CLEAR_CLUB_MEMBERS,
   CHANGE_CLUB_PRESIDENT,
+  SET_APPROVED_CLUBS,
 } from "../types";
 
 const initialState = {
@@ -48,6 +49,7 @@ const initialState = {
   clubs: [],
   club: {},
   clubMembers: [],
+  approvedClubs: [],
   clubActivities: [],
   loading: false,
   newAdminLink: "",
@@ -404,6 +406,11 @@ export default function (state = initialState, action) {
       return {
         ...state,
         clubActivities: [...action.payload],
+      };
+    case SET_APPROVED_CLUBS:
+      return {
+        ...state,
+        approvedClubs: [...action.payload],
       };
     case UPDATE_CLUB_ACTIVITIES:
       let tempClubActivities = [...state.clubActivities];

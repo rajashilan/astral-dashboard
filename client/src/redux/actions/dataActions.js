@@ -35,6 +35,9 @@ import {
   SET_A_CLUB,
   CHANGE_CLUB_PRESIDENT,
   SET_CLUB_MEMBERS,
+  REACTIVATE_SA,
+  DEACTIVATE_SA,
+  SET_APPROVED_CLUBS,
 } from "../types";
 import axios from "axios";
 
@@ -656,12 +659,34 @@ export const updateAdminsRole = (data) => (dispatch) => {
     });
 };
 
-export const getClubs = () => (dispatch) => {
+export const getClubs = (role, sa) => (dispatch) => {
   dispatch({ type: LOADING_DATA });
   const campusID = localStorage.getItem("AdminCampus");
+  let data = { role, sa };
+  axios
+    .post(`/clubs/${campusID}`, data)
+    .then((res) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({ type: CLEAR_GENERAL_ERRORS });
+      dispatch({ type: SET_CLUBS, payload: res.data });
+    })
+    .catch((error) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: error.response,
+      });
+      console.error(error);
+    });
+};
+
+export const getSaClubs = () => (dispatch) => {
+  dispatch({ type: LOADING_DATA });
+  const campusID = localStorage.getItem("AdminCampus");
+  console.log("called");
 
   axios
-    .get(`/clubs/${campusID}`)
+    .get(`/clubs/sa/${campusID}`)
     .then((res) => {
       dispatch({ type: STOP_LOADING_DATA });
       dispatch({ type: CLEAR_GENERAL_ERRORS });
@@ -677,22 +702,16 @@ export const getClubs = () => (dispatch) => {
     });
 };
 
-export const approveClub = (club) => (dispatch) => {
+export const getAdminClubs = () => (dispatch) => {
   dispatch({ type: LOADING_DATA });
-
-  let data = {
-    createdBy: club.createdBy,
-  };
-
-  club.approval = "approved";
+  const campusID = localStorage.getItem("AdminCampus");
 
   axios
-    .post(`/clubs/approve/${club.campusID}/${club.clubID}`, data)
+    .get(`/clubs/admin/${campusID}`)
     .then((res) => {
       dispatch({ type: STOP_LOADING_DATA });
       dispatch({ type: CLEAR_GENERAL_ERRORS });
-      dispatch({ type: APPROVE_CLUB, payload: club });
-      alert(`${club.name} approved successfully`);
+      dispatch({ type: SET_CLUBS, payload: res.data });
     })
     .catch((error) => {
       dispatch({ type: STOP_LOADING_DATA });
@@ -704,12 +723,47 @@ export const approveClub = (club) => (dispatch) => {
     });
 };
 
-export const rejectClub = (club, rejectionReason) => (dispatch) => {
+export const approveClub = (club, role) => (dispatch) => {
+  dispatch({ type: LOADING_DATA });
+
+  let data = {
+    createdBy: club.createdBy,
+    role,
+  };
+
+  club.approval = "approved";
+
+  let message;
+
+  if (role[0] === "focused:studentgovernment")
+    message = `${club.name} recommended successfully`;
+  else message = `${club.name} approved successfully`;
+
+  axios
+    .post(`/clubs/approve/${club.campusID}/${club.clubID}`, data)
+    .then((res) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({ type: CLEAR_GENERAL_ERRORS });
+      dispatch({ type: APPROVE_CLUB, payload: club });
+      alert(message);
+    })
+    .catch((error) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: error.response.data.error,
+      });
+      console.error(error);
+    });
+};
+
+export const rejectClub = (club, rejectionReason, role) => (dispatch) => {
   dispatch({ type: LOADING_DATA });
 
   let data = {
     createdBy: club.createdBy,
     rejectionReason,
+    role,
   };
 
   club.approval = "rejected";
@@ -830,6 +884,26 @@ export const getClubActivities = () => (dispatch) => {
     });
 };
 
+export const getApprovedClubs = () => (dispatch) => {
+  dispatch({ type: LOADING_DATA });
+  const campusID = localStorage.getItem("AdminCampus");
+
+  axios
+    .get(`/clubs/approved/${campusID}`)
+    .then((res) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({ type: SET_APPROVED_CLUBS, payload: res.data });
+    })
+    .catch((error) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: error,
+      });
+      console.error(error);
+    });
+};
+
 //functions to accept/reject event and gallery
 //must delete event and gallery from clubActivities after
 export const handleEventActivity = (event, statusData) => (dispatch) => {
@@ -901,6 +975,11 @@ export const adminActivation = (data) => (dispatch) => {
     .then((res) => {
       dispatch({ type: STOP_LOADING_DATA });
       dispatch({ type: SET_UPDATED_ADMIN, payload: data });
+      if (data.role[0] === "focused:studentgovernment") {
+        if (data.activationType === "activate")
+          dispatch({ type: REACTIVATE_SA, payload: { email: data.email } });
+        else dispatch({ type: DEACTIVATE_SA });
+      }
       alert(message);
     })
     .catch((error) => {
