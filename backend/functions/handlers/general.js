@@ -31,15 +31,19 @@ exports.sendEmailNotification = (req, res) => {
   const campusID = req.params.campusID;
   const type = req.body.type;
   const clubName = req.body.clubName;
+  const sa = req.body.sa;
+  const saName = req.body.saName;
 
   //different message templates according to notification types (req.body)
   //types: create a club, club resubmission, create an event, event resubmission, create a gallery, gallery resubmission
 
   let message;
 
-  if (type === "createAClub")
+  if (type === "createAClub" && sa === "")
     message =
       "<h1>New club request</h1></br><p>Head over to</p><a href='http://localhost:3000/clubs'>astral dashboard</a><p>to view the request.</p>";
+  else if (type === "createAClub" && sa !== "")
+    message = `<h1>New club request, please review and submit for admin to approve.</h1></br><p>Head over to</p><a href='http://localhost:3000/clubs'>astral dashboard</a><p>to view the request.</p>`;
   else if (type === "clubResubmission")
     message =
       "<h1>New club resubmission</h1></br><p>Head over to</p><a href='http://localhost:3000/clubs'>astral dashboard</a><p>to view the request.</p>";
@@ -51,38 +55,59 @@ exports.sendEmailNotification = (req, res) => {
     message = `<h1>Request to add new gallery from ${clubName}</h1></br><p>Head over to</p><a href='http://localhost:3000/clubs'>astral dashboard</a><p>to view the request.</p>`;
   else if (type === "galleryResubmission")
     message = `<h1>New gallery resubmission from ${clubName}</h1></br><p>Head over to</p><a href='http://localhost:3000/clubs'>astral dashboard</a><p>to view the request.</p>`;
+  else if (type === "saClubReview")
+    message = `<h1>New club review from ${saName} for ${clubName}</h1></br><p>Head over to</p><a href='http://localhost:3000/clubs'>astral dashboard</a><p>to view the request.</p>`;
 
-  db.collection("admins")
-    .where("campusID", "==", campusID)
-    .where("role", "array-contains-any", ["sudo", "focused:clubs"])
-    .get()
-    .then((data) => {
-      let admins = [];
-      data.forEach((doc) => {
-        admins.push(doc.data().testEmail);
+  if (type === "createAClub" && sa !== "") {
+    admin
+      .firestore()
+      .collection("mail")
+      .add({
+        to: sa,
+        message: {
+          subject: "New request from astral.",
+          text: "",
+          html: message,
+        },
+      })
+      .then(() => {})
+      .catch((error) => {
+        console.error(error);
+        return res.status(500).json({ error: "Something went wrong" });
       });
-      return admins;
-    })
-    .then((admins) => {
-      return admin
-        .firestore()
-        .collection("mail")
-        .add({
-          to: admins,
-          message: {
-            subject: "New request from astral.",
-            text: "",
-            html: message,
-          },
+  } else {
+    db.collection("admins")
+      .where("campusID", "==", campusID)
+      .where("role", "array-contains-any", ["sudo", "focused:clubs"])
+      .get()
+      .then((data) => {
+        let admins = [];
+        data.forEach((doc) => {
+          admins.push(doc.data().testEmail);
         });
-    })
-    .then(() => {
-      return res
-        .status(201)
-        .json({ message: "Email notifications sent succesfully" });
-    })
-    .catch((error) => {
-      console.error(error);
-      return res.status(500).json({ error: "Something went wrong" });
-    });
+        return admins;
+      })
+      .then((admins) => {
+        return admin
+          .firestore()
+          .collection("mail")
+          .add({
+            to: admins,
+            message: {
+              subject: "New request from astral.",
+              text: "",
+              html: message,
+            },
+          });
+      })
+      .then(() => {
+        return res
+          .status(201)
+          .json({ message: "Email notifications sent succesfully" });
+      })
+      .catch((error) => {
+        console.error(error);
+        return res.status(500).json({ error: "Something went wrong" });
+      });
+  }
 };
