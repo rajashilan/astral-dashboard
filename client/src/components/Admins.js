@@ -14,6 +14,7 @@ import ErrorLabel from "./ErrorLabel";
 export default function Admins() {
   const dispatch = useDispatch();
   const state = useSelector((state) => state.data);
+  const sa = useSelector((state) => state.user.campusData.sa);
 
   const [generalErrors, setGeneralErrors] = useState("");
   const [showEditModal, setShowEditModal] = useState(false);
@@ -166,11 +167,17 @@ export default function Admins() {
                 {admin.name}
               </th>
               <td className="px-6 py-4 font-normal text-[#DFE5F8]">
-                {stringifyRoles(admin.role)}
+                {admin.role[0] === "focused:studentgovernment"
+                  ? "student government"
+                  : stringifyRoles(admin.role)}
               </td>
               <td className="px-6 py-4 text-right">
                 <button
-                  className="cursor-pointer font-medium text-[#C4FFF9] dark:text-[#C4FFF9] hover:underline"
+                  className={
+                    admin.role[0] === "focused:studentgovernment"
+                      ? "font-medium text-gray-500"
+                      : "cursor-pointer font-medium text-[#C4FFF9] dark:text-[#C4FFF9] hover:underline"
+                  }
                   onClick={() =>
                     handleShowEditModal(
                       admin.userID,
@@ -180,6 +187,7 @@ export default function Admins() {
                       admin.email
                     )
                   }
+                  disabled={admin.role[0] === "focused:studentgovernment"}
                 >
                   Edit Role
                 </button>
@@ -203,8 +211,24 @@ export default function Admins() {
                   </p>
                 </td>
               ) : (
-                <td className="px-6 py-4 text-right">
-                  <p
+                <td
+                  onClick={() => {
+                    if (
+                      sa !== "" &&
+                      admin.role[0] === "focused:studentgovernment"
+                    )
+                      alert(
+                        "Cannot activate while another student government account is active. Deactivate the active account to continue."
+                      );
+                  }}
+                  className="px-6 py-4 text-right"
+                >
+                  <button
+                    disabled={
+                      sa !== "" && admin.role[0] === "focused:studentgovernment"
+                        ? true
+                        : false
+                    }
                     onClick={() =>
                       handleAdminActivation(
                         admin.userID,
@@ -215,10 +239,14 @@ export default function Admins() {
                         "activate"
                       )
                     }
-                    className="cursor-pointer font-medium text-[#C4FFF9] dark:text-[#C4FFF9] hover:underline"
+                    className={
+                      sa !== "" && admin.role[0] === "focused:studentgovernment"
+                        ? "font-medium text-gray-500 "
+                        : "cursor-pointer font-medium text-[#C4FFF9] dark:text-[#C4FFF9] hover:underline"
+                    }
                   >
                     Activate
-                  </p>
+                  </button>
                 </td>
               )}
             </tr>

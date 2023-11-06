@@ -15,12 +15,20 @@ import { CLEAR_NEW_ADMIN_LINK } from "../redux/types";
 export default function RegisterAdmins() {
   const dispatch = useDispatch();
   const state = useSelector((state) => state.data);
-  const [roles, setRoles] = useState(["clubs", "orientation", "college"]);
-  const [checkedState, setCheckedState] = useState(new Array(3).fill(false));
+  const sa = useSelector((state) => state.user.campusData.sa);
+  const [roles, setRoles] = useState([
+    "clubs",
+    "orientation",
+    "college",
+    "student government",
+  ]);
+  const [checkedState, setCheckedState] = useState(new Array(4).fill(false));
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedRoles, setSelectedRoles] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [generalErrors, setGeneralErrors] = useState("");
+  const [disabled, setDisabled] = useState(false);
+  const [saDisabled, setSaDisabled] = useState(false);
 
   // useEffect(() => {
   //   dispatch({ type: CLEAR_NEW_ADMIN_LINK });
@@ -36,6 +44,14 @@ export default function RegisterAdmins() {
     updatedCheckedState.forEach((state, index) => {
       if (state === true) temp.push(roles[index]);
     });
+
+    console.log(updatedCheckedState);
+
+    if (temp.length === 0) {
+      setDisabled(false);
+      setSaDisabled(false);
+    } else if (temp[0] === "student government") setDisabled(true);
+    else setSaDisabled(true);
 
     setSelectedRoles(temp);
     setCheckedState(updatedCheckedState);
@@ -87,7 +103,12 @@ export default function RegisterAdmins() {
       let temp = [...selectedRoles];
 
       //handle transforming chosen roles to the actual codes
-      if (temp.length === 3) temp = ["sudo"];
+      if (
+        ["clubs", "orientation", "college"].every((role) =>
+          selectedRoles.includes(role)
+        )
+      )
+        temp = ["sudo"];
       else
         temp.forEach((role, index) => {
           if (role !== "sudo") temp[index] = `focused:${role.replace(" ", "")}`;
@@ -164,13 +185,28 @@ export default function RegisterAdmins() {
         {roles.map((role, index) => {
           return (
             <li key={index}>
-              <div className="flex space-x-4 justify-start w-40">
+              <div
+                onClick={() => {
+                  if (role === "student government" && sa !== "")
+                    alert(
+                      "Campus already has a student goverment account. Deactivate that account to add a new one."
+                    );
+                }}
+                className="flex space-x-4 justify-start w-[340px]"
+              >
                 <input
                   className="w-6 h-6"
                   type="checkbox"
                   id={`custom-checkbox-${index}`}
                   name={role}
                   value={role}
+                  disabled={
+                    role === "student government"
+                      ? sa !== ""
+                        ? true
+                        : saDisabled
+                      : disabled
+                  }
                   checked={checkedState[index]}
                   onChange={() => handleOnChange(index)}
                 />
