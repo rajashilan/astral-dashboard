@@ -7,7 +7,11 @@ import SuspendedClubs from "../components/SuspendedClubs";
 import RegisterAdmins from "../components/RegisterAdmins";
 
 import { useSelector, useDispatch } from "react-redux";
-import { getClubs } from "../redux/actions/dataActions";
+import {
+  getAdminClubs,
+  getClubs,
+  getSaClubs,
+} from "../redux/actions/dataActions";
 import ClubActivities from "../components/ClubActivities";
 
 export default function Clubs() {
@@ -19,13 +23,15 @@ export default function Clubs() {
   //for each tab, filter the club's data and display accordinly
 
   const state = useSelector((state) => state.user);
+  const sa = useSelector((state) => state.user.campusData.sa);
+  const role = useSelector((state) => state.user.adminData.role);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (!state.authenticated) navigate("/login");
-    dispatch(getClubs());
-  }, []);
+    if ((role, sa)) dispatch(getClubs(role, sa));
+  }, [role]);
 
   let display =
     tab === "pending" ? (
@@ -43,49 +49,58 @@ export default function Clubs() {
   let inactiveTabClass =
     "cursor-pointer inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-[#DFE5F8] hover:[#DFE5F8] hover:";
 
+  let tabDisplay =
+    role && role[0] === "focused:studentgovernment" ? (
+      <div className="text-[24px] font-normal text-center text-[#A7AFC7] border-b border-[#A7AFC7]">
+        <ul className="flex flex-wrap -mb-px">
+          <li>
+            <p className={activeTabClass}>Pending Clubs</p>
+          </li>
+        </ul>
+      </div>
+    ) : (
+      <div className="text-[16px] font-normal text-center text-[#A7AFC7] border-b border-[#A7AFC7]">
+        <ul className="flex flex-wrap -mb-px">
+          <li onClick={() => setTab("pending")}>
+            <p
+              className={tab === "pending" ? activeTabClass : inactiveTabClass}
+            >
+              Pending Clubs
+            </p>
+          </li>
+          <li onClick={() => setTab("approved")}>
+            <p
+              className={tab === "approved" ? activeTabClass : inactiveTabClass}
+            >
+              Approved Clubs
+            </p>
+          </li>
+          <li onClick={() => setTab("suspended")}>
+            <p
+              className={
+                tab === "suspended" ? activeTabClass : inactiveTabClass
+              }
+            >
+              Suspended Clubs
+            </p>
+          </li>
+          <li onClick={() => setTab("activities")}>
+            <p
+              className={
+                tab === "activities" ? activeTabClass : inactiveTabClass
+              }
+            >
+              Clubs Activities
+            </p>
+          </li>
+        </ul>
+      </div>
+    );
+
   return (
     <main className="items-center flex flex-col min-h-screen bg-[#0C111F]">
       <div className="max-w-[70%] py-[80px] items-center flex flex-col">
-        <div className="text-[16px] font-normal text-center text-[#A7AFC7] border-b border-[#A7AFC7]">
-          <ul className="flex flex-wrap -mb-px">
-            <li onClick={() => setTab("pending")}>
-              <p
-                className={
-                  tab === "pending" ? activeTabClass : inactiveTabClass
-                }
-              >
-                Pending Clubs
-              </p>
-            </li>
-            <li onClick={() => setTab("approved")}>
-              <p
-                className={
-                  tab === "approved" ? activeTabClass : inactiveTabClass
-                }
-              >
-                Approved Clubs
-              </p>
-            </li>
-            <li onClick={() => setTab("suspended")}>
-              <p
-                className={
-                  tab === "suspended" ? activeTabClass : inactiveTabClass
-                }
-              >
-                Suspended Clubs
-              </p>
-            </li>
-            <li onClick={() => setTab("activities")}>
-              <p
-                className={
-                  tab === "activities" ? activeTabClass : inactiveTabClass
-                }
-              >
-                Clubs Activities
-              </p>
-            </li>
-          </ul>
-        </div>
+        {tabDisplay}
         {display}
       </div>
     </main>

@@ -23,14 +23,14 @@ export default function Menu() {
   //sudo and general show as usual
   //focused, straight away bring them to the particular page
   //department, straight away bring them to their particular department
-
   useEffect(() => {
     if (!loading) {
       if (state.role) {
-        return;
+        if (state.role[0] === "focused:studentgovernment") navigate("/clubs");
+        else return;
       } else navigate("/login");
     }
-  }, [loading]);
+  }, [state.role]);
 
   let menu = loading ? (
     <p>loading...</p>

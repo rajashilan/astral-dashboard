@@ -6,6 +6,8 @@ import {
   STOP_LOADING_UI,
   SET_AUTHENTICATED,
   SET_UNAUTHENTICATED,
+  REACTIVATE_SA,
+  DEACTIVATE_SA,
 } from "../types";
 
 const initialState = {
@@ -28,6 +30,22 @@ export default function (state = initialState, action) {
         authenticated: true,
         campusData: { ...action.payload.campus },
         adminData: { ...action.payload.admin },
+      };
+    case REACTIVATE_SA:
+      return {
+        ...state,
+        campusData: {
+          ...state.campusData,
+          sa: action.payload.email,
+        },
+      };
+    case DEACTIVATE_SA:
+      return {
+        ...state,
+        campusData: {
+          ...state.campusData,
+          sa: "",
+        },
       };
     default:
       return state;

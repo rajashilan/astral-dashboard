@@ -34,11 +34,16 @@ export default function PendingClubs() {
 
   const dispatch = useDispatch();
   const state = useSelector((state) => state.data);
+  const sa = useSelector((state) => state.user.campusData.sa);
+  const saName = useSelector((state) => state.user.campusData.saName);
+  const role = useSelector((state) => state.user.adminData.role);
   const loading = useSelector((state) => state.data.loading);
 
   const [generalErrors, setGeneralErrors] = useState("");
   const [showRejectionModal, setShowRejectionModal] = useState(false);
   const [rejectionModalData, setRejectionModalData] = useState({});
+  const [showSaFeedbackModal, setShowSaFeedbackModal] = useState(false);
+  const [saFeedbackModalData, setSaFeedbackModalData] = useState({});
 
   const [pendingClubs, setPendingClubs] = useState([]);
 
@@ -47,7 +52,7 @@ export default function PendingClubs() {
   }, [state.clubs]);
 
   const handleApprove = (club) => {
-    dispatch(approveClub(club));
+    dispatch(approveClub(club, role));
 
     let notification = {
       preText: "",
@@ -83,9 +88,15 @@ export default function PendingClubs() {
     setShowRejectionModal(!showRejectionModal);
   };
 
+  const handleShowSaFeedbackModal = (feedback, name) => {
+    if (feedback && name) setSaFeedbackModalData({ feedback, name });
+    else setSaFeedbackModalData({});
+    setShowSaFeedbackModal(!showSaFeedbackModal);
+  };
+
   const handleReject = (data) => {
     let rejectionReason = data["rejectionReason"];
-    dispatch(rejectClub(rejectionModalData, rejectionReason));
+    dispatch(rejectClub(rejectionModalData, rejectionReason, role));
 
     let notification = {
       preText: "",
@@ -128,7 +139,9 @@ export default function PendingClubs() {
           ✕
         </button>
         <h1 className="text-[24px] text-[#DFE5F8] font-medium mb-[1rem]">
-          Reject Club Request
+          {role && role[0] === "focused:studentgovernment"
+            ? "Reject and escalate to Admin"
+            : "Reject Club Request"}
         </h1>
         <h3 className="text-[18px] text-[#DFE5F8] font-medium mb-[1rem]">
           {rejectionModalData.name}
@@ -137,7 +150,11 @@ export default function PendingClubs() {
           <TextInput
             type="text"
             id="rejectionReason"
-            placeholder="Enter the reason for rejection here"
+            placeholder={
+              role && role[0] === "focused:studentgovernment"
+                ? "Enter your feedback to Admin"
+                : "Enter the reason for rejection here"
+            }
             className="w-full !bg-[#232F52]"
             register={register}
             errors={errors}
@@ -154,6 +171,29 @@ export default function PendingClubs() {
     </div>
   );
 
+  let saFeedbackModal = (
+    <div
+      className={
+        "modal modal-middle h-auto " + (showSaFeedbackModal ? "modal-open" : "")
+      }
+    >
+      <div className=" modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
+        <button
+          onClick={() => handleShowSaFeedbackModal()}
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+        >
+          ✕
+        </button>
+        <h1 className="text-[24px] text-[#DFE5F8] font-medium mb-[1rem]">
+          {`${saName}'s feedback for ${saFeedbackModalData.name}`}
+        </h1>
+        <h3 className="text-[18px] text-[#DFE5F8] font-medium mb-[1rem]">
+          {saFeedbackModalData.feedback}
+        </h3>
+      </div>
+    </div>
+  );
+
   let display = state.loading ? (
     <p>Loading clubs...</p>
   ) : pendingClubs.length > 0 ? (
@@ -166,6 +206,16 @@ export default function PendingClubs() {
           <th scope="col" className="px-6 py-3">
             FPF Form
           </th>
+          {sa !== "" && role[0] !== "focused:studentgovernment" && (
+            <th scope="col" className="px-6 py-3">
+              <span>{`${saName}'s status`}</span>
+            </th>
+          )}
+          {sa !== "" && role[0] !== "focused:studentgovernment" && (
+            <th scope="col" className="px-6 py-3">
+              <span className="sr-only">{`${saName}'s feedback`}</span>
+            </th>
+          )}
           <th scope="col" className="px-6 py-3">
             <span className="sr-only">Approve</span>
           </th>
@@ -195,12 +245,33 @@ export default function PendingClubs() {
                   Download FPF Form
                 </a>
               </th>
+              {sa !== "" && role[0] !== "focused:studentgovernment" && (
+                <th
+                  scope="row"
+                  className="px-6 py-4 font-normal text-[#DFE5F8] whitespace-nowrap"
+                >
+                  {club.saApproval}
+                </th>
+              )}
+              {sa !== "" && role[0] !== "focused:studentgovernment" && (
+                <th
+                  onClick={() =>
+                    handleShowSaFeedbackModal(club.saFeedback, club.name)
+                  }
+                  scope="row"
+                  className="cursor-pointer px-6 py-4 font-normal text-[#DFE5F8] whitespace-nowrap"
+                >
+                  {club.saApproval === "rejected" && "view feedback"}
+                </th>
+              )}
               <td className="px-6 py-4 text-right">
                 <button
                   className="cursor-pointer font-medium text-[#C4FFF9] dark:text-[#C4FFF9] hover:underline"
                   onClick={() => handleApprove(club)}
                 >
-                  Approve
+                  {role && role[0] === "focused:studentgovernment"
+                    ? "Recommend"
+                    : "Approve"}
                 </button>
               </td>
               <td className="px-6 py-4 text-right">
@@ -224,6 +295,7 @@ export default function PendingClubs() {
     <div className="top-[26px] w-full items-center relative overflow-x-auto shadow-md sm:rounded-lg">
       {display}
       {RejectModal}
+      {saFeedbackModal}
     </div>
   );
 }
