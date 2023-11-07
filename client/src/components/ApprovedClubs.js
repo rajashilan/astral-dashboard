@@ -8,6 +8,7 @@ import ErrorLabel from "./ErrorLabel";
 import TextInput from "../components/TextInput";
 import {
   changeClubPresident,
+  getApprovedClubs,
   getClubMembers,
   suspendClub,
 } from "../redux/actions/dataActions";
@@ -22,6 +23,7 @@ export default function ApprovedClubs() {
   const dispatch = useDispatch();
   const state = useSelector((state) => state.data);
   const clubMembers = useSelector((state) => state.data.clubMembers);
+  const approvedClubs = useSelector((state) => state.data.approvedClubs);
   const loading = useSelector((state) => state.data.loading);
 
   const [generalErrors, setGeneralErrors] = useState("");
@@ -34,21 +36,10 @@ export default function ApprovedClubs() {
   const [newPresident, setNewPresident] = useState({});
   const [numOfDays, setNumOfDays] = useState(0);
 
-  const [approvedClubs, setApprovedClubs] = useState([]);
-
   useEffect(() => {
     dispatch({ type: CLEAR_CLUB_MEMBERS });
+    dispatch(getApprovedClubs());
   }, []);
-
-  useEffect(() => {
-    setApprovedClubs(
-      state.clubs.filter(
-        (club) =>
-          (club.approval === "approved" && club.status === "active") ||
-          (club.approval === "approved" && club.status === "inactive")
-      )
-    );
-  }, [state.clubs]);
 
   //handle setting loading to false after getting club members
   useEffect(() => {
