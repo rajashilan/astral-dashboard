@@ -61,6 +61,8 @@ exports.addCollegeAndCampus = (req, res) => {
     collegeID: "",
     orientationID: "",
     sudoAdmins: 0,
+    sa: req.body.sa,
+    saName: req.body.saName,
   };
 
   let orientationData = {
@@ -141,6 +143,8 @@ exports.addCampus = (req, res) => {
     collegeID: "",
     orientationID: "",
     sudoAdmins: 0,
+    sa: req.body.sa,
+    saName: req.body.saName,
   };
 
   let orientationData = {
@@ -233,6 +237,24 @@ exports.deleteCollege = (req, res) => {
           console.error(error);
           return res.status(500).json({ error: "Something went wrong" });
         });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
+exports.changeID = (req, res) => {
+  db.doc(`/generalFormsOverview/hgvlJ4CKoZYA765tfXSL`)
+    .get()
+    .then((doc) => {
+      let temp = [...doc.data().forms];
+      return db
+        .doc(`/generalFormsOverview/W0ZatA2fKMe01xk025S6`)
+        .set({ forms: [...temp] });
+    })
+    .then(() => {
+      return res.status(201).json({ message: "success" });
     })
     .catch((error) => {
       console.error(error);

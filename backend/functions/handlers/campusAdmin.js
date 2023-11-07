@@ -257,6 +257,8 @@ exports.addedAdminSignUp = (req, res) => {
   let adminLinks;
   let sudoAdmins;
 
+  let sa, saName;
+
   //first find the role using the requested linkID
 
   db.doc(`/campuses/${campusID}`)
@@ -267,6 +269,8 @@ exports.addedAdminSignUp = (req, res) => {
 
         adminLinks = doc.data().adminLinks;
         sudoAdmins = doc.data().sudoAdmins;
+        sa = doc.data().sa;
+        saName = doc.data().saName;
 
         if (adminAccount.role[0] === "sudo") sudoAdmins = sudoAdmins + 1;
 
@@ -308,6 +312,16 @@ exports.addedAdminSignUp = (req, res) => {
                             .update({
                               adminLinks: adminLinks,
                               sudoAdmins: sudoAdmins,
+                              sa:
+                                adminAccount.role[0] ===
+                                "focused:studentgovernment"
+                                  ? adminAccount.email
+                                  : sa,
+                              saName:
+                                adminAccount.role[0] ===
+                                "focused:studentgovernment"
+                                  ? adminAccount.name
+                                  : saName,
                             })
                             .then(() => {
                               //after getting the role, update the admin's role
@@ -463,6 +477,8 @@ exports.getSessionData = (req, res) => {
       departments: [],
       intakes: [],
       name: "",
+      sa: "",
+      saName: "",
     },
   };
 
@@ -481,6 +497,8 @@ exports.getSessionData = (req, res) => {
       sessionData.campus.departments = [...doc.data().departments];
       sessionData.campus.intakes = [...doc.data().intakes];
       sessionData.campus.name = doc.data().name;
+      sessionData.campus.sa = doc.data().sa;
+      sessionData.campus.saName = doc.data().saName;
     })
     .then(() => {
       return res.json(sessionData);
@@ -656,13 +674,14 @@ exports.deactivateAdmin = (req, res) => {
   const campusID = req.params.campusID;
   const deactivateAdminID = req.body.deactivateAdminID;
   let sudoAdmins;
+  let isSa = false;
 
   db.doc(`/admins/${deactivateAdminID}`)
     .get()
     .then((doc) => {
-      //check if admin role is sudo
+      if (doc.data().role[0] === "focused:studentgovernment") isSa = true;
       if (doc.data().role[0] === "sudo") {
-        //if it is, check if there is at least another sudo admin for the campus
+        //if sudo, check if there is at least another sudo admin for the campus
         admin
           .firestore()
           .doc(`/campuses/${campusID}`)
@@ -709,9 +728,24 @@ exports.deactivateAdmin = (req, res) => {
           .doc(`/admins/${deactivateAdminID}`)
           .update({ active: false })
           .then(() => {
-            return res.json({
-              message: "Admin deactivated",
-            });
+            if (isSa) {
+              db.doc(`/campuses/${campusID}`)
+                .update({ sa: "", saName: "" })
+                .then(() => {
+                  return res.json({
+                    message: "Admin deactivated",
+                  });
+                })
+                .catch((error) => {
+                  console.error(error);
+                  return res.status(500).json({
+                    error: "Something went wrong",
+                  });
+                });
+            } else
+              return res.json({
+                message: "Admin deactivated",
+              });
           })
           .catch((error) => {
             console.error(error);
@@ -734,7 +768,7 @@ exports.reactivateAdmin = (req, res) => {
   const reactivateAdminID = req.body.reactivateAdminID;
 
   let sudoAdmins;
-  let role;
+  let role, email, name;
 
   //first check if user requesting is sudo and of the same campus
   //then, check if reactivating user is sudo
@@ -744,6 +778,10 @@ exports.reactivateAdmin = (req, res) => {
     .get()
     .then((doc) => {
       role = doc.data().role;
+      if (role[0] === "focused:studentgovernment") {
+        email = doc.data().email;
+        name = doc.data().name;
+      }
       doc.ref.update({ active: true }).then(() => {
         //check if reactivating user is sudo
         if (role[0] === "sudo") {
@@ -764,6 +802,18 @@ exports.reactivateAdmin = (req, res) => {
                     message: "Sudo admin reactivated",
                   });
                 });
+            })
+            .catch((error) => {
+              console.error(error);
+              return res.status(500).json({ error: "Something went wrong" });
+            });
+        } else if (role[0] === "focused:studentgovernment") {
+          db.doc(`/campuses/${campusID}`)
+            .update({ sa: email, saName: name })
+            .then(() => {
+              return res.json({
+                message: "Admin reactivated",
+              });
             })
             .catch((error) => {
               console.error(error);

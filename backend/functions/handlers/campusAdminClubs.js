@@ -6,21 +6,61 @@ const { FieldValue } = require("firebase-admin/firestore");
 //get all clubs
 exports.getAllClubs = (req, res) => {
   const campusID = req.params.campusID;
+  const role = req.body.role;
+  const sa = req.body.sa;
 
-  db.collection("clubs")
-    .where("campusID", "==", campusID)
-    .get()
-    .then((data) => {
-      let clubs = [];
-      data.forEach((doc) => {
-        clubs.push(doc.data());
+  if (sa !== "" && role[0] !== "focused:studentgovernment") {
+    db.collection("clubs")
+      .where("campusID", "==", campusID)
+      .where("reviewLevel", "==", "admin")
+      .get()
+      .then((data) => {
+        if (!data)
+          return res.status(200).json({ message: "No clubs for review" });
+        let clubs = [];
+        data.forEach((doc) => {
+          clubs.push({ ...doc.data() });
+        });
+        return res.status(200).json(clubs);
+      })
+      .catch((error) => {
+        console.error(error);
+        return res.status(500).json({ error: "Something went wrong" });
       });
-      return res.status(200).json(clubs);
-    })
-    .catch((error) => {
-      console.error(error);
-      return res.status(500).json({ error: "Something went wrong" });
-    });
+  } else if (sa !== "" && role[0] === "focused:studentgovernment") {
+    db.collection("clubs")
+      .where("campusID", "==", campusID)
+      .where("reviewLevel", "==", "sa")
+      .get()
+      .then((data) => {
+        if (!data)
+          return res.status(200).json({ message: "No clubs for review" });
+        let clubs = [];
+        data.forEach((doc) => {
+          clubs.push({ ...doc.data() });
+        });
+        return res.status(200).json(clubs);
+      })
+      .catch((error) => {
+        console.error(error);
+        return res.status(500).json({ error: "Something went wrong" });
+      });
+  } else if (sa === "") {
+    db.collection("clubs")
+      .where("campusID", "==", campusID)
+      .get()
+      .then((data) => {
+        let clubs = [];
+        data.forEach((doc) => {
+          clubs.push(doc.data());
+        });
+        return res.status(200).json(clubs);
+      })
+      .catch((error) => {
+        console.error(error);
+        return res.status(500).json({ error: "Something went wrong" });
+      });
+  } else return res.status(500).json({ message: "Bad request" });
 };
 
 //approve a club
@@ -29,6 +69,7 @@ exports.approveClub = (req, res) => {
   const campusID = req.params.campusID;
   const createdBy = req.body.createdBy;
   const rejectionReason = "";
+  const role = req.body.role;
 
   //have to update in clubs, clubsOverview, and in Users
 
@@ -36,19 +77,30 @@ exports.approveClub = (req, res) => {
   //so we'll only have to access user's data when it comes to this part
   //and we can access it using the createdBy since only the createdBy user will be in the club
 
+  //if role = student government:
+  //approval = pending
+  //reviewLevel = "admin"
+  //saApproval = "approved"
+
   db.doc(`/users/${createdBy}`)
     .get()
     .then((doc) => {
       let temp = doc.data().clubs;
       let index = temp.findIndex((club) => club.clubID === clubID);
-      temp[index].approval = "approved";
+      if (role[0] !== "focused:studentgovernment")
+        temp[index].approval = "approved";
 
       return db.doc(`/users/${createdBy}`).update({ clubs: [...temp] });
     })
     .then(() => {
-      return db
-        .doc(`/clubs/${clubID}`)
-        .update({ approval: "approved", rejectionReason });
+      if (role[0] === "focused:studentgovernment")
+        return db
+          .doc(`/clubs/${clubID}`)
+          .update({ saApproval: "approved", reviewLevel: "admin" });
+      else
+        return db
+          .doc(`/clubs/${clubID}`)
+          .update({ approval: "approved", rejectionReason });
     })
     .then(() => {
       return db.doc(`/clubsOverview/${campusID}`).get();
@@ -56,8 +108,13 @@ exports.approveClub = (req, res) => {
     .then((doc) => {
       let temp = [...doc.data().clubs];
       let index = temp.findIndex((club) => club.clubID === clubID);
-      temp[index].approval = "approved";
-      temp[index].rejectionReason = "";
+      if (role[0] === "focused:studentgovernment") {
+        temp[index].saApproval = "approved";
+        temp[index].reviewLevel = "admin";
+      } else {
+        temp[index].approval = "approved";
+        temp[index].rejectionReason = "";
+      }
       return db.doc(`/clubsOverview/${campusID}`).update({ clubs: [...temp] });
     })
     .then(() => {
@@ -75,6 +132,7 @@ exports.rejectClub = (req, res) => {
   const campusID = req.params.campusID;
   const createdBy = req.body.createdBy;
   const rejectionReason = req.body.rejectionReason;
+  const role = req.body.role;
 
   //have to update in clubs, clubsOverview, and in Users
 
@@ -82,19 +140,34 @@ exports.rejectClub = (req, res) => {
   //so we'll only have to access user's data when it comes to this part
   //and we can access it using the createdBy since only the createdBy user will be in the club
 
+  //if role = studentgovernment, set:
+  //reviewLevel = "admin" (clubs, clubsOverview)
+  //approval= "pending", saApproval = "rejected" (clubs, clubsOverview)
+  //approvalText = "pending approval from Admin" (clubs, clubsOverview)
+  //no rejectionReason, just saFeedback (clubs, clubsOverview)
+
   db.doc(`/users/${createdBy}`)
     .get()
     .then((doc) => {
       let temp = doc.data().clubs;
       let index = temp.findIndex((club) => clubID === clubID);
-      temp[index].approval = "rejected";
+      if (role[0] !== "focused:studentgovernment")
+        temp[index].approval = "rejected";
 
       return db.doc(`/users/${createdBy}`).update({ clubs: [...temp] });
     })
     .then(() => {
-      return db
-        .doc(`/clubs/${clubID}`)
-        .update({ approval: "rejected", rejectionReason });
+      if (role[0] === "focused:studentgovernment")
+        return db.doc(`/clubs/${clubID}`).update({
+          reviewLevel: "admin",
+          saFeedback: rejectionReason,
+          approvalText: "pending approval from Admin",
+          saApproval: "rejected",
+        });
+      else
+        return db
+          .doc(`/clubs/${clubID}`)
+          .update({ approval: "rejected", rejectionReason });
     })
     .then(() => {
       return db.doc(`/clubsOverview/${campusID}`).get();
@@ -102,8 +175,15 @@ exports.rejectClub = (req, res) => {
     .then((doc) => {
       let temp = [...doc.data().clubs];
       let index = temp.findIndex((club) => club.clubID === clubID);
-      temp[index].approval = "rejected";
-      temp[index].rejectionReason = rejectionReason;
+      if (role[0] === "focused:studentgovernment") {
+        temp[index].reviewLevel = "admin";
+        temp[index].saFeedback = rejectionReason;
+        temp[index].approvalText = "pending approval from Admin";
+        temp[index].saApproval = "rejected";
+      } else {
+        temp[index].approval = "rejected";
+        temp[index].rejectionReason = rejectionReason;
+      }
       return db.doc(`/clubsOverview/${campusID}`).update({ clubs: [...temp] });
     })
     .then(() => {
@@ -265,6 +345,145 @@ exports.getClubMembers = (req, res) => {
     .get()
     .then((doc) => {
       return res.status(200).json([...doc.data().members]);
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
+exports.getApprovedClubs = (req, res) => {
+  const campusID = req.params.campusID;
+
+  db.collection("clubs")
+    .where("campusID", "==", campusID)
+    .where("approval", "==", "approved")
+    .get()
+    .then((data) => {
+      let approvedClubs = [];
+      data.forEach((doc) => {
+        approvedClubs.push({ ...doc.data() });
+      });
+      return res.status(200).json(approvedClubs);
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
+//get clubs for SA
+//approve clubs for SA
+//deny clubs for SA
+
+exports.getPendingClubsForSA = (req, res) => {
+  const campusID = req.params.campusID;
+
+  db.collection("clubs")
+    .where("campusID", "==", campusID)
+    .where("reviewLevel", "==", "sa")
+    .get()
+    .then((data) => {
+      if (!data)
+        return res.status(200).json({ message: "No clubs for review" });
+      let clubs = [];
+      data.forEach((doc) => {
+        clubs.push({ ...doc.data() });
+      });
+      return res.status(200).json({ clubs });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
+exports.getPendingClubsForAdmin = (req, res) => {
+  const campusID = req.params.campusID;
+
+  db.collection("clubs")
+    .where("campusID", "==", campusID)
+    .where("reviewLevel", "==", "admin")
+    .get()
+    .then((data) => {
+      if (!data)
+        return res.status(200).json({ message: "No clubs for review" });
+      let clubs = [];
+      data.forEach((doc) => {
+        clubs.push({ ...doc.data() });
+      });
+      return res.status(200).json({ clubs });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
+exports.approveClubUnderSA = (req, res) => {
+  const clubID = req.params.clubID;
+  const campusID = req.params.campusID;
+
+  //update in clubs, clubsOverview -> reviewTier, approval, saApproval
+  //send notification to admin
+
+  db.doc(`/clubs/${clubID}`)
+    .update({
+      reviewTier: "admin",
+      approval: "pending approval from Admin",
+      saApproval: "approved",
+    })
+    .then(() => {
+      return db.doc(`/clubsOverview/${campusID}`).get();
+    })
+    .then((doc) => {
+      let clubs = [...doc.data().clubs];
+      let index = clubs.findIndex((club) => club.clubID === clubID);
+      clubs[index].reviewTier = "admin";
+      clubs[index].approval = "pending approval from Admin";
+      clubs[index].saApproval = "approved";
+
+      return db.doc(`/clubsOverview/${campusID}`).update({ clubs: [...clubs] });
+    })
+    .then(() => {
+      return res.status(200).json({ message: "club recommended successfully" });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
+exports.rejectClubUnderSA = (req, res) => {
+  const clubID = req.params.clubID;
+  const campusID = req.params.campusID;
+  const feedback = req.body.feedback;
+
+  //update in clubs, clubsOverview -> reviewTier, approval, saApproval
+  //send notification to admin
+
+  db.doc(`/clubs/${clubID}`)
+    .update({
+      reviewTier: "admin",
+      approval: "pending approval from Admin",
+      saApproval: "rejected",
+      saFeedback: feedback,
+    })
+    .then(() => {
+      return db.doc(`/clubsOverview/${campusID}`).get();
+    })
+    .then((doc) => {
+      let clubs = [...doc.data().clubs];
+      let index = clubs.findIndex((club) => club.clubID === clubID);
+      clubs[index].reviewTier = "admin";
+      clubs[index].approval = "pending approval from Admin";
+      clubs[index].saApproval = "rejected";
+      clubs[index].saFeedback = feedback;
+
+      return db.doc(`/clubsOverview/${campusID}`).update({ clubs: [...clubs] });
+    })
+    .then(() => {
+      return res.status(200).json({ message: "club rejected successfully" });
     })
     .catch((error) => {
       console.error(error);

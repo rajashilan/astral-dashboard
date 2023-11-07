@@ -85,6 +85,11 @@ const {
   removeSuspension,
   changePresident,
   getClubMembers,
+  getPendingClubsForSA,
+  getPendingClubsForAdmin,
+  getApprovedClubs,
+  approveClubUnderSA,
+  rejectClubUnderSA,
 } = require("./handlers/campusAdminClubs");
 
 const { modifyPdf, testPdf, createGeneralForm } = require("./utils/pdf");
@@ -299,7 +304,9 @@ app.delete(
   deleteOrientationPage
 );
 
-app.get("/clubs/:campusID", sudoAdminAuth, getAllClubs);
+app.post("/clubs/:campusID", sudoAdminAuth, getAllClubs);
+app.get("/clubs/sa/:campusID", sudoAdminAuth, getPendingClubsForSA);
+app.get("/clubs/admin/:campusID", sudoAdminAuth, getPendingClubsForAdmin);
 
 app.post(`/clubs/approve/:campusID/:clubID`, sudoAdminAuth, approveClub);
 
@@ -332,6 +339,7 @@ app.post(
 app.post("/clubs/events/true/:campusID", sudoAdminAuth, setClubEventToTrue);
 app.post("/clubs/gallery/true/:campusID", sudoAdminAuth, setClubGalleryToTrue);
 app.post("/clubs/:clubID/:campusID", sudoAdminAuth, getAClub);
+app.get("/clubs/approved/:campusID", sudoAdminAuth, getApprovedClubs);
 
 app.post("/pdf", modifyPdf);
 app.get("/pdf-test", testPdf);
