@@ -676,6 +676,8 @@ exports.uploadOrientationPostImage = (req, res) => {
     file.pipe(fs.createWriteStream(filepath));
   });
 
+  let token = crypto.randomBytes(20).toString("hex");
+
   busboy.on("finish", () => {
     admin
       .storage()
@@ -686,11 +688,12 @@ exports.uploadOrientationPostImage = (req, res) => {
         metadata: {
           metadata: {
             contentType: imageToBeUploaded.mimetype,
+            firebaseStorageDownloadTokens: token,
           },
         },
       })
       .then(() => {
-        imageUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${request}${imageFileName}?alt=media`;
+        imageUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${request}${imageFileName}?alt=media&token=${token}`;
 
         return res.status(201).json({ downloadUrl: imageUrl });
       })
@@ -745,6 +748,8 @@ exports.uploadOrientationPostFile = (req, res) => {
     file.pipe(fs.createWriteStream(filepath));
   });
 
+  let token = crypto.randomBytes(20).toString("hex");
+
   busboy.on("finish", () => {
     admin
       .storage()
@@ -755,15 +760,16 @@ exports.uploadOrientationPostFile = (req, res) => {
         metadata: {
           metadata: {
             contentType: imageToBeUploaded.mimetype,
+            firebaseStorageDownloadTokens: token,
           },
         },
       })
       .then(() => {
-        fileUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${request}${imageFileName}?alt=media`;
-
-        return res
-          .status(201)
-          .json({ downloadUrl: fileUrl, filename: originalImageFileName });
+        let fileUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${request}${imageFileName}?alt=media&token=${token}`;
+        return res.status(201).json({
+          downloadUrl: fileUrl,
+          filename: originalImageFileName,
+        });
       })
       .catch((error) => {
         console.error(error);
@@ -817,6 +823,8 @@ exports.uploadOrientationOverviewVideo = (req, res) => {
     file.pipe(fs.createWriteStream(videoPath));
   });
 
+  let token = crypto.randomBytes(20).toString("hex");
+
   busboy.on("finish", () => {
     ffmpeg(videoToBeUploaded.videoPath)
       .outputOptions(["-s 1280x720"]) // Set output resolution to 720p
@@ -830,10 +838,11 @@ exports.uploadOrientationOverviewVideo = (req, res) => {
             resumable: false,
             metadata: {
               contentType: videoToBeUploaded.mimetype,
+              firebaseStorageDownloadTokens: token,
             },
           })
           .then(() => {
-            videoUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${request}${compressedFileName}?alt=media`;
+            videoUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${request}${compressedFileName}?alt=media&token=${token}`;
 
             return res.status(201).json({
               downloadUrl: videoUrl,
