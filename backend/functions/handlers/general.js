@@ -88,6 +88,7 @@ exports.sendEmailNotification = (req, res) => {
         return admins;
       })
       .then((admins) => {
+        console.log(admins);
         return admin
           .firestore()
           .collection("mail")

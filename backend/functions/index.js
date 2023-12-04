@@ -346,6 +346,6 @@ app.get("/pdf-test", testPdf);
 app.post("/add-pdf", createGeneralForm);
 
 app.post("/notification/:campusID", NormalAuth, createNotification);
-app.post("/notification/email/:campusID", sendEmailNotification);
+app.post("/notification/email/:campusID", NormalAuth, sendEmailNotification);
 
 exports.api = functions.region("asia-southeast1").https.onRequest(app);
