@@ -61,8 +61,26 @@ exports.sudoAdminAuth = (req, res, next) => {
           //a sudo admin
           //has the same campus id as the requesting campusID
           //is active
+
+          //check based on data being requested and admin role
+          //sudo: all
+          //clubs: clubs
+          //orientation: orientation
+          //college: college
+          //student government: pending clubs
+
+          let toCheckRole = "";
+          let url = req.url.split("/")[1];
+          if (url === "admins" || url === "admin")
+            toCheckRole = "focused:college";
+          else if (url === "clubs") toCheckRole = "focused:clubs";
+          else if (url === "orientation") toCheckRole = "focused:orientation";
+          else if (url === "clubs-sa")
+            toCheckRole = "focused:studentgovernment";
+
           if (
-            doc.data().role[0] === "sudo" &&
+            (doc.data().role[0] === "sudo" ||
+              doc.data().role.includes(toCheckRole)) &&
             doc.data().campusID === req.params.campusID &&
             doc.data().active === true
           ) {

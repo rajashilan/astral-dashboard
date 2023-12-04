@@ -267,7 +267,7 @@ export default function OrientationPagePreview() {
 
           dispatch({ type: LOADING_DATA });
           axios
-            .post(`/subcontent-image/${campusID}`, formData)
+            .post(`/orientation/subcontent-image/${campusID}`, formData)
             .then((res) => {
               let temp = [...data.image];
               temp.push(res.data.downloadUrl);
@@ -326,7 +326,7 @@ export default function OrientationPagePreview() {
 
       dispatch({ type: LOADING_DATA });
       axios
-        .post(`/subcontent-image/${campusID}`, formData)
+        .post(`/orientation/subcontent-image/${campusID}`, formData)
         .then((res) => {
           let temp = [...data.image];
           temp.push(res.data.downloadUrl);
@@ -389,7 +389,7 @@ export default function OrientationPagePreview() {
 
     dispatch({ type: LOADING_DATA });
     axios
-      .post(`/subcontent-file/${campusID}`, formData)
+      .post(`/orientation/subcontent-file/${campusID}`, formData)
       .then((res) => {
         data.file = res.data.downloadUrl;
         data.filename = res.data.filename;

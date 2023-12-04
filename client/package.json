@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@firebase/app-check": "^0.8.0",
     "@hookform/resolvers": "^3.1.0",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@testing-library/jest-dom": "^5.16.5",

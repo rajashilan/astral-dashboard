@@ -138,7 +138,7 @@ export const getOrientationPages = (orientationID) => (dispatch) => {
   const campusID = localStorage.getItem("AdminCampus");
 
   axios
-    .get(`/orientation-page/${campusID}`)
+    .get(`/orientation/page/${campusID}`)
     .then((res) => {
       dispatch({ type: STOP_LOADING_DATA });
       dispatch({ type: CLEAR_GENERAL_ERRORS });
@@ -169,7 +169,7 @@ export const updateOrientationPagesTitle =
 
     axios
       .post(
-        `/orientation-page-title/${campusID}/${orientationID}/${orientationPageID}`,
+        `/orientation/page-title/${campusID}/${orientationID}/${orientationPageID}`,
         data
       )
       .then((res) => {
@@ -202,7 +202,7 @@ export const updateOrientationPagesHeader =
     };
 
     axios
-      .post(`/orientation-page-header/${campusID}/${orientationPageID}`, data)
+      .post(`/orientation/page-header/${campusID}/${orientationPageID}`, data)
       .then((res) => {
         dispatch({ type: STOP_LOADING_DATA });
         dispatch({ type: CLEAR_GENERAL_ERRORS });
@@ -233,7 +233,7 @@ export const updateOrientationPagesContent =
     };
 
     axios
-      .post(`/orientation-page-content/${campusID}/${orientationPageID}`, data)
+      .post(`/orientation/page-content/${campusID}/${orientationPageID}`, data)
       .then((res) => {
         dispatch({ type: STOP_LOADING_DATA });
         dispatch({ type: CLEAR_GENERAL_ERRORS });
@@ -266,7 +266,7 @@ export const updateSubcontentTitle =
 
     axios
       .post(
-        `/subcontent-title/${campusID}/${orientationPageID}/${subcontentID}`,
+        `/orientation/subcontent-title/${campusID}/${orientationPageID}/${subcontentID}`,
         data
       )
       .then((res) => {
@@ -301,7 +301,7 @@ export const updateSubcontentContent =
 
     axios
       .post(
-        `/subcontent-content/${campusID}/${orientationPageID}/${subcontentID}`,
+        `/orientation/subcontent-content/${campusID}/${orientationPageID}/${subcontentID}`,
         data
       )
       .then((res) => {
@@ -336,7 +336,7 @@ export const updateSubcontentImage =
 
     axios
       .post(
-        `/subcontent-image/${campusID}/${orientationPageID}/${subcontentID}`,
+        `/orientation/subcontent-image/${campusID}/${orientationPageID}/${subcontentID}`,
         data
       )
       .then((res) => {
@@ -370,7 +370,7 @@ export const deleteSubcontentImage =
 
     axios
       .delete(
-        `/subcontent-image/${campusID}/${orientationPageID}/${subcontentID}`
+        `/orientation/subcontent-image/${campusID}/${orientationPageID}/${subcontentID}`
       )
       .then((res) => {
         dispatch({ type: STOP_LOADING_DATA });
@@ -407,7 +407,7 @@ export const updateSubcontentFile =
 
     axios
       .post(
-        `/subcontent-file/${campusID}/${orientationPageID}/${subcontentID}`,
+        `/orientation/subcontent-file/${campusID}/${orientationPageID}/${subcontentID}`,
         data
       )
       .then((res) => {
@@ -436,7 +436,7 @@ export const deleteSubcontentFile =
 
     axios
       .post(
-        `/subcontent-file-delete/${campusID}/${orientationPageID}/${subcontentID}`,
+        `/orientation/subcontent-file-delete/${campusID}/${orientationPageID}/${subcontentID}`,
         data
       )
       .then((res) => {
@@ -470,7 +470,7 @@ export const addOrientationOverviewVideo =
     const campusID = localStorage.getItem("AdminCampus");
 
     axios
-      .post(`/overview-video/${campusID}/${orientationID}`, data)
+      .post(`/orientation/overview-video/${campusID}/${orientationID}`, data)
       .then((res) => {
         dispatch({ type: STOP_LOADING_DATA });
         dispatch({ type: CLEAR_GENERAL_ERRORS });
@@ -496,7 +496,10 @@ export const deleteOrientationOverviewVideo =
     const campusID = localStorage.getItem("AdminCampus");
 
     axios
-      .post(`/overview-video-delete/${campusID}/${orientationID}`, data)
+      .post(
+        `/orientation/overview-video-delete/${campusID}/${orientationID}`,
+        data
+      )
       .then((res) => {
         dispatch({ type: STOP_LOADING_DATA });
         dispatch({ type: CLEAR_GENERAL_ERRORS });
@@ -527,7 +530,9 @@ export const deleteSubcontent =
     };
 
     axios
-      .delete(`/subcontent/${campusID}/${orientationPageID}/${subcontentID}`)
+      .delete(
+        `/orientation/subcontent/${campusID}/${orientationPageID}/${subcontentID}`
+      )
       .then((res) => {
         dispatch({ type: STOP_LOADING_DATA });
         dispatch({ type: CLEAR_GENERAL_ERRORS });
@@ -558,7 +563,7 @@ export const deleteOrientationPage =
 
     axios
       .delete(
-        `/orientation-page/${campusID}/${orientationID}/${orientationPageID}`
+        `/orientation/page/${campusID}/${orientationID}/${orientationPageID}`
       )
       .then((res) => {
         console.log("aifidhjksadhahd");
@@ -591,7 +596,7 @@ export const createNewOrientationPage = (data, orientationID) => (dispatch) => {
   };
 
   axios
-    .post(`/orientation-page/${campusID}/${orientationID}`, data)
+    .post(`/orientation/page/${campusID}/${orientationID}`, data)
     .then((res) => {
       dispatch({ type: STOP_LOADING_DATA });
       dispatch({ type: CLEAR_GENERAL_ERRORS });
@@ -616,7 +621,7 @@ export const createNewOrientationPost =
     const campusID = localStorage.getItem("AdminCampus");
 
     axios
-      .post(`/subcontent/${campusID}/${orientationPageID}`, data)
+      .post(`/orientation/subcontent/${campusID}/${orientationPageID}`, data)
       .then((res) => {
         dispatch({ type: STOP_LOADING_DATA });
         dispatch({ type: CLEAR_GENERAL_ERRORS });
@@ -642,7 +647,7 @@ export const updateAdminsRole = (data) => (dispatch) => {
   const campusID = localStorage.getItem("AdminCampus");
 
   axios
-    .post(`/admin-role/${campusID}`, data)
+    .post(`/admin/role/${campusID}`, data)
     .then((res) => {
       dispatch({ type: STOP_LOADING_DATA });
       dispatch({ type: CLEAR_GENERAL_ERRORS });
@@ -683,10 +688,9 @@ export const getClubs = (role, sa) => (dispatch) => {
 export const getSaClubs = () => (dispatch) => {
   dispatch({ type: LOADING_DATA });
   const campusID = localStorage.getItem("AdminCampus");
-  console.log("called");
 
   axios
-    .get(`/clubs/sa/${campusID}`)
+    .get(`/clubs-sa/${campusID}`)
     .then((res) => {
       dispatch({ type: STOP_LOADING_DATA });
       dispatch({ type: CLEAR_GENERAL_ERRORS });
@@ -849,7 +853,7 @@ export const createNewAdminLink = (roles) => (dispatch) => {
   };
 
   axios
-    .post(`/generate-admin-link/${campusID}`, data)
+    .post(`/admin/generate-link/${campusID}`, data)
     .then((res) => {
       dispatch({ type: STOP_LOADING_DATA });
       dispatch({ type: SET_NEW_ADMIN_LINK, payload: res.data });
@@ -962,8 +966,8 @@ export const adminActivation = (data) => (dispatch) => {
 
   const request =
     data.activationType === "activate"
-      ? `/reactivate-admin/${campusID}`
-      : `/deactivate-admin/${campusID}`;
+      ? `/admin/reactivate/${campusID}`
+      : `/admin/deactivate/${campusID}`;
 
   const message =
     data.activationType === "activate"

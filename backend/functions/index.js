@@ -155,7 +155,7 @@ app.post("/admin-signup/:campusID/:linkID", adminFirstTimeSignUp);
 app.post("/add-admin-signup/:campusID/:linkID", addedAdminSignUp);
 
 //to generate the link to create a new admin
-app.post("/generate-admin-link/:campusID", sudoAdminAuth, generateNewAdminLink);
+app.post("/admin/generate-link/:campusID", sudoAdminAuth, generateNewAdminLink);
 
 //admin login
 app.post("/login", adminLogin);
@@ -164,19 +164,19 @@ app.post("/login", adminLogin);
 app.get("/session-data/:campusID", verifyAdminForSessionData, getSessionData);
 
 //edit a campus' department
-app.post("/edit-department/:campusID", sudoAdminAuth, editCampusDepartment);
+app.post("/department/edit/:campusID", sudoAdminAuth, editCampusDepartment);
 
 //edit a campus' intake
-app.post("/edit-intake/:campusID", sudoAdminAuth, editCampusIntake);
+app.post("department/edit-intake/:campusID", sudoAdminAuth, editCampusIntake);
 
 //edit an admin's role
-app.post("/admin-role/:campusID", sudoAdminAuth, editAdminRole);
+app.post("/admin/role/:campusID", sudoAdminAuth, editAdminRole);
 
 //deactivate an admin
-app.post("/deactivate-admin/:campusID", sudoAdminAuth, deactivateAdmin);
+app.post("/admin/deactivate/:campusID", sudoAdminAuth, deactivateAdmin);
 
 //reactivating an admin
-app.post("/reactivate-admin/:campusID", sudoAdminAuth, reactivateAdmin);
+app.post("/admin/reactivate/:campusID", sudoAdminAuth, reactivateAdmin);
 
 //orientation routes ==============================================================
 
@@ -189,123 +189,123 @@ app.post(
 );
 
 app.post(
-  "/orientation-content/:campusID/:orientationID",
+  "/orientation/content/:campusID/:orientationID",
   sudoAdminAuth,
   editOrientationOverviewContent
 );
 
 app.post(
-  "/orientation-page/:campusID/:orientationID",
+  "/orientation/page/:campusID/:orientationID",
   sudoAdminAuth,
   createOrientationPage
 );
 
-app.get("/orientation-page/:campusID", sudoAdminAuth, getOrientationPages);
+app.get("/orientation/page/:campusID", sudoAdminAuth, getOrientationPages);
 
 app.post(
-  "/subcontent/:campusID/:orientationPageID",
+  "/orientation/subcontent/:campusID/:orientationPageID",
   sudoAdminAuth,
   createNewSubcontent
 );
 
 app.post(
-  "/subcontent-title/:campusID/:orientationPageID/:subcontentID",
+  "/orientation/subcontent-title/:campusID/:orientationPageID/:subcontentID",
   sudoAdminAuth,
   editSubcontentTitle
 );
 
 app.post(
-  "/subcontent-content/:campusID/:orientationPageID/:subcontentID",
+  "/orientation/subcontent-content/:campusID/:orientationPageID/:subcontentID",
   sudoAdminAuth,
   editSubcontentContent
 );
 
 app.post(
-  "/subcontent-image/:campusID/:orientationPageID/:subcontentID",
+  "/orientation/subcontent-image/:campusID/:orientationPageID/:subcontentID",
   sudoAdminAuth,
   editSubcontentImage
 );
 
 app.delete(
-  "/subcontent-image/:campusID/:orientationPageID/:subcontentID",
+  "/orientation/subcontent-image/:campusID/:orientationPageID/:subcontentID",
   sudoAdminAuth,
   deleteSubcontentImage
 );
 
 app.post(
-  "/subcontent-file/:campusID/:orientationPageID/:subcontentID",
+  "/orientation/subcontent-file/:campusID/:orientationPageID/:subcontentID",
   sudoAdminAuth,
   editSubcontentFile
 );
 
 app.post(
-  "/subcontent-file-delete/:campusID/:orientationPageID/:subcontentID",
+  "/orientation/subcontent-file-delete/:campusID/:orientationPageID/:subcontentID",
   sudoAdminAuth,
   deleteSubcontentFile
 );
 
 app.delete(
-  "/subcontent/:campusID/:orientationPageID/:subcontentID",
+  "/orientation/subcontent/:campusID/:orientationPageID/:subcontentID",
   sudoAdminAuth,
   deleteSubcontent
 );
 
 app.post(
-  "/overview-video/:campusID/:orientationID",
+  "/orientation/overview-video/:campusID/:orientationID",
   sudoAdminAuth,
   editOrientationOverviewVideos
 );
 
 app.post(
-  "/overview-video-delete/:campusID/:orientationID",
+  "/orientation/overview-video-delete/:campusID/:orientationID",
   sudoAdminAuth,
   deleteOrientationOverviewVideo
 );
 
 app.post(
-  "/subcontent-image/:campusID",
+  "/orientation/subcontent-image/:campusID",
   sudoAdminAuth,
   uploadOrientationPostImage
 );
 
 app.post(
-  "/subcontent-file/:campusID",
+  "/orientation/subcontent-file/:campusID",
   sudoAdminAuth,
   uploadOrientationPostFile
 );
 
 app.post(
-  "/overview-video/:campusID",
+  "/orientation/overview-video/:campusID",
   sudoAdminAuth,
   uploadOrientationOverviewVideo
 );
 
 app.post(
-  "/orientation-page-title/:campusID/:orientationID/:orientationPageID",
+  "/orientation/page-title/:campusID/:orientationID/:orientationPageID",
   sudoAdminAuth,
   editOrientationPageTitle
 );
 
 app.post(
-  "/orientation-page-header/:campusID/:orientationPageID",
+  "/orientation/page-header/:campusID/:orientationPageID",
   sudoAdminAuth,
   editOrientationPageHeader
 );
 
 app.post(
-  "/orientation-page-content/:campusID/:orientationPageID",
+  "/orientation/page-content/:campusID/:orientationPageID",
   sudoAdminAuth,
   editOrientationPageContent
 );
 
 app.delete(
-  "/orientation-page/:campusID/:orientationID/:orientationPageID",
+  "/orientation/page/:campusID/:orientationID/:orientationPageID",
   sudoAdminAuth,
   deleteOrientationPage
 );
 
 app.post("/clubs/:campusID", sudoAdminAuth, getAllClubs);
-app.get("/clubs/sa/:campusID", sudoAdminAuth, getPendingClubsForSA);
+app.get("/clubs-sa/:campusID", sudoAdminAuth, getPendingClubsForSA);
 app.get("/clubs/admin/:campusID", sudoAdminAuth, getPendingClubsForAdmin);
 
 app.post(`/clubs/approve/:campusID/:clubID`, sudoAdminAuth, approveClub);
@@ -345,7 +345,7 @@ app.post("/pdf", modifyPdf);
 app.get("/pdf-test", testPdf);
 app.post("/add-pdf", createGeneralForm);
 
-app.post("/notification/:campusID", sudoAdminAuth, createNotification);
-app.post("/notification/email/:campusID", NormalAuth, sendEmailNotification);
+app.post("/notification/:campusID", NormalAuth, createNotification);
+app.post("/notification/email/:campusID", sendEmailNotification);
 
 exports.api = functions.region("asia-southeast1").https.onRequest(app);

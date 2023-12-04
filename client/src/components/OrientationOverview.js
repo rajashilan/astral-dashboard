@@ -15,7 +15,6 @@ import bin from "../assets/bin.svg";
 import video from "../assets/video.svg";
 
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
 import {
   addOrientationOverviewVideo,
   deleteOrientationOverviewVideo,
