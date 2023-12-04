@@ -259,7 +259,7 @@ export default function PendingClubs() {
                     handleShowSaFeedbackModal(club.saFeedback, club.name)
                   }
                   scope="row"
-                  className="cursor-pointer px-6 py-4 font-normal text-[#DFE5F8] whitespace-nowrap"
+                  className="cursor-pointer underline px-6 py-4 font-normal text-[#DFE5F8] whitespace-nowrap"
                 >
                   {club.saApproval === "rejected" && "view feedback"}
                 </th>
