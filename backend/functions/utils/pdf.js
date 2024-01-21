@@ -41,6 +41,7 @@ exports.modifyPdf = (req, res) => {
 
       let matriculationNo = req.body.matriculationNo;
       let title = req.body.title;
+      let userID = req.body.userID;
 
       const fields = req.body.fields;
 
@@ -66,14 +67,14 @@ exports.modifyPdf = (req, res) => {
       const bucket = admin.storage().bucket();
 
       const filename = crypto.randomBytes(10).toString("hex");
-      const file = bucket.file(`generalForms/edited/${filename}.pdf`);
+      const file = bucket.file(`generalForms/edited/${userID}/${filename}.pdf`);
       await file.save(pdfBytes, {
         metadata: {
           contentType: "application/pdf",
         },
       });
 
-      const link = `https://firebasestorage.googleapis.com/v0/b/astral-d3ff5.appspot.com/o/generalForms%2Fedited%2F${filename}.pdf?alt=media`;
+      const link = `https://firebasestorage.googleapis.com/v0/b/astral-d3ff5.appspot.com/o/generalForms%2Fedited%2F${userID}%2F${filename}.pdf?alt=media`;
 
       return res.status(201).json({ link });
     } catch (error) {
