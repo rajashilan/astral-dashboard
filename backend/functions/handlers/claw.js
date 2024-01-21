@@ -74,8 +74,24 @@ exports.addCollegeAndCampus = (req, res) => {
     pages: [],
   };
 
+  //make sure college and campus' name are not similar to others
   db.collection("colleges")
-    .add(college)
+    .where("name", "==", college.name)
+    .get()
+    .then((collegeData) => {
+      if (!collegeData.empty) {
+        return res.status(500).json({ error: "College name already exists" });
+      } else {
+        return db.collection("campuses").where("name", "==", campus.name).get();
+      }
+    })
+    .then((campusData) => {
+      if (!campusData.empty) {
+        return res.status(500).json({ error: "Campus name already exists" });
+      } else {
+        return db.collection("colleges").add(college);
+      }
+    })
     .then((data) => {
       campus.collegeID = data.id;
 
@@ -156,9 +172,16 @@ exports.addCampus = (req, res) => {
     pages: [],
   };
 
-  db.collection("colleges")
-    .where("name", "==", college)
+  db.collection("campuses")
+    .where("name", "==", campus.name)
     .get()
+    .then((campusData) => {
+      if (!campusData.empty) {
+        return res.status(500).json({ error: "Campus name already exists" });
+      } else {
+        return db.collection("colleges").where("name", "==", college).get();
+      }
+    })
     .then((data) => {
       data.forEach((doc) => {
         campus.collegeID = doc.id;
@@ -255,6 +278,62 @@ exports.changeID = (req, res) => {
     })
     .then(() => {
       return res.status(201).json({ message: "success" });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
+exports.createTestClubsOverview = (req, res) => {
+  let toUpload = [];
+
+  for (var i = 0; i < 40; i++) {
+    let data = {
+      name: `test ${crypto.randomBytes(10).toString("hex")}`,
+      image:
+        "https://firebasestorage.googleapis.com/v0/b/astral-d3ff5.appspot.com/o/clubs%2Fclubs_default.jpeg?alt=media&token=8a9c42e0-d937-4389-804f-9fd6953644ac&_gl=1*1c0ck02*_ga*NTQ3Njc0ODExLjE2ODA3MTQ2Mjg.*_ga_CW55HF8NVT*MTY5ODI5NzM4MS4xOTUuMS4xNjk4MzAwMDYzLjU4LjAuMA..",
+      clubID: 123456, //to be added later
+      approval: "approved",
+      approvalText: "",
+      reviewLevel: "admin",
+      saFeedback: "",
+      saApproval: "",
+      rejectionReason: "",
+      status: "active",
+      createdBy: "test",
+      createdAt: i + 1,
+      campusID: "W0ZatA2fKMe01xk025S6",
+    };
+    toUpload.push(data);
+  }
+
+  db.doc(`clubsOverview/W0ZatA2fKMe01xk025S6`)
+    .update({ test: [...toUpload] })
+    .then(() => {
+      return res.status(201).json({ message: "Success" });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
+exports.createTestOrientationOverview = (req, res) => {
+  let toUpload = [];
+
+  for (var i = 0; i < 40; i++) {
+    let data = {
+      orientationPageID: crypto.randomBytes(10).toString("hex"),
+      title: `test ${crypto.randomBytes(10).toString("hex")}`,
+    };
+    toUpload.push(data);
+  }
+
+  db.doc(`orientations/4dCJIooWXaFyDlHn2BeZ`)
+    .update({ test: [...toUpload] })
+    .then(() => {
+      return res.status(201).json({ message: "Success" });
     })
     .catch((error) => {
       console.error(error);
