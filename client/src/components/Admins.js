@@ -211,34 +211,26 @@ export default function Admins() {
                   </p>
                 </td>
               ) : (
-                <td
-                  onClick={() => {
-                    if (
-                      sa !== "" &&
-                      admin.role[0] === "focused:studentgovernment"
-                    )
-                      alert(
-                        "Cannot activate while another student government account is active. Deactivate the active account to continue."
-                      );
-                  }}
-                  className="px-6 py-4 text-right"
-                >
+                <td className="px-6 py-4 text-right">
                   <button
-                    disabled={
-                      sa !== "" && admin.role[0] === "focused:studentgovernment"
-                        ? true
-                        : false
-                    }
-                    onClick={() =>
-                      handleAdminActivation(
-                        admin.userID,
-                        admin.name,
-                        admin.role,
-                        admin.active,
-                        admin.email,
-                        "activate"
+                    onClick={() => {
+                      if (
+                        sa !== "" &&
+                        admin.role[0] === "focused:studentgovernment"
                       )
-                    }
+                        alert(
+                          "Cannot activate while another student government account is active. Deactivate the active account to continue."
+                        );
+                      else
+                        handleAdminActivation(
+                          admin.userID,
+                          admin.name,
+                          admin.role,
+                          admin.active,
+                          admin.email,
+                          "activate"
+                        );
+                    }}
                     className={
                       sa !== "" && admin.role[0] === "focused:studentgovernment"
                         ? "font-medium text-gray-500 "
