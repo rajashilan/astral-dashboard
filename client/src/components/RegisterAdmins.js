@@ -45,8 +45,6 @@ export default function RegisterAdmins() {
       if (state === true) temp.push(roles[index]);
     });
 
-    console.log(updatedCheckedState);
-
     if (temp.length === 0) {
       setDisabled(false);
       setSaDisabled(false);
@@ -185,30 +183,21 @@ export default function RegisterAdmins() {
         {roles.map((role, index) => {
           return (
             <li key={index}>
-              <div
-                onClick={() => {
-                  if (role === "student government" && sa !== "")
-                    alert(
-                      "Campus already has a student goverment account. Deactivate that account to add a new one."
-                    );
-                }}
-                className="flex space-x-4 justify-start w-[340px]"
-              >
+              <div className="flex space-x-4 justify-start w-[340px]">
                 <input
                   className="w-6 h-6"
                   type="checkbox"
                   id={`custom-checkbox-${index}`}
                   name={role}
                   value={role}
-                  disabled={
-                    role === "student government"
-                      ? sa !== ""
-                        ? true
-                        : saDisabled
-                      : disabled
-                  }
                   checked={checkedState[index]}
-                  onChange={() => handleOnChange(index)}
+                  onChange={() => {
+                    if (role === "student government" && sa !== "")
+                      alert(
+                        "Campus already has a student goverment account. Deactivate that account to add a new one."
+                      );
+                    else handleOnChange(index);
+                  }}
                 />
                 <label
                   className="text-[18px] text-[#DFE5F8] font-normal"
