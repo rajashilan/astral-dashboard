@@ -22,6 +22,8 @@ const {
   addCampus,
   deleteCollege,
   changeID,
+  createTestClubsOverview,
+  createTestOrientationOverview,
 } = require("./handlers/claw");
 
 //import college admin handlers
@@ -124,6 +126,8 @@ app.post("/campus", addCampus);
 app.delete("/college", deleteCollege);
 
 app.get("/changeid", changeID);
+
+app.get("/testUpload", createTestOrientationOverview);
 
 //college routes ==============================================================
 

@@ -21,11 +21,11 @@ import Clubs from "./pages/clubs";
 //components
 import Navbar from "./components/Navbar";
 
-// axios.defaults.baseURL =
-//   "https://asia-southeast1-astral-d3ff5.cloudfunctions.net/api";
-
 axios.defaults.baseURL =
-  "http://localhost:5000/astral-d3ff5/asia-southeast1/api";
+  "https://asia-southeast1-astral-d3ff5.cloudfunctions.net/api";
+
+// axios.defaults.baseURL =
+//   "http://localhost:5000/astral-d3ff5/asia-southeast1/api";
 
 const token = localStorage.FBIdToken;
 if (token) {
