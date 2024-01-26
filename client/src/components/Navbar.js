@@ -15,7 +15,7 @@ function Navbar() {
   const navActive = "font-bold text-[#C4FFF9] underline text-[1.125rem]";
   const navInactive = "font-normal text-[#DFE5F8] text-[1.125rem]";
   const hiddenClass = state.role
-    ? "sticky top-0 h-[5.75rem] flex flex-row w-full bg-[#0C111F] px-[5rem] justify-between items-center"
+    ? "sticky top-0 h-[5.75rem] flex flex-row w-full bg-[#0C111F] px-[5rem] justify-between items-center z-40"
     : "hidden";
 
   let menu = loading ? (
