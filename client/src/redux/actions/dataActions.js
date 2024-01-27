@@ -112,7 +112,9 @@ export const updateOrientationOverviewTitle =
     const campusID = localStorage.getItem("AdminCampus");
 
     axios
-      .post(`/orientation/${campusID}/${orientationID}`, data)
+      .post(`/orientation/overview/edit`, data, {
+        params: { campusID, orientationID },
+      })
       .then((res) => {
         dispatch({ type: STOP_LOADING_DATA });
         dispatch({ type: CLEAR_GENERAL_ERRORS });
