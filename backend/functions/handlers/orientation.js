@@ -79,7 +79,7 @@ exports.getOrientationOverview = (req, res) => {
 
 //edit orientation overview (video and title)
 exports.editOrientationOverview = (req, res) => {
-  const orientationID = req.params.orientationID;
+  const orientationID = req.params.orientationID || req.query.orientationID;
 
   let data = {
     title: req.body.title,
@@ -568,8 +568,6 @@ exports.deleteSubcontentFile = (req, res) => {
   const url = req.body.url;
   let temp;
 
-  req.body.url;
-
   db.doc(`/orientationPages/${orientationPageID}`)
     .get()
     .then((doc) => {
@@ -641,8 +639,6 @@ exports.uploadOrientationPostImage = (req, res) => {
   const path = require("path");
   const os = require("os");
   const fs = require("fs");
-
-  ("requested");
 
   let request = "orientation%2Fpages%2Fimages%2F";
 
@@ -725,7 +721,6 @@ exports.uploadOrientationPostFile = (req, res) => {
   let originalImageFileName = "";
 
   busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
-    mimetype;
     if (mimetype === "image/jpeg" || mimetype === "image/png") {
       return res.status(400).json({ error: "Wrong file type submitted" });
     }
@@ -742,8 +737,6 @@ exports.uploadOrientationPostFile = (req, res) => {
       filepath,
       mimetype,
     };
-
-    imageToBeUploaded;
 
     file.pipe(fs.createWriteStream(filepath));
   });
@@ -799,7 +792,6 @@ exports.uploadOrientationOverviewVideo = (req, res) => {
   let request = "orientation%2Foverview%2Fvideos%2F";
 
   busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
-    mimetype;
     if (mimetype !== "video/mp4") {
       return res.status(400).json({ error: "Please only upload mp4 videos" });
     }
