@@ -924,6 +924,11 @@ export const handleEventActivity = (event, statusData) => (dispatch) => {
     .post(`/clubs/activities/event/${campusID}`, data)
     .then((res) => {
       dispatch({ type: STOP_LOADING_DATA });
+      let msg;
+      if (statusData.status === "rejected") msg = "Event rejected successfully";
+      else if (statusData.status === "approved")
+        msg = "Event approved successfully";
+      alert(msg);
       dispatch({ type: UPDATE_CLUB_ACTIVITIES, payload: event.activityID });
     })
     .catch((error) => {
@@ -949,6 +954,12 @@ export const handleGalleryActivity = (gallery, statusData) => (dispatch) => {
     .post(`/clubs/activities/gallery/${campusID}`, data)
     .then((res) => {
       dispatch({ type: STOP_LOADING_DATA });
+      let msg;
+      if (statusData.status === "rejected")
+        msg = "Gallery rejected successfully";
+      else if (statusData.status === "approved")
+        msg = "Gallery approved successfully";
+      alert(msg);
       dispatch({ type: UPDATE_CLUB_ACTIVITIES, payload: gallery.activityID });
     })
     .catch((error) => {
