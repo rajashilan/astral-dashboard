@@ -566,7 +566,6 @@ export const deleteOrientationPage =
         `/orientation/page/${campusID}/${orientationID}/${orientationPageID}`
       )
       .then((res) => {
-        console.log("aifidhjksadhahd");
         dispatch({ type: STOP_LOADING_DATA });
         dispatch({ type: CLEAR_GENERAL_ERRORS });
         dispatch({
