@@ -98,10 +98,11 @@ export default function OrientationOverview() {
         >
           ✕
         </button>
+        <h3 style={{ fontSize: "26px", fontWeight: "bold", color: "white" }}>
+          To upload a video:
+        </h3>
         <Label className="!text-center">
-          Adding videos
-          <br />
-          To add videos, first upload your video to Google Drive.
+          First upload your video to Google Drive.
           <br />
           Ensure the sharing settings is enabled for everyone who has the link.
           <br />
@@ -129,8 +130,8 @@ export default function OrientationOverview() {
           <Button
             onClick={handleAddVideo}
             text="add video"
-            x
             className="w-full"
+            loading={loading}
             disabled={loading}
           />
         ) : null}
