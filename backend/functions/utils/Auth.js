@@ -78,11 +78,15 @@ exports.sudoAdminAuth = (req, res, next) => {
           else if (url === "clubs-sa")
             toCheckRole = "focused:studentgovernment";
 
+          const campusID = req.params.campusID || req.query.campusID;
+
           if (
-            (doc.data().role[0] === "sudo" ||
-              doc.data().role.includes(toCheckRole)) &&
-            doc.data().campusID === req.params.campusID &&
-            doc.data().active === true
+            (doc.data().role[0] === "sudo" &&
+              doc.data().campusID === campusID &&
+              doc.data().active === true) ||
+            (doc.data().role.includes(toCheckRole) &&
+              doc.data().campusID === campusID &&
+              doc.data().active === true)
           ) {
             req.user.role = doc.data().role;
             return next();

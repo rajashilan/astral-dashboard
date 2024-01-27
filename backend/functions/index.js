@@ -186,11 +186,7 @@ app.post("/admin/reactivate/:campusID", sudoAdminAuth, reactivateAdmin);
 
 app.get("/orientation/:campusID", sudoAdminAuth, getOrientationOverview);
 
-app.post(
-  "/orientation/:campusID/:orientationID",
-  sudoAdminAuth,
-  editOrientationOverview
-);
+app.post("/orientation/overview/edit", sudoAdminAuth, editOrientationOverview);
 
 app.post(
   "/orientation/content/:campusID/:orientationID",
@@ -266,14 +262,16 @@ app.post(
   deleteOrientationOverviewVideo
 );
 
+//problem is it mistakens another url that is before this, as this url
+
 app.post(
-  "/orientation/subcontent-image/:campusID",
+  "/orientation/subcontent-image/upload",
   sudoAdminAuth,
   uploadOrientationPostImage
 );
 
 app.post(
-  "/orientation/subcontent-file/:campusID",
+  "/orientation/subcontent-file/upload",
   sudoAdminAuth,
   uploadOrientationPostFile
 );
