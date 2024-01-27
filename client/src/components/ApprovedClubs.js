@@ -164,9 +164,6 @@ export default function ApprovedClubs() {
         >
           ✕
         </button>
-        <h1 className="text-[24px] text-[#DFE5F8] font-medium mb-[1rem]">
-          Manage Club
-        </h1>
         <h3 className="text-[20px] text-[#DFE5F8] font-medium mb-[1rem]">
           {manageModalData.name}
         </h3>
@@ -227,9 +224,9 @@ export default function ApprovedClubs() {
           <th scope="col" className="px-6 py-3">
             <span className="sr-only">Manage Club</span>
           </th>
-          <th scope="col" className="px-6 py-3">
+          {/* <th scope="col" className="px-6 py-3">
             <span className="sr-only">Suspend</span>
-          </th>
+          </th> */}
         </tr>
       </thead>
       <tbody>
@@ -253,14 +250,14 @@ export default function ApprovedClubs() {
                   Manage Club
                 </button>
               </td>
-              <td className="px-6 py-4 text-right">
+              {/* <td className="px-6 py-4 text-right">
                 <button
                   className="cursor-pointer font-medium text-[#C4FFF9] dark:text-[#C4FFF9] hover:underline"
                   onClick={() => handleShowSuspensionModal(club)}
                 >
                   Suspend
                 </button>
-              </td>
+              </td> */}
             </tr>
           );
         })}
