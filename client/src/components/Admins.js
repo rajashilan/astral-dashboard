@@ -155,6 +155,9 @@ export default function Admins() {
             Name
           </th>
           <th scope="col" className="px-6 py-3">
+            Email
+          </th>
+          <th scope="col" className="px-6 py-3">
             Role(s)
           </th>
           <th scope="col" class="px-6 py-3">
@@ -178,6 +181,9 @@ export default function Admins() {
               >
                 {admin.name}
               </th>
+              <td scope="row" className="px-6 py-4 font-normal text-[#DFE5F8]">
+                {admin.email}
+              </td>
               <td className="px-6 py-4 font-normal text-[#DFE5F8]">
                 {admin.role[0] === "focused:studentgovernment"
                   ? "student government"

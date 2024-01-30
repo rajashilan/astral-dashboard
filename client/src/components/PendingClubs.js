@@ -6,6 +6,9 @@ import Button from "./Button";
 import ErrorLabel from "./ErrorLabel";
 import TextInput from "../components/TextInput";
 
+import { Spinner } from "react-activity";
+import "react-activity/dist/library.css";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -166,6 +169,7 @@ export default function PendingClubs() {
           text="reject"
           className="!mt-[0.625rem]"
           disabled={loading}
+          loading={loading}
         />
       </div>
     </div>
@@ -195,7 +199,16 @@ export default function PendingClubs() {
   );
 
   let display = state.loading ? (
-    <p>Loading clubs...</p>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "center",
+        padding: "24px",
+      }}
+    >
+      <Spinner size={60} color="#C4FFF9" />
+    </div>
   ) : pendingClubs.length > 0 ? (
     <table className=" w-full text-left">
       <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">

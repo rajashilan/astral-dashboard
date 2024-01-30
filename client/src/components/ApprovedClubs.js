@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
 
+import { Spinner } from "react-activity";
+import "react-activity/dist/library.css";
+
 import Button from "./Button";
 import WarningLabel from "./WarningLabel";
 import ErrorLabel from "./ErrorLabel";
@@ -146,6 +149,7 @@ export default function ApprovedClubs() {
           }
           className="!mt-[0.625rem]"
           disabled={loading}
+          loading={loading}
         />
       </div>
     </div>
@@ -207,13 +211,23 @@ export default function ApprovedClubs() {
           text="update"
           className="!mt-[0.625rem]"
           disabled={loading}
+          loading={loading}
         />
       </div>
     </div>
   );
 
   let display = state.loading ? (
-    <p>Loading clubs...</p>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "center",
+        padding: "24px",
+      }}
+    >
+      <Spinner size={60} color="#C4FFF9" />
+    </div>
   ) : approvedClubs.length > 0 ? (
     <table className=" w-full text-left">
       <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
