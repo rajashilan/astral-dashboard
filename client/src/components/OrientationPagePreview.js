@@ -521,12 +521,12 @@ export default function OrientationPagePreview() {
           <h1 className="text-[20px] font-bold text-[#DFE5F8] text-center]">
             Posts
           </h1>
-          <button
+          <Button
             onClick={handleAddNewPostModal}
-            className="btn-sm btn-square btn p-1 bg-[#07BEB8]"
-          >
-            <img src={add} alt="add" />
-          </button>
+            img={add}
+            className="!w-[60px]"
+            loading={loading}
+          />
         </div>
         {subcontent}
       </div>
@@ -592,6 +592,7 @@ export default function OrientationPagePreview() {
             x
             className="w-full"
             disabled={loading}
+            loading={loading}
           />
         ) : null}
       </div>
@@ -672,6 +673,7 @@ export default function OrientationPagePreview() {
               text="reset images"
               className="!mt-[0.625rem] !bg-[#C4FFF9]"
               disabled={loading}
+              loading={loading}
             />
           </>
         ) : (
@@ -692,6 +694,7 @@ export default function OrientationPagePreview() {
                   }
                   className="!mt-[0.625rem] !bg-[#C4FFF9]"
                   disabled={loading}
+                  loading={loading}
                 />
                 <input
                   type="file"
@@ -707,6 +710,7 @@ export default function OrientationPagePreview() {
                 text="reset images"
                 className="!mt-[0.625rem] !bg-[#C4FFF9]"
                 disabled={loading}
+                loading={loading}
               />
             )}
             {image.length > 0 && (
@@ -715,6 +719,7 @@ export default function OrientationPagePreview() {
                 text={"update image"}
                 className="!mt-[1rem]"
                 disabled={loading}
+                loading={loading}
               />
             )}
           </>
@@ -746,6 +751,7 @@ export default function OrientationPagePreview() {
           text="upload file"
           className="!mt-[0.625rem] !bg-[#C4FFF9]"
           disabled={loading}
+          loading={loading}
         />
         <input
           type="file"
@@ -757,9 +763,9 @@ export default function OrientationPagePreview() {
           <Button
             onClick={handleUpdateEditSubcontent}
             text="update"
-            x
             className="w-full"
             disabled={loading}
+            loading={loading}
           />
         ) : null}
       </div>
@@ -791,6 +797,7 @@ export default function OrientationPagePreview() {
           x
           className="w-full !bg-gray-600 !text-white"
           disabled={loading}
+          loading={loading}
         />
         <Button
           onClick={handleDeleteModal}
@@ -825,9 +832,9 @@ export default function OrientationPagePreview() {
         <Button
           onClick={handleDeletePage}
           text="delete"
-          x
           className="w-full !bg-gray-600 !text-white"
           disabled={loading}
+          loading={loading}
         />
         <Button
           onClick={handleDeletePageModal}
@@ -865,6 +872,7 @@ export default function OrientationPagePreview() {
           x
           className="w-full !bg-gray-600 !text-white"
           disabled={loading}
+          loading={loading}
         />
         <Button
           onClick={handleDeleteFileModal}
@@ -913,6 +921,7 @@ export default function OrientationPagePreview() {
           x
           className="w-full !bg-gray-600 !text-white"
           disabled={loading}
+          loading={loading}
         />
         <Button
           onClick={() => {
@@ -980,6 +989,7 @@ export default function OrientationPagePreview() {
               text={image.length > 0 ? "choose another image" : "upload image"}
               className="!mt-[0.625rem] !bg-[#C4FFF9]"
               disabled={loading}
+              loading={loading}
             />
             <input
               type="file"
@@ -995,6 +1005,7 @@ export default function OrientationPagePreview() {
             text="reset images"
             className="!mt-[0.625rem] !bg-[#C4FFF9]"
             disabled={loading}
+            loading={loading}
           />
         )}
         <WarningLabel className="!text-gray-300 !text-center">
@@ -1006,6 +1017,7 @@ export default function OrientationPagePreview() {
           text="create"
           className="!mt-[0.625rem]"
           disabled={loading}
+          loading={loading}
         />
       </div>
     </div>

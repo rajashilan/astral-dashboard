@@ -31,6 +31,7 @@ export default function Orientation() {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {},
@@ -57,9 +58,9 @@ export default function Orientation() {
       header: pageHeader,
       content: pageContent,
     };
-    console.log(pageData);
     dispatch(createNewOrientationPage(pageData, state.orientationID));
     handleNewPageModal();
+    reset({ title: "" });
   };
 
   const handleNewPageModal = () => {
@@ -121,6 +122,7 @@ export default function Orientation() {
           text="create"
           className="!mt-[0.625rem]"
           disabled={loading}
+          loading={loading}
         />
       </div>
     </div>
@@ -136,12 +138,12 @@ export default function Orientation() {
         <hr className="border border-solid border-gray-500 border-[1px] w-full my-[2rem]" />
         <div className="flex flex-row items-center justify-center space-x-[2rem]">
           <h1 className="text-[24px] text-[#DFE5F8] font-medium">Pages</h1>
-          <button
+          <Button
             onClick={handleNewPageModal}
-            className="btn-sm btn-square btn p-1 bg-[#07BEB8]"
-          >
-            <img src={add} alt="add" />
-          </button>
+            img={add}
+            className="w-[60px]"
+            loading={loading}
+          />
         </div>
         <OrientationSubcontent />
       </div>

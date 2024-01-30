@@ -74,7 +74,6 @@ export default function OrientationOverview() {
     };
 
     data.url = data.url.replace(/[^/]*$/, "preview");
-    console.log(data);
     dispatch(addOrientationOverviewVideo(data, state.orientationID));
     handleAddVideoModal();
   };
@@ -234,6 +233,7 @@ export default function OrientationOverview() {
             className="!w-full !h-full !max-w-[320px]"
             imgClassName="!w-[56px] !h-[42px]"
             disabled={loading}
+            loading={loading}
           />
         </div>
       </div>
@@ -266,6 +266,7 @@ export default function OrientationOverview() {
               className="!w-full !h-full"
               imgClassName="!w-[56px] !h-[42px] !max-w-[320px]"
               disabled={loading}
+              loading={loading}
             />
           </>
         ) : null}
@@ -278,6 +279,7 @@ export default function OrientationOverview() {
           className="!w-auto !h-auto !px-[100px] justify-self-center"
           imgClassName="!w-[56px] !h-[42px] !max-w-[320px]"
           disabled={loading}
+          loading={loading}
         />
       </div>
     )
@@ -315,6 +317,7 @@ export default function OrientationOverview() {
             img={edit}
             className="!w-[72px] !h-[60px]"
             disabled={loading}
+            loading={loading}
           />
         </div>
       </form>
