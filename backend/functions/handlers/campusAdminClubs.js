@@ -9,6 +9,7 @@ exports.getAllClubs = (req, res) => {
   const role = req.body.role;
   const sa = req.body.sa;
 
+  //if sa is present in college, only return pending clubs that are review level admins
   if (sa !== "" && role[0] !== "focused:studentgovernment") {
     db.collection("clubs")
       .where("campusID", "==", campusID)
@@ -27,6 +28,7 @@ exports.getAllClubs = (req, res) => {
         console.error(error);
         return res.status(500).json({ error: "Something went wrong" });
       });
+    //if the role is sa, return review level sa
   } else if (sa !== "" && role[0] === "focused:studentgovernment") {
     db.collection("clubs")
       .where("campusID", "==", campusID)
@@ -45,6 +47,7 @@ exports.getAllClubs = (req, res) => {
         console.error(error);
         return res.status(500).json({ error: "Something went wrong" });
       });
+    //else return all clubs
   } else if (sa === "") {
     db.collection("clubs")
       .where("campusID", "==", campusID)
@@ -390,7 +393,7 @@ exports.getPendingClubsForSA = (req, res) => {
       data.forEach((doc) => {
         clubs.push({ ...doc.data() });
       });
-      return res.status(200).json({ clubs });
+      return res.status(200).json(clubs);
     })
     .catch((error) => {
       console.error(error);

@@ -30,7 +30,8 @@ export default function Clubs() {
 
   useEffect(() => {
     if (!state.authenticated) navigate("/login");
-    if ((role, sa)) dispatch(getClubs(role, sa));
+    if (role && role[0] === "focused:studentgovernment") dispatch(getSaClubs());
+    else dispatch(getClubs(role, sa));
   }, [role]);
 
   let display =
@@ -75,7 +76,7 @@ export default function Clubs() {
               Approved Clubs
             </p>
           </li>
-          <li onClick={() => setTab("suspended")}>
+          {/* <li onClick={() => setTab("suspended")}>
             <p
               className={
                 tab === "suspended" ? activeTabClass : inactiveTabClass
@@ -83,7 +84,7 @@ export default function Clubs() {
             >
               Suspended Clubs
             </p>
-          </li>
+          </li> */}
           <li onClick={() => setTab("activities")}>
             <p
               className={
