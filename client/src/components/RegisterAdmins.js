@@ -55,6 +55,8 @@ export default function RegisterAdmins() {
     setCheckedState(updatedCheckedState);
   };
 
+  const loading = true;
+
   // const handleSubmit = () => {
   //   //check if role is not selected
   //   //if role is department, check if department is not selected
@@ -213,12 +215,25 @@ export default function RegisterAdmins() {
       <ErrorLabel className="!mt-[16px] !-mb-[10px]">
         {generalErrors}
       </ErrorLabel>
-      <Button
-        onClick={handleSubmit}
-        disabled={state.loading}
-        text="Create Link"
-        className="!mt-[26px]"
-      />
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "center",
+        }}
+      >
+        <Button
+          onClick={handleSubmit}
+          disabled={state.loading}
+          loading={state.loading}
+          text="Create Link"
+          className={
+            !state.loading
+              ? "!mt-[26px] !w-auto px-[120px]"
+              : "!mt-[26px] !w-auto px-[164px] pt-[26px]"
+          }
+        />
+      </div>
       {state.newAdminLink !== "" && (
         <div className="flex flex-col items-center space-y-[1rem] mt-[26px]">
           <SuccessLabel className="!text-center">

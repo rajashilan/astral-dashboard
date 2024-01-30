@@ -160,6 +160,7 @@ export default function Signup() {
           text="signup"
           className="!mt-[26px]"
           disabled={disable}
+          loading={loading}
         />
         <ErrorLabel className="!mt-[16px]">{generalErrors}</ErrorLabel>
         {!loading && (

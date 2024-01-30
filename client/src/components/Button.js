@@ -1,8 +1,13 @@
 import React from "react";
 import clsx from "clsx";
+import { render } from "react-dom";
+
+import { Spinner } from "react-activity";
+import "react-activity/dist/library.css";
 
 function Button(props) {
-  const { text, img, imgClassName, className, onClick, ...rest } = props;
+  const { text, img, imgClassName, className, onClick, loading, ...rest } =
+    props;
   return (
     <button
       className={clsx(
@@ -12,7 +17,17 @@ function Button(props) {
       {...rest}
       onClick={onClick}
     >
-      {img ? (
+      {loading ? (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+          }}
+        >
+          <Spinner />
+        </div>
+      ) : img ? (
         <img
           src={img}
           className={clsx("h-[20px] w-[20px] m-auto", imgClassName)}

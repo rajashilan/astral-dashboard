@@ -8,6 +8,9 @@ import {
   updateAdminsRole,
 } from "../redux/actions/dataActions";
 
+import { Spinner } from "react-activity";
+import "react-activity/dist/library.css";
+
 import Button from "./Button";
 import ErrorLabel from "./ErrorLabel";
 
@@ -134,7 +137,16 @@ export default function Admins() {
   };
 
   let display = state.loading ? (
-    <p>Loading admins...</p>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "center",
+        padding: "24px",
+      }}
+    >
+      <Spinner size={60} color="#C4FFF9" />
+    </div>
   ) : state.admins.length > 0 ? (
     <table className=" w-full text-left">
       <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -302,6 +314,7 @@ export default function Admins() {
         <Button
           onClick={handleSubmit}
           disabled={state.loading}
+          loading={state.loading}
           text="Update"
           className="!mt-[26px]"
         />

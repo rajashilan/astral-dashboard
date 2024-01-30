@@ -85,6 +85,7 @@ export default function Login() {
           text="login"
           className="!mt-[26px]"
           disabled={loading}
+          loading={loading}
         />
 
         {signedUp && (
