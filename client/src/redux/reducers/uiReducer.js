@@ -7,6 +7,7 @@ import {
 
 const initialState = {
   loading: false,
+  error: null,
 };
 
 export default function (state = initialState, action) {
@@ -20,6 +21,16 @@ export default function (state = initialState, action) {
       return {
         ...state,
         loading: false,
+      };
+    case SET_GENERAL_ERRORS:
+      return {
+        ...state,
+        error: action.payload,
+      };
+    case CLEAR_GENERAL_ERRORS:
+      return {
+        ...state,
+        error: "",
       };
     default:
       return state;

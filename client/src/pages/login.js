@@ -13,6 +13,7 @@ import * as z from "zod";
 
 import { loginAdmin } from "../redux/actions/userActions";
 import { useDispatch, useSelector } from "react-redux";
+import { CLEAR_GENERAL_ERRORS } from "../redux/types";
 
 const formSchema = z.object({
   email: z
@@ -45,6 +46,7 @@ export default function Login() {
   }, []);
 
   const onFormSubmit = (data) => {
+    dispatch({ type: CLEAR_GENERAL_ERRORS });
     let loginData = {
       email: data["email"],
       password: data["password"],
@@ -87,7 +89,6 @@ export default function Login() {
           disabled={loading}
           loading={loading}
         />
-
         {signedUp && (
           <SuccessLabel className="!mt-[16px] !text-center">
             You have been registered successfully! We have sent you a

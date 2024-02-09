@@ -12,7 +12,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { CLEAR_GENERAL_ERRORS, SET_GENERAL_ERRORS } from "../redux/types";
 
 const formSchema = z.object({
   email: z
@@ -42,6 +43,16 @@ export default function Signup() {
   const [validLink, setValidLink] = useState(false);
   const [generalErrors, setGeneralErrors] = useState("");
 
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (generalErrors)
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: generalErrors,
+      });
+  }, [generalErrors]);
+
   useEffect(() => {
     if (state.authenticated) navigate("/");
     //check if link and campus ID are valid
@@ -50,6 +61,7 @@ export default function Signup() {
     //1 for first time, 2 for added
     setDisable(true);
     let requestLink;
+    dispatch({ type: CLEAR_GENERAL_ERRORS });
 
     if (params.admin === "1")
       requestLink = `/validate-link/${params.campusID}/${params.linkID}`;
@@ -94,6 +106,7 @@ export default function Signup() {
       signupLink = `/add-admin-signup/${params.campusID}/${params.linkID}`;
 
     setGeneralErrors("");
+    dispatch({ type: CLEAR_GENERAL_ERRORS });
     setLoading(true);
 
     let signupData = {
@@ -162,7 +175,6 @@ export default function Signup() {
           disabled={disable}
           loading={loading}
         />
-        <ErrorLabel className="!mt-[16px]">{generalErrors}</ErrorLabel>
         {!loading && (
           <Link to="/login">
             <LabelButton text="login instead" className="!mt-[60px]" />

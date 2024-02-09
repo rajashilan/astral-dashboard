@@ -141,7 +141,7 @@ export default function Orientation() {
           <Button
             onClick={handleNewPageModal}
             img={add}
-            className="w-[60px]"
+            className="!w-[60px]"
             loading={loading}
           />
         </div>
