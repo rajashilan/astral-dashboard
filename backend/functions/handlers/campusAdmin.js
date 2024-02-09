@@ -445,6 +445,8 @@ exports.adminLogin = (req, res) => {
         .doc(`/admins/${userID}`)
         .get()
         .then((doc) => {
+          if (!doc.exists)
+            return res.status(403).json({ error: "Unauthorized request" });
           returnData.campusID = doc.data().campusID;
           return data.user.getIdToken();
         })
