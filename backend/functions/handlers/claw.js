@@ -63,6 +63,8 @@ exports.addCollegeAndCampus = (req, res) => {
     sudoAdmins: 0,
     sa: req.body.sa,
     saName: req.body.saName,
+    clubCreationDoc: req.body.clubCreationDoc,
+    clubCreationDocName: req.body.clubCreationDocName,
   };
 
   let orientationData = {
@@ -161,6 +163,8 @@ exports.addCampus = (req, res) => {
     sudoAdmins: 0,
     sa: req.body.sa,
     saName: req.body.saName,
+    clubCreationDoc: req.body.clubCreationDoc,
+    clubCreationDocName: req.body.clubCreationDocName,
   };
 
   let orientationData = {
