@@ -48,14 +48,17 @@ export default function RegisterAdmins() {
     if (temp.length === 0) {
       setDisabled(false);
       setSaDisabled(false);
-    } else if (temp[0] === "student government") setDisabled(true);
-    else setSaDisabled(true);
+    } else if (temp[0] === "student government") {
+      setDisabled(true);
+      setSaDisabled(false);
+    } else if (temp.length > 0 && temp[0] !== "student government") {
+      setSaDisabled(true);
+      setDisabled(false);
+    }
 
     setSelectedRoles(temp);
     setCheckedState(updatedCheckedState);
   };
-
-  const loading = true;
 
   // const handleSubmit = () => {
   //   //check if role is not selected
@@ -187,6 +190,9 @@ export default function RegisterAdmins() {
             <li key={index}>
               <div className="flex space-x-4 justify-start w-[340px]">
                 <input
+                  disabled={
+                    role === "student government" ? saDisabled : disabled
+                  }
                   className="w-6 h-6"
                   type="checkbox"
                   id={`custom-checkbox-${index}`}
