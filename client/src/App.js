@@ -17,7 +17,6 @@ import Navbar from "./components/Navbar";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
-import AuthRoute from "./util/AuthRoute";
 
 // axios.defaults.baseURL =
 //   "https://asia-southeast1-astral-d3ff5.cloudfunctions.net/api";
