@@ -519,7 +519,7 @@ export default function OrientationPagePreview() {
         <hr className="border border-solid border-gray-500 border-[1px] w-full my-[2rem]" />
         <div className="flex flex-row items-center justify-center space-x-[2rem] mb-[1rem] -mt-[1rem]">
           <h1 className="text-[20px] font-bold text-[#DFE5F8] text-center]">
-            Posts
+            Posts for this orientation page
           </h1>
           <Button
             onClick={handleAddNewPostModal}
