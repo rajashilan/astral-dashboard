@@ -19,9 +19,22 @@ const formSchema = z.object({
   email: z
     .string()
     .min(1, { message: "Please enter your email" })
-    .email({ message: "Please enter a valid email" }),
+    .email({ message: "Please enter a valid email" })
+    .refine((value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
+      message: "Please enter a valid email",
+    }),
   name: z.string().min(1, { message: "Please enter your name" }),
-  password: z.string().min(1, { message: "Please enter your password" }),
+  password: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters long" })
+    .refine(
+      (value) =>
+        /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/.test(value),
+      {
+        message:
+          "Password must contain at least 1 capital letter, 1 small letter, 1 digit, and 1 special character",
+      }
+    ),
 });
 
 export default function Signup() {
