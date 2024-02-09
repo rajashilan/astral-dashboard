@@ -311,8 +311,10 @@ app.get("/clubs-sa/:campusID", sudoAdminAuth, getPendingClubsForSA);
 app.get("/clubs/admin/:campusID", sudoAdminAuth, getPendingClubsForAdmin);
 
 app.post(`/clubs/approve/:campusID/:clubID`, sudoAdminAuth, approveClub);
+app.post(`/clubs-sa/approve/:campusID/:clubID`, sudoAdminAuth, approveClub);
 
 app.post(`/clubs/reject/:campusID/:clubID`, sudoAdminAuth, rejectClub);
+app.post(`/clubs-sa/reject/:campusID/:clubID`, sudoAdminAuth, rejectClub);
 
 app.post(`/clubs/suspend/:campusID/:clubID`, sudoAdminAuth, suspendClub);
 

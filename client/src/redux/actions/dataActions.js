@@ -739,13 +739,15 @@ export const approveClub = (club, role) => (dispatch) => {
   club.approval = "approved";
 
   let message;
+  let query = `/clubs/approve/${club.campusID}/${club.clubID}`;
 
-  if (role[0] === "focused:studentgovernment")
+  if (role[0] === "focused:studentgovernment") {
     message = `${club.name} recommended successfully`;
-  else message = `${club.name} approved successfully`;
+    query = `/clubs-sa/approve/${club.campusID}/${club.clubID}`;
+  } else message = `${club.name} approved successfully`;
 
   axios
-    .post(`/clubs/approve/${club.campusID}/${club.clubID}`, data)
+    .post(query, data)
     .then((res) => {
       dispatch({ type: STOP_LOADING_DATA });
       dispatch({ type: CLEAR_GENERAL_ERRORS });
@@ -774,8 +776,13 @@ export const rejectClub = (club, rejectionReason, role) => (dispatch) => {
   club.approval = "rejected";
   club.rejectionReason = rejectionReason;
 
+  let query = `/clubs/reject/${club.campusID}/${club.clubID}`;
+
+  if (role[0] === "focused:studentgovernment")
+    query = `/clubs-sa/reject/${club.campusID}/${club.clubID}`;
+
   axios
-    .post(`/clubs/reject/${club.campusID}/${club.clubID}`, data)
+    .post(query, data)
     .then((res) => {
       dispatch({ type: STOP_LOADING_DATA });
       dispatch({ type: CLEAR_GENERAL_ERRORS });

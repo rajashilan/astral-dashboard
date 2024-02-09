@@ -254,8 +254,8 @@ export default function PendingClubs() {
                 scope="row"
                 className="px-6 py-4 font-normal text-[#85A1FF] break-all"
               >
-                <a href={club.fpfForms[0]} className="">
-                  Download FPF Form
+                <a href={club.clubCreationDocs[0]} className="">
+                  Download form
                 </a>
               </th>
               {sa !== "" && role[0] !== "focused:studentgovernment" && (
