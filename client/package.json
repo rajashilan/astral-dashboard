@@ -2,6 +2,7 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://astral-d3ff5.web.app/",
   "dependencies": {
     "@firebase/app-check": "^0.8.0",
     "@hookform/resolvers": "^3.1.0",
@@ -56,5 +57,5 @@
     "daisyui": "^3.0.3",
     "tailwindcss": "^3.3.2"
   },
-  "proxy": "http://localhost:5000/astral-d3ff5/asia-southeast1/api"
+  "proxy": "https://asia-southeast1-astral-d3ff5.cloudfunctions.net/api"
 }

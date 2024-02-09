@@ -18,11 +18,11 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
 
-// axios.defaults.baseURL =
-//   "https://asia-southeast1-astral-d3ff5.cloudfunctions.net/api";
-
 axios.defaults.baseURL =
-  "http://localhost:5000/astral-d3ff5/asia-southeast1/api";
+  "https://asia-southeast1-astral-d3ff5.cloudfunctions.net/api";
+
+// axios.defaults.baseURL =
+//   "http://localhost:5000/astral-d3ff5/asia-southeast1/api";
 
 function App() {
   const error = useSelector((state) => state.UI.error);
