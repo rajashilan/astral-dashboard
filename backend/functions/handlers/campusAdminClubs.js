@@ -153,7 +153,7 @@ exports.rejectClub = (req, res) => {
     .get()
     .then((doc) => {
       let temp = doc.data().clubs;
-      let index = temp.findIndex((club) => clubID === clubID);
+      let index = temp.findIndex((club) => club.clubID === clubID);
       if (role[0] !== "focused:studentgovernment")
         temp[index].approval = "rejected";
 
