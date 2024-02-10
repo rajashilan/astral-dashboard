@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import logo from "../assets/logo.svg";
+import logo from "../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -87,7 +87,11 @@ export default function Menu() {
 
   return (
     <main className="absolute top-0 flex h-screen w-full flex-col justify-center items-center bg-[#0C111F]">
-      <img src={logo} alt="astral" className="h-[98px] w-[184px] mb-[48px]" />
+      <img
+        src={logo}
+        alt="astral"
+        className="h-[98px] w-[184px] object-contain mb-[48px]"
+      />
       {menu}
       <button
         onClick={() => dispatch(logoutUser())}

@@ -107,6 +107,7 @@ app.use(
       "http://localhost:3000",
       "https://web.postman.co/",
       "exp://192.168.0.8:19000",
+      "https://astral-d3ff5.web.app",
     ],
   })
 );

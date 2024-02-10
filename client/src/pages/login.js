@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import logo from "../assets/logo.svg";
+import logo from "../assets/logo.png";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import TextInput from "../components/TextInput";
@@ -61,7 +61,11 @@ export default function Login() {
 
   return (
     <main className="absolute top-0 flex h-screen w-full flex-col pt-[100px] items-center bg-[#0C111F]">
-      <img src={logo} alt="astral" className="h-[98px] w-[184px] mb-[48px]" />
+      <img
+        src={logo}
+        alt="astral"
+        className="h-[98px] w-[184px] object-contain mb-[48px]"
+      />
       <form
         className="w-[40%] space-y-[20px] flex flex-col items-center"
         onSubmit={handleSubmit(onFormSubmit)}

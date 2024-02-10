@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import logo from "../assets/logo.svg";
+import logo from "../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -107,7 +107,11 @@ function Navbar() {
   return (
     <div className={hiddenClass}>
       <Link to="/">
-        <img src={logo} alt="astral" className="w-[7rem] h-[3.25rem]" />
+        <img
+          src={logo}
+          alt="astral"
+          className="w-[7rem] h-[3.25rem] object-contain"
+        />
       </Link>
       {menu}
     </div>
