@@ -134,7 +134,7 @@ exports.addCollegeAndCampus = (req, res) => {
                 message: `${campus.name} created successfully`,
                 linkID: campus.linkID,
                 campusID: orientationData.campusID,
-                link: `http://localhost:3000/${orientationData.campusID}/${campus.linkID}/1`,
+                link: `https://astral-app.com/${orientationData.campusID}/${campus.linkID}/1`,
               });
             });
         });
@@ -228,7 +228,7 @@ exports.addCampus = (req, res) => {
                 message: `${campus.name} created successfully`,
                 linkID: campus.linkID,
                 campusID: orientationData.campusID,
-                link: `http://localhost:3000/${orientationData.campusID}/${campus.linkID}/1`,
+                link: `https://astral-app.com/${orientationData.campusID}/${campus.linkID}/1`,
               });
             });
         });

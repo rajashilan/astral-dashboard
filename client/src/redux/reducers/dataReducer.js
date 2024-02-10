@@ -78,7 +78,7 @@ export default function (state = initialState, action) {
     case SET_NEW_ADMIN_LINK:
       return {
         ...state,
-        newAdminLink: `http://localhost:3000/${action.payload.campusID}/${action.payload.linkID}/2`,
+        newAdminLink: `https://astral-app.com/${action.payload.campusID}/${action.payload.linkID}/2`,
       };
     case CLEAR_NEW_ADMIN_LINK:
       return {
