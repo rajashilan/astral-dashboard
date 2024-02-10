@@ -104,10 +104,11 @@ const {
 app.use(
   cors({
     origin: [
-      "http://localhost:3000",
-      "https://web.postman.co/",
+      // "http://localhost:3000",
+      // "https://web.postman.co/",
       "exp://192.168.0.8:19000",
       "https://astral-d3ff5.web.app",
+      "https://astral-app.com",
     ],
   })
 );
