@@ -1,6 +1,4 @@
 const { admin, db } = require("../utils/admin");
-const firebase = require("firebase");
-const crypto = require("crypto");
 
 exports.createNotification = (req, res) => {
   const notification = req.body.notification;
@@ -83,7 +81,7 @@ exports.sendEmailNotification = (req, res) => {
       .then((data) => {
         let admins = [];
         data.forEach((doc) => {
-          admins.push(doc.data().testEmail);
+          admins.push(doc.data().email);
         });
         return admins;
       })
