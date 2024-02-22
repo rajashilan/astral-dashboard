@@ -30,8 +30,18 @@ export default function Clubs() {
 
   useEffect(() => {
     if (!state.authenticated) navigate("/login");
-    if (role && role[0] === "focused:studentgovernment") dispatch(getSaClubs());
-    else dispatch(getClubs(role, sa));
+
+    if (role) {
+      if (
+        !(
+          role.includes("focused:studentgovernment") ||
+          role.includes("focused:clubs") ||
+          role.includes("focused:studentgovernment")
+        )
+      )
+        navigate("/");
+      if (role[0] === "focused:studentgovernment") dispatch(getSaClubs());
+    } else dispatch(getClubs(role, sa));
   }, [role]);
 
   let display =

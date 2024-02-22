@@ -22,6 +22,7 @@ const formSchema = z.object({
 
 export default function Orientation() {
   const userState = useSelector((state) => state.user);
+  const role = useSelector((state) => state.user.adminData.role);
   const state = useSelector((state) => state.data.orientation.overview);
   const loading = useSelector((state) => state.data.loading);
   const navigate = useNavigate();
@@ -46,6 +47,13 @@ export default function Orientation() {
   useEffect(() => {
     if (!userState.authenticated) navigate("/login");
   }, []);
+
+  useEffect(() => {
+    if (role) {
+      if (!(role.includes("focused:orientation") || role.includes("sudo")))
+        navigate("/");
+    }
+  }, [role]);
 
   //show add page modal
   //allow user to add title (compulsory)

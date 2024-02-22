@@ -11,11 +11,19 @@ export default function College() {
   const [tab, setTab] = useState("admins");
 
   const state = useSelector((state) => state.user);
+  const role = useSelector((state) => state.user.adminData.role);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!state.authenticated) navigate("/login");
   }, []);
+
+  useEffect(() => {
+    if (role) {
+      if (!(role.includes("focused:college") || role.includes("sudo")))
+        navigate("/");
+    }
+  }, [role]);
 
   let display = tab === "admins" ? <Admins /> : <RegisterAdmins />;
 
