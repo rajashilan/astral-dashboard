@@ -36,7 +36,8 @@ export default function Clubs() {
         !(
           role.includes("focused:studentgovernment") ||
           role.includes("focused:clubs") ||
-          role.includes("focused:studentgovernment")
+          role.includes("focused:studentgovernment") ||
+          role.includes("sudo")
         )
       )
         navigate("/");

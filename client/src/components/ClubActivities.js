@@ -346,7 +346,7 @@ export default function ClubActivities() {
     </div>
   ) : clubActivities.length > 0 ? (
     <table className=" w-full text-left">
-      <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+      <thead className="text-xs text-gray-700 uppercase bg-gray-50 bg-gray-700 text-gray-400">
         <tr>
           <th scope="col" className="px-6 py-3">
             Club
@@ -363,7 +363,7 @@ export default function ClubActivities() {
         {clubActivities.map((activity, index) => {
           return (
             <tr
-              className="text-[16px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+              className="text-[16px] bg-white border-b bg-gray-800 border-gray-700 hover:bg-gray-50 hover:bg-gray-600"
               key={index}
             >
               <th
@@ -380,7 +380,7 @@ export default function ClubActivities() {
               </th>
               <td className="px-6 py-4 text-right">
                 <button
-                  className="cursor-pointer font-medium text-[#C4FFF9] dark:text-[#C4FFF9] hover:underline"
+                  className="cursor-pointer font-medium text-[#C4FFF9] text-[#C4FFF9] hover:underline"
                   onClick={() => handleShowActivityModal(activity)}
                 >
                   Show Details

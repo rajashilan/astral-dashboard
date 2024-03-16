@@ -78,6 +78,10 @@ export default function Admins() {
       active: active,
       email: email,
     };
+    if (modalData.role[0] !== "sudo") {
+      const roles = modalData.role.map((role) => role.split(":")[1]);
+      modalData.role = roles;
+    }
     setEditModalData(modalData);
   };
 
@@ -149,7 +153,7 @@ export default function Admins() {
     </div>
   ) : state.admins.length > 0 ? (
     <table className=" w-full text-left">
-      <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+      <thead className="text-xs text-gray-700 uppercase bg-gray-50 bg-gray-700 text-gray-400">
         <tr>
           <th scope="col" className="px-6 py-3">
             Name
@@ -172,7 +176,7 @@ export default function Admins() {
         {state.admins.map((admin, index) => {
           return (
             <tr
-              className="text-[16px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+              className="text-[16px] bg-white border-b bg-gray-800 border-gray-700 hover:bg-gray-50 hover:bg-gray-600"
               key={index}
             >
               <th
@@ -194,7 +198,7 @@ export default function Admins() {
                   className={
                     admin.role[0] === "focused:studentgovernment"
                       ? "font-medium text-gray-500"
-                      : "cursor-pointer font-medium text-[#C4FFF9] dark:text-[#C4FFF9] hover:underline"
+                      : "cursor-pointer font-medium text-[#C4FFF9] text-[#C4FFF9] hover:underline"
                   }
                   onClick={() =>
                     handleShowEditModal(
@@ -223,7 +227,7 @@ export default function Admins() {
                         "deactivate"
                       )
                     }
-                    className="cursor-pointer font-medium text-gray-400 dark:text-gray-400 hover:underline"
+                    className="cursor-pointer font-medium text-gray-400 text-gray-400 hover:underline"
                   >
                     Deactivate
                   </p>
@@ -252,7 +256,7 @@ export default function Admins() {
                     className={
                       sa !== "" && admin.role[0] === "focused:studentgovernment"
                         ? "font-medium text-gray-500 "
-                        : "cursor-pointer font-medium text-[#C4FFF9] dark:text-[#C4FFF9] hover:underline"
+                        : "cursor-pointer font-medium text-[#C4FFF9] text-[#C4FFF9] hover:underline"
                     }
                   >
                     Activate
@@ -275,7 +279,7 @@ export default function Admins() {
         (showEditModal ? "modal-open" : "")
       }
     >
-      <div className="overflow-visible modal-box flex flex-col items-center gap-2 bg-[#232F52] md:p-20">
+      <div className="modal-box flex flex-col items-center gap-2 bg-[#232F52] md:p-20">
         <button
           onClick={() => setShowEditModal(!showEditModal)}
           className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
@@ -313,6 +317,19 @@ export default function Admins() {
               </li>
             );
           })}
+        </ul>
+        <ul className="space-y-2 mb-4 mt-4 p-[24px] rounded-lg list-disc bg-gray-600 text-white">
+          <li>
+            If all roles are selected, admin becomes a sudo admin (access to
+            everything).
+          </li>
+          <li>You can assign 1 or more roles to the admin.</li>
+          <li>Clubs: Admin manages all club affairs.</li>
+          <li>Orientation: Admin oversees campus orientation.</li>
+          <li>
+            College: Admin handles college-related affairs (e.g., managing and
+            registering admins).
+          </li>
         </ul>
         <ErrorLabel className="!mt-[16px] !-mb-[10px]">
           {generalErrors}

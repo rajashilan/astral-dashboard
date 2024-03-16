@@ -183,7 +183,7 @@ export default function ApprovedClubs() {
           <select
             disabled={manageModalLoading}
             id="members"
-            className="mt-[14px] bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            className="mt-[14px] bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
             onChange={(e) => {
               let index = clubMembers.findIndex(
                 (member) => member.userID === e.target.value
@@ -230,7 +230,7 @@ export default function ApprovedClubs() {
     </div>
   ) : approvedClubs.length > 0 ? (
     <table className=" w-full text-left">
-      <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+      <thead className="text-xs text-gray-700 uppercase bg-gray-50 bg-gray-700 text-gray-400">
         <tr>
           <th scope="col" className="px-6 py-3">
             Name
@@ -247,7 +247,7 @@ export default function ApprovedClubs() {
         {approvedClubs.map((club, index) => {
           return (
             <tr
-              className="text-[16px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+              className="text-[16px] bg-white border-b bg-gray-800 border-gray-700 hover:bg-gray-50 hover:bg-gray-600"
               key={index}
             >
               <th
@@ -258,7 +258,7 @@ export default function ApprovedClubs() {
               </th>
               <td className="px-6 py-4 text-right">
                 <button
-                  className="cursor-pointer font-medium text-[#C4FFF9] dark:text-[#C4FFF9] hover:underline"
+                  className="cursor-pointer font-medium text-[#C4FFF9] text-[#C4FFF9] hover:underline"
                   onClick={() => handleShowManageModal(club)}
                 >
                   Manage Club
@@ -266,7 +266,7 @@ export default function ApprovedClubs() {
               </td>
               {/* <td className="px-6 py-4 text-right">
                 <button
-                  className="cursor-pointer font-medium text-[#C4FFF9] dark:text-[#C4FFF9] hover:underline"
+                  className="cursor-pointer font-medium text-[#C4FFF9] text-[#C4FFF9] hover:underline"
                   onClick={() => handleShowSuspensionModal(club)}
                 >
                   Suspend

@@ -147,7 +147,7 @@ export default function RegisterAdmins() {
     <div className="mt-[26px] w-full items-center overflow-hidden shadow-md sm:rounded-lg">
       {/* <select
         id="roles"
-        class="mt-[14px] bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        class="mt-[14px] bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
         onChange={(e) => {
           setSelectedRole(e.target.value);
           setSelectedDepartment("");
@@ -165,7 +165,7 @@ export default function RegisterAdmins() {
       {/* {selectedRole === "department" && (
         <select
           id="departments"
-          class="mt-[6px] bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          class="mt-[6px] bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
           onChange={(e) => setSelectedDepartment(e.target.value)}
         >
           <option selected>Select the department for the admin</option>
@@ -218,6 +218,20 @@ export default function RegisterAdmins() {
           );
         })}
       </ul>
+      <ul className="space-y-2 mb-4 mt-4 p-[24px] rounded-lg list-disc bg-gray-600 text-white">
+        <li>
+          If all roles are selected, admin becomes a sudo admin (access to
+          everything).
+        </li>
+        <li>You can assign 1 or more roles to the admin.</li>
+        <li>Clubs: Admin manages all club affairs.</li>
+        <li>Orientation: Admin oversees campus orientation.</li>
+        <li>
+          College: Admin handles college-related affairs (e.g., managing and
+          registering admins).
+        </li>
+      </ul>
+
       <ErrorLabel className="!mt-[16px] !-mb-[10px]">
         {generalErrors}
       </ErrorLabel>
