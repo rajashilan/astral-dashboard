@@ -153,7 +153,7 @@ export default function Admins() {
     </div>
   ) : state.admins.length > 0 ? (
     <table className=" w-full text-left">
-      <thead className="text-xs text-gray-700 uppercase bg-gray-50 bg-gray-700 text-gray-400">
+      <thead className="text-xs text-gray-700 uppercase bg-gray-700 text-gray-400">
         <tr>
           <th scope="col" className="px-6 py-3 text-white">
             Name
@@ -176,7 +176,7 @@ export default function Admins() {
         {state.admins.map((admin, index) => {
           return (
             <tr
-              className="text-[16px] bg-white border-b bg-gray-800 border-gray-700 hover:bg-gray-50 hover:bg-gray-600"
+              className="text-[16px] border-b bg-gray-800 border-gray-700 hover:bg-gray-600"
               key={index}
             >
               <th
