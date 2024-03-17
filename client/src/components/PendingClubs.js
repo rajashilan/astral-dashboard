@@ -245,7 +245,6 @@ export default function PendingClubs() {
               key={index}
             >
               {" "}
-              text-white
               <th
                 scope="row"
                 className="px-6 py-4 font-bold text-[#DFE5F8] whitespace-nowrap"
