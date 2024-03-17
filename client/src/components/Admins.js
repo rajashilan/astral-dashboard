@@ -155,19 +155,19 @@ export default function Admins() {
     <table className=" w-full text-left">
       <thead className="text-xs text-gray-700 uppercase bg-gray-50 bg-gray-700 text-gray-400">
         <tr>
-          <th scope="col" className="px-6 py-3">
+          <th scope="col" className="px-6 py-3 text-white">
             Name
           </th>
-          <th scope="col" className="px-6 py-3">
+          <th scope="col" className="px-6 py-3 text-white">
             Email
           </th>
-          <th scope="col" className="px-6 py-3">
+          <th scope="col" className="px-6 py-3 text-white">
             Role(s)
           </th>
-          <th scope="col" class="px-6 py-3">
+          <th scope="col" class="px-6 py-3 text-white">
             <span class="sr-only">Edit Role</span>
           </th>
-          <th scope="col" class="px-6 py-3">
+          <th scope="col" class="px-6 py-3 text-white">
             <span class="sr-only">Activate</span>
           </th>
         </tr>

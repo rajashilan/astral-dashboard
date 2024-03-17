@@ -6,7 +6,7 @@ function ErrorLabel(props) {
   return (
     <p
       className={clsx(
-        "relative top-1 left-1 !mt-[4px] text-[16px] text-[#C32533] !text-left",
+        "relative top-1 left-1 !mt-[4px] text-[16px] text-[#e36872] !text-left",
         className
       )}
     >

@@ -213,26 +213,26 @@ export default function PendingClubs() {
     <table className=" w-full text-left">
       <thead className="text-xs text-gray-700 uppercase bg-gray-50 bg-gray-700 text-gray-400">
         <tr>
-          <th scope="col" className="px-6 py-3">
+          <th scope="col" className="px-6 py-3 text-white">
             Name
           </th>
-          <th scope="col" className="px-6 py-3">
+          <th scope="col" className="px-6 py-3 text-white">
             FPF Form
           </th>
           {sa !== "" && role[0] !== "focused:studentgovernment" && (
-            <th scope="col" className="px-6 py-3">
+            <th scope="col" className="px-6 py-3 text-white">
               <span>{`${saName}'s status`}</span>
             </th>
           )}
           {sa !== "" && role[0] !== "focused:studentgovernment" && (
-            <th scope="col" className="px-6 py-3">
+            <th scope="col" className="px-6 py-3 text-white">
               <span className="sr-only">{`${saName}'s feedback`}</span>
             </th>
           )}
-          <th scope="col" className="px-6 py-3">
+          <th scope="col" className="px-6 py-3 text-white">
             <span className="sr-only">Approve</span>
           </th>
-          <th scope="col" className="px-6 py-3">
+          <th scope="col" className="px-6 py-3 text-white">
             <span className="sr-only">Reject</span>
           </th>
         </tr>
@@ -244,6 +244,8 @@ export default function PendingClubs() {
               className="text-[16px] bg-white border-b bg-gray-800 border-gray-700 hover:bg-gray-50 hover:bg-gray-600"
               key={index}
             >
+              {" "}
+              text-white
               <th
                 scope="row"
                 className="px-6 py-4 font-bold text-[#DFE5F8] whitespace-nowrap"
@@ -254,7 +256,7 @@ export default function PendingClubs() {
                 scope="row"
                 className="px-6 py-4 font-normal text-[#85A1FF] break-all"
               >
-                <a href={club.clubCreationDocs[0]} className="">
+                <a href={club.clubCreationDocs[0]} target="_blank" className="">
                   Download form
                 </a>
               </th>

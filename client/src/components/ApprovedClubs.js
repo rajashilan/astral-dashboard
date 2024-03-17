@@ -232,10 +232,10 @@ export default function ApprovedClubs() {
     <table className=" w-full text-left">
       <thead className="text-xs text-gray-700 uppercase bg-gray-50 bg-gray-700 text-gray-400">
         <tr>
-          <th scope="col" className="px-6 py-3">
+          <th scope="col" className="px-6 py-3 text-white">
             Name
           </th>
-          <th scope="col" className="px-6 py-3">
+          <th scope="col" className="px-6 py-3 text-white">
             <span className="sr-only">Manage Club</span>
           </th>
           {/* <th scope="col" className="px-6 py-3">

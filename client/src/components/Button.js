@@ -11,7 +11,7 @@ function Button(props) {
   return (
     <button
       className={clsx(
-        "w-full rounded-lg bg-[#07BEB8] py-[18px] text-center text-[#0C111F] text-[22px] font-medium",
+        "w-full rounded-lg bg-[#07BEB8] py-[18px] text-center text-[#0C111F] text-[18px] font-medium",
         className
       )}
       {...rest}

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import Admins from "../components/Admins";
 import RegisterAdmins from "../components/RegisterAdmins";
+import GeneralForms from "../components/GeneralForms";
 
 import { useSelector } from "react-redux";
 
@@ -25,7 +26,14 @@ export default function College() {
     }
   }, [role]);
 
-  let display = tab === "admins" ? <Admins /> : <RegisterAdmins />;
+  let display =
+    tab === "admins" ? (
+      <Admins />
+    ) : tab === "register" ? (
+      <RegisterAdmins />
+    ) : (
+      <GeneralForms />
+    );
 
   let activeTabClass =
     "cursor-pointer inline-block p-4 text-[#DFE5F8] font-medium border-b-2 border-[#DFE5F8] rounded-t-lg active";
@@ -51,6 +59,15 @@ export default function College() {
                 }
               >
                 Register an Admin
+              </p>
+            </li>
+            <li onClick={() => setTab("generalform")}>
+              <p
+                className={
+                  tab === "generalform" ? activeTabClass : inactiveTabClass
+                }
+              >
+                Manage Forms
               </p>
             </li>
           </ul>

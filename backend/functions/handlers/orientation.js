@@ -653,7 +653,11 @@ exports.uploadOrientationPostImage = (req, res) => {
   let imageUrl;
 
   busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
-    if (mimetype !== "image/jpeg" && mimetype !== "image/png") {
+    if (
+      mimetype !== "image/jpeg" &&
+      mimetype !== "image/png" &&
+      mimetype !== "image/svg+xml"
+    ) {
       return res.status(400).json({ error: "Wrong file type submitted" });
     }
 

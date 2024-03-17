@@ -26,7 +26,11 @@ import ErrorLabel from "./ErrorLabel";
 import WarningLabel from "./WarningLabel";
 
 import axios from "axios";
-import { LOADING_DATA, STOP_LOADING_DATA } from "../redux/types";
+import {
+  LOADING_DATA,
+  SET_GENERAL_ERRORS,
+  STOP_LOADING_DATA,
+} from "../redux/types";
 
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
 import { Carousel } from "react-responsive-carousel";
@@ -353,6 +357,10 @@ export default function OrientationPagePreview() {
         })
         .catch((error) => {
           console.error(error);
+          dispatch({
+            type: SET_GENERAL_ERRORS,
+            payload: error.response.data.error,
+          });
           dispatch({ type: STOP_LOADING_DATA });
         });
     });
@@ -366,7 +374,6 @@ export default function OrientationPagePreview() {
       )
     );
     setShowResetImageModal(!showResetImageModal);
-    setShowPageModal(!showPageModal);
   };
 
   //files will be an array
@@ -794,7 +801,6 @@ export default function OrientationPagePreview() {
         <Button
           onClick={handleDeleteSubcontent}
           text="delete"
-          x
           className="w-full !bg-gray-600 !text-white"
           disabled={loading}
           loading={loading}
@@ -802,7 +808,6 @@ export default function OrientationPagePreview() {
         <Button
           onClick={handleDeleteModal}
           text="cancel"
-          x
           className="w-full"
           disabled={loading}
         />

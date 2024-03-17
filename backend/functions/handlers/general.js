@@ -1,4 +1,6 @@
 const { admin, db } = require("../utils/admin");
+const crypto = require("crypto");
+const config = require("../utils/config");
 
 exports.createNotification = (req, res) => {
   const notification = req.body.notification;
@@ -109,4 +111,110 @@ exports.sendEmailNotification = (req, res) => {
         return res.status(500).json({ error: "Something went wrong" });
       });
   }
+};
+
+exports.getGeneralForms = (req, res) => {
+  const campusID = req.params.campusID;
+
+  db.doc(`/generalFormsOverview/${campusID}`)
+    .get()
+    .then((doc) => {
+      return res.status(200).json(doc.data());
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
+exports.deleteGeneralForm = (req, res) => {
+  const campusID = req.params.campusID;
+  const generalFormID = req.body.generalFormID;
+
+  //delete in generalFormsOverview and in generalForms
+
+  db.doc(`/generalFormsOverview/${campusID}`)
+    .get()
+    .then((doc) => {
+      let temp = doc.data().forms;
+      console.log(generalFormID);
+      let index = temp.findIndex(
+        (form) => form.generalFormID === generalFormID
+      );
+      temp.splice(index, 1);
+
+      return db
+        .doc(`/generalFormsOverview/${campusID}`)
+        .update({ forms: [...temp] });
+    })
+    .then(() => {
+      return db.doc(`/generalForms/${generalFormID}`).delete();
+    })
+    .then(() => {
+      return res.status(201).json({ message: "Form deleted successfully" });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
+exports.uploadForm = (req, res) => {
+  const BusBoy = require("busboy");
+  const path = require("path");
+  const os = require("os");
+  const fs = require("fs");
+
+  const campusID = req.params.campusID;
+
+  let request = `generalForms%2F${campusID}%2F`;
+
+  const busboy = new BusBoy({ headers: req.headers });
+
+  let imageFileName;
+  let imageToBeUploaded = {};
+
+  busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
+    const imageExtension = filename.split(".")[filename.split(".").length - 1];
+
+    const randomNum = crypto.randomBytes(10).toString("hex");
+
+    imageFileName = `${randomNum}.${imageExtension}`;
+    const filepath = path.join(os.tmpdir(), imageFileName);
+
+    imageToBeUploaded = {
+      filepath,
+      mimetype,
+    };
+
+    file.pipe(fs.createWriteStream(filepath));
+  });
+
+  let token = crypto.randomBytes(20).toString("hex");
+
+  busboy.on("finish", () => {
+    admin
+      .storage()
+      .bucket()
+      .upload(imageToBeUploaded.filepath, {
+        destination: `generalForms/${campusID}/` + imageFileName,
+        resumable: false,
+        metadata: {
+          metadata: {
+            contentType: imageToBeUploaded.mimetype,
+            firebaseStorageDownloadTokens: token,
+          },
+        },
+      })
+      .then(() => {
+        formUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${request}${imageFileName}?alt=media&token=${token}`;
+
+        return res.status(201).json({ downloadUrl: formUrl });
+      })
+      .catch((error) => {
+        console.error(error);
+        return res.status(500).json({ error: error.code });
+      });
+  });
+  busboy.end(req.rawBody);
 };

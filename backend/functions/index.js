@@ -99,6 +99,9 @@ const { modifyPdf, testPdf, createGeneralForm } = require("./utils/pdf");
 const {
   createNotification,
   sendEmailNotification,
+  getGeneralForms,
+  deleteGeneralForm,
+  uploadForm,
 } = require("./handlers/general");
 
 app.use(
@@ -349,7 +352,10 @@ app.get("/clubs/approved/:campusID", sudoAdminAuth, getApprovedClubs);
 
 app.post("/pdf", modifyPdf);
 app.get("/pdf-test", testPdf);
-app.post("/add-pdf", createGeneralForm);
+app.post("/admin/add-pdf/:campusID", sudoAdminAuth, createGeneralForm);
+app.post("/admin/upload-pdf/:campusID", sudoAdminAuth, uploadForm);
+app.get("/admin/general-forms/:campusID", sudoAdminAuth, getGeneralForms);
+app.post("/admin/delete-pdf/:campusID", sudoAdminAuth, deleteGeneralForm);
 
 app.post("/notification/:campusID", NormalAuth, createNotification);
 app.post("/notification/email/:campusID", NormalAuth, sendEmailNotification);

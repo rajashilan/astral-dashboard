@@ -233,13 +233,15 @@ exports.createGeneralForm = (req, res) => {
     type: req.body.type,
   };
 
-  var temp;
+  let generalFormID;
 
   db.collection("generalForms")
     .add(generalForm)
     .then((data) => {
-      temp = data.id;
-      return db.doc(`/generalForms/${temp}`).update({ generalFormID: temp });
+      generalFormID = data.id;
+      return db
+        .doc(`/generalForms/${generalFormID}`)
+        .update({ generalFormID: generalFormID });
     })
     .then(() => {
       return db.doc(`/generalFormsOverview/${generalForm.campusID}`).get();
@@ -250,11 +252,12 @@ exports.createGeneralForm = (req, res) => {
         if (generalForm.type === "easyFill")
           tempForms.push({
             title: generalForm.title,
-            generalFormID: temp,
+            generalFormID: generalFormID,
             type: generalForm.type,
+            link: generalForm.link,
           });
         else {
-          overViewNotEasyFill.generalFormID = temp;
+          overViewNotEasyFill.generalFormID = generalFormID;
           tempForms.push(overViewNotEasyFill);
         }
         return db
@@ -265,14 +268,20 @@ exports.createGeneralForm = (req, res) => {
           .collection("generalFormsOverview")
           .doc(generalForm.campusID)
           .set({
-            forms: [{ title: generalForm.title, generalFormID: temp }],
+            forms: [{ title: generalForm.title, generalFormID: generalFormID }],
           });
       }
     })
     .then(() => {
-      return res
-        .status(201)
-        .json({ message: "New General Form added successfully" });
+      return res.status(201).json({
+        message: "New General Form added successfully",
+        data: {
+          title: generalForm.title,
+          generalFormID: generalFormID,
+          type: generalForm.type,
+          link: generalForm.link,
+        },
+      });
     })
     .catch((error) => {
       console.error(error);
