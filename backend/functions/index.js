@@ -13,6 +13,7 @@ const {
   NormalAuth,
   sudoAdminAuth,
   verifyAdminForSessionData,
+  verifyClaw,
 } = require("./utils/Auth");
 
 //import claw handlers
@@ -24,6 +25,7 @@ const {
   changeID,
   createTestClubsOverview,
   createTestOrientationOverview,
+  uploadCollegeLogo,
 } = require("./handlers/claw");
 
 //import college admin handlers
@@ -107,7 +109,7 @@ const {
 app.use(
   cors({
     origin: [
-      // "http://localhost:3000",
+      "http://localhost:3000",
       // "https://web.postman.co/",
       "exp://192.168.0.8:19000",
       "https://astral-d3ff5.web.app",
@@ -122,17 +124,19 @@ app.use(
 app.post("/theClaw", clawSignIn);
 
 //add a college and also add a campus
-app.post("/college", addCollegeAndCampus);
+app.post("/college", verifyClaw, addCollegeAndCampus);
 
 //add a campus only
-app.post("/campus", addCampus);
+app.post("/campus", verifyClaw, addCampus);
 
 //delete a college
-app.delete("/college", deleteCollege);
+app.delete("/college", verifyClaw, deleteCollege);
 
-app.get("/changeid", changeID);
+app.get("/changeid", verifyClaw, changeID);
 
-app.get("/testUpload", createTestOrientationOverview);
+app.get("/testUpload", verifyClaw, createTestOrientationOverview);
+
+app.post("/college/logo/:collegeID", verifyClaw, uploadCollegeLogo);
 
 //college routes ==============================================================
 

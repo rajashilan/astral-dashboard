@@ -1,6 +1,7 @@
 const { admin, db } = require("../utils/admin");
 const firebase = require("firebase");
 const crypto = require("crypto");
+const config = require("../utils/config");
 
 exports.clawSignIn = (req, res) => {
   const claw = {
@@ -8,11 +9,10 @@ exports.clawSignIn = (req, res) => {
     password: req.body.password,
   };
 
-  db.collection("theClaw")
-    .where("email", "==", claw.email)
+  db.doc("claws/admins")
     .get()
-    .then((data) => {
-      if (data.docs[0].data().email === claw.email) {
+    .then((doc) => {
+      if (doc.data().emails.includes(claw.email)) {
         firebase
           .auth()
           .signInWithEmailAndPassword(claw.email, claw.password)
@@ -37,17 +37,12 @@ exports.clawSignIn = (req, res) => {
 };
 
 exports.addCollegeAndCampus = (req, res) => {
-  //for the campus, the admin has not been created yet, so create a dynamic link
-  //the link will be stored in the campus database
-  //set adminCreated to false under campus so that we can use it to prompt admin to sign up
-  //if the link the admin is accessing from is the same as the one in the database, allow the admin to create an account
-  //if account is created successfully, set adminCreated to true
-
   const college = {
     createdAt: new Date().toISOString(),
     name: req.body.college,
     suffix: req.body.suffix,
     adminSuffix: req.body.adminSuffix,
+    logo: req.body.logo,
   };
 
   const campus = {
@@ -65,6 +60,7 @@ exports.addCollegeAndCampus = (req, res) => {
     saName: req.body.saName,
     clubCreationDoc: req.body.clubCreationDoc,
     clubCreationDocName: req.body.clubCreationDocName,
+    logo: req.body.logo,
   };
 
   let orientationData = {
@@ -134,6 +130,7 @@ exports.addCollegeAndCampus = (req, res) => {
                 message: `${campus.name} created successfully`,
                 linkID: campus.linkID,
                 campusID: orientationData.campusID,
+                collegeID: campus.collegeID,
                 link: `https://astral-app.com/${orientationData.campusID}/${campus.linkID}/1`,
               });
             });
@@ -189,6 +186,7 @@ exports.addCampus = (req, res) => {
     .then((data) => {
       data.forEach((doc) => {
         campus.collegeID = doc.id;
+        campus.logo = doc.data().logo;
       });
 
       admin
@@ -228,6 +226,7 @@ exports.addCampus = (req, res) => {
                 message: `${campus.name} created successfully`,
                 linkID: campus.linkID,
                 campusID: orientationData.campusID,
+                collegeID: campus.collegeID,
                 link: `https://astral-app.com/${orientationData.campusID}/${campus.linkID}/1`,
               });
             });
@@ -343,4 +342,94 @@ exports.createTestOrientationOverview = (req, res) => {
       console.error(error);
       return res.status(500).json({ error: "Something went wrong" });
     });
+};
+
+exports.uploadCollegeLogo = (req, res) => {
+  const BusBoy = require("busboy");
+  const path = require("path");
+  const os = require("os");
+  const fs = require("fs");
+
+  const collegeID = req.params.collegeID;
+
+  let request = `colleges%2F${collegeID}%2F`;
+
+  //need to get details from orientationPageID first
+  //look for the particular subcontent using subcontentID
+  //and update the subcontent
+
+  const busboy = new BusBoy({ headers: req.headers });
+
+  let imageFileName;
+  let imageToBeUploaded = {};
+  let imageUrl;
+  let batch = db.batch();
+
+  busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
+    if (
+      mimetype !== "image/jpeg" &&
+      mimetype !== "image/png" &&
+      mimetype !== "image/svg+xml"
+    ) {
+      return res.status(400).json({ error: "Wrong file type submitted" });
+    }
+
+    const imageExtension = filename.split(".")[filename.split(".").length - 1];
+
+    const randomNum = crypto.randomBytes(10).toString("hex");
+
+    imageFileName = `${randomNum}.${imageExtension}`;
+    const filepath = path.join(os.tmpdir(), imageFileName);
+
+    imageToBeUploaded = {
+      filepath,
+      mimetype,
+    };
+
+    file.pipe(fs.createWriteStream(filepath));
+  });
+
+  let token = crypto.randomBytes(20).toString("hex");
+
+  busboy.on("finish", () => {
+    admin
+      .storage()
+      .bucket()
+      .upload(imageToBeUploaded.filepath, {
+        destination: `colleges/${collegeID}/` + imageFileName,
+        resumable: false,
+        metadata: {
+          metadata: {
+            contentType: imageToBeUploaded.mimetype,
+            firebaseStorageDownloadTokens: token,
+          },
+        },
+      })
+      .then(() => {
+        imageUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${request}${imageFileName}?alt=media&token=${token}`;
+
+        return db.doc(`/colleges/${collegeID}`).update({ logo: imageUrl });
+      })
+      .then(() => {
+        return db
+          .collection("campuses")
+          .where("collegeID", "==", collegeID)
+          .get();
+      })
+      .then((data) => {
+        data.forEach((doc) => {
+          const ref = db.doc(`/campuses/${doc.id}`);
+          batch.update(ref, { logo: imageUrl });
+        });
+        return batch.commit();
+      })
+      .then(() => {
+        return res.status(201).json({ message: "Logo uploaded successfully" });
+      })
+      .catch((error) => {
+        console.error(error);
+        return res.status(500).json({ error: error.code });
+      });
+  });
+  busboy.end(req.rawBody);
 };
