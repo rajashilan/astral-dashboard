@@ -119,7 +119,8 @@ exports.getGeneralForms = (req, res) => {
   db.doc(`/generalFormsOverview/${campusID}`)
     .get()
     .then((doc) => {
-      return res.status(200).json(doc.data());
+      if (doc.exists) return res.status(200).json(doc.data());
+      else return res.status(200).json({ forms: [] });
     })
     .catch((error) => {
       console.error(error);
