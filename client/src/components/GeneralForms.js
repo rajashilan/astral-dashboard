@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
 
@@ -61,6 +61,8 @@ export default function GeneralForms() {
   }, [refreshState]);
 
   //add form -> using modal
+  const formInputRef = useRef(null);
+
   const handleShowAddModal = () => {
     setShowAddModal(!showAddModal);
     setTitle("");
@@ -71,16 +73,17 @@ export default function GeneralForms() {
       general: null,
     });
     setFormToUpload(null);
+    formInputRef.current.value = "";
   };
 
   //upload form
   const handleUploadForm = () => {
-    const fileInput = document.getElementById("formInput");
-    fileInput.click();
+    formInputRef.current.click();
   };
 
   const handleFormChange = (event) => {
     const form = event.target.files[0];
+    console.log(form);
     if (form) {
       setFormToUpload(form);
     }
@@ -350,8 +353,9 @@ export default function GeneralForms() {
         <input
           type="file"
           id="formInput"
+          ref={formInputRef}
           onChange={handleFormChange}
-          hidden="hidden"
+          style={{ display: "none" }}
         />
 
         <ErrorLabel>{errors.general}</ErrorLabel>
