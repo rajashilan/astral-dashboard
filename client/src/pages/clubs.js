@@ -42,7 +42,8 @@ export default function Clubs() {
       )
         navigate("/");
       if (role[0] === "focused:studentgovernment") dispatch(getSaClubs());
-    } else dispatch(getClubs(role, sa));
+      else dispatch(getClubs(role, sa));
+    }
   }, [role]);
 
   let display =
