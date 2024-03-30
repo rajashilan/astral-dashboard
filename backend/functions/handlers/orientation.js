@@ -640,7 +640,9 @@ exports.uploadOrientationPostImage = (req, res) => {
   const os = require("os");
   const fs = require("fs");
 
-  let request = "orientation%2Fpages%2Fimages%2F";
+  const campusID = req.params.campusID || req.query.campusID;
+
+  let request = `orientation%2Fpages%2Fimages%2F${campusID}%2F`;
 
   //need to get details from orientationPageID first
   //look for the particular subcontent using subcontentID
@@ -683,7 +685,7 @@ exports.uploadOrientationPostImage = (req, res) => {
       .storage()
       .bucket()
       .upload(imageToBeUploaded.filepath, {
-        destination: "orientation/pages/images/" + imageFileName,
+        destination: `orientation/pages/images/${campusID}/` + imageFileName,
         resumable: false,
         metadata: {
           metadata: {
@@ -711,7 +713,9 @@ exports.uploadOrientationPostFile = (req, res) => {
   const os = require("os");
   const fs = require("fs");
 
-  let request = "orientation%2Fpages%2Ffiles%2F";
+  const campusID = req.params.campusID || req.query.campusID;
+
+  let request = `orientation%2Fpages%2Ffiles%2F${campusID}%2F`;
 
   //need to get details from orientationPageID first
   //look for the particular subcontent using subcontentID
@@ -752,7 +756,7 @@ exports.uploadOrientationPostFile = (req, res) => {
       .storage()
       .bucket()
       .upload(imageToBeUploaded.filepath, {
-        destination: "orientation/pages/files/" + imageFileName,
+        destination: `orientation/pages/files/${campusID}/` + imageFileName,
         resumable: false,
         metadata: {
           metadata: {
@@ -785,6 +789,8 @@ exports.uploadOrientationOverviewVideo = (req, res) => {
   const ffmpeg = require("fluent-ffmpeg");
   ffmpeg.setFfmpegPath(ffmpegPath);
 
+  const campusID = req.params.campusID;
+
   const busboy = new BusBoy({ headers: req.headers });
 
   let videoFileName;
@@ -793,7 +799,7 @@ exports.uploadOrientationOverviewVideo = (req, res) => {
   let videoUrl;
   let originalVideoFileName = "";
 
-  let request = "orientation%2Foverview%2Fvideos%2F";
+  let request = `orientation%2Foverview%2Fvideos%2F${campusID}%2F`;
 
   busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
     if (mimetype !== "video/mp4") {
@@ -830,7 +836,8 @@ exports.uploadOrientationOverviewVideo = (req, res) => {
           .storage()
           .bucket(config.storageBucket)
           .upload(videoToBeUploaded.compressedVideoPath, {
-            destination: "orientation/overview/videos/" + compressedFileName,
+            destination:
+              `orientation/overview/videos/${campusID}/` + compressedFileName,
             resumable: false,
             metadata: {
               contentType: videoToBeUploaded.mimetype,
