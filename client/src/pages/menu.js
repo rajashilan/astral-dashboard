@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../redux/actions/userActions";
+import { checkToken } from "../util/checkToken";
 
 // show menu based on user's role
 
@@ -18,6 +19,7 @@ export default function Menu() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const state = useSelector((state) => state.user.adminData);
+  const authenticated = useSelector((state) => state.user);
   const loading = useSelector((state) => state.UI.loading);
 
   //sudo and general show as usual
@@ -29,11 +31,12 @@ export default function Menu() {
   }
 
   useEffect(() => {
+    checkToken();
     if (!loading) {
       if (state.role) {
         if (state.role[0] === "focused:studentgovernment") navigate("/clubs");
         else return;
-      } else navigate("/login");
+      }
     }
   }, [state.role]);
 

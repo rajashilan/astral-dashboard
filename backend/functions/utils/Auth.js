@@ -1,4 +1,5 @@
 const admin = require("firebase-admin");
+const { getAppCheck } = require("firebase-admin/app-check");
 
 exports.NormalAuth = (req, res, next) => {
   let idToken;
@@ -100,7 +101,6 @@ exports.sudoAdminAuth = (req, res, next) => {
 };
 
 exports.verifyAdminForSessionData = (req, res, next) => {
-  let idToken;
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer ")
@@ -143,6 +143,27 @@ exports.verifyAdminForSessionData = (req, res, next) => {
       console.error("Error while verifying token", error);
       return res.status(401).json({ error });
     });
+};
+
+exports.appCheckVerification = (req, res, next) => {
+  const appCheckToken = req.header("x-firebase-appcheck");
+
+  if (!appCheckToken) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  try {
+    getAppCheck()
+      .verifyToken(appCheckToken)
+      .then((decodedToken) => {
+        if (decodedToken) return next();
+      })
+      .catch((err) => {
+        return res.status(401).json({ error: "Unauthorized" });
+      });
+  } catch (err) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
 };
 
 exports.verifyClaw = (req, res, next) => {

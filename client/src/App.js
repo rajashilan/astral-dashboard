@@ -16,7 +16,8 @@ import Navbar from "./components/Navbar";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { logoutUser } from "./redux/actions/userActions";
 
 axios.defaults.baseURL =
   "https://asia-southeast1-astral-d3ff5.cloudfunctions.net/api";
@@ -26,9 +27,10 @@ axios.defaults.baseURL =
 
 function App() {
   const error = useSelector((state) => state.UI.error);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    if (error)
+    if (error) {
       toast(error, {
         position: "top-center",
         progressClassName: "color-[#C4FFF9]",
@@ -39,6 +41,13 @@ function App() {
         draggable: true,
         theme: "dark",
       });
+      if (
+        error.toLowerCase() === "unauthorized" ||
+        error.toLowerCase() === "invalid admin"
+      ) {
+        window.location.href = "/";
+      }
+    }
   }, [error]);
 
   return (

@@ -14,6 +14,7 @@ const {
   sudoAdminAuth,
   verifyAdminForSessionData,
   verifyClaw,
+  appCheckVerification,
 } = require("./utils/Auth");
 
 //import claw handlers
@@ -109,7 +110,7 @@ const {
 app.use(
   cors({
     origin: [
-      "http://localhost:3000",
+      // "http://localhost:3000",
       // "https://web.postman.co/",
       "exp://192.168.0.8:19000",
       "https://astral-d3ff5.web.app",
@@ -141,133 +142,195 @@ app.post("/college/logo/:collegeID", verifyClaw, uploadCollegeLogo);
 //college routes ==============================================================
 
 //get all colleges
-app.get("/colleges", getAllColleges);
+app.get("/colleges", appCheckVerification, getAllColleges);
 
 //get all campuses for a college
-app.post("/campuses", getCampuses);
+app.post("/campuses", appCheckVerification, getCampuses);
 
 //get all admins for a college
-app.get("/admins/:campusID", sudoAdminAuth, getAdminsForCampus);
+app.get(
+  "/admins/:campusID",
+  appCheckVerification,
+  sudoAdminAuth,
+  getAdminsForCampus
+);
 
 //get all departments for a college
-app.get("/departments/:campusID", sudoAdminAuth, getDepartmentsForCampus);
+app.get(
+  "/departments/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  getDepartmentsForCampus
+);
 
 //get validity of first time signup link
-app.post("/validate-link/:campusID/:linkID", firstTimeSignUpLinkValidity);
+app.post(
+  "/validate-link/:campusID/:linkID",
+  appCheckVerification,
+  firstTimeSignUpLinkValidity
+);
 
 //get validity of admin add link
 app.post(
   "/validate-add-admin-link/:campusID/:linkID",
+  appCheckVerification,
   addedAdminSignUpLinkValidity
 );
 
 //admin first time login
-app.post("/admin-signup/:campusID/:linkID", adminFirstTimeSignUp);
+app.post(
+  "/admin-signup/:campusID/:linkID",
+  appCheckVerification,
+  adminFirstTimeSignUp
+);
 
 //added admin signup
-app.post("/add-admin-signup/:campusID/:linkID", addedAdminSignUp);
+app.post(
+  "/add-admin-signup/:campusID/:linkID",
+  appCheckVerification,
+  addedAdminSignUp
+);
 
 //to generate the link to create a new admin
-app.post("/admin/generate-link/:campusID", sudoAdminAuth, generateNewAdminLink);
+app.post(
+  "/admin/generate-link/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  generateNewAdminLink
+);
 
 //admin login
-app.post("/login", adminLogin);
+app.post("/login", appCheckVerification, adminLogin);
 
 //get admin's session data
-app.get("/session-data/:campusID", verifyAdminForSessionData, getSessionData);
+app.get(
+  "/session-data/:campusID",
+  [appCheckVerification, verifyAdminForSessionData],
+  getSessionData
+);
 
 //edit a campus' department
-app.post("/department/edit/:campusID", sudoAdminAuth, editCampusDepartment);
+app.post(
+  "/department/edit/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  editCampusDepartment
+);
 
 //edit a campus' intake
-app.post("department/edit-intake/:campusID", sudoAdminAuth, editCampusIntake);
+app.post(
+  "department/edit-intake/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  editCampusIntake
+);
 
 //edit an admin's role
-app.post("/admin/role/:campusID", sudoAdminAuth, editAdminRole);
+app.post(
+  "/admin/role/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  editAdminRole
+);
 
 //deactivate an admin
-app.post("/admin/deactivate/:campusID", sudoAdminAuth, deactivateAdmin);
+app.post(
+  "/admin/deactivate/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  deactivateAdmin
+);
 
 //reactivating an admin
-app.post("/admin/reactivate/:campusID", sudoAdminAuth, reactivateAdmin);
+app.post(
+  "/admin/reactivate/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  reactivateAdmin
+);
 
 //orientation routes ==============================================================
 
-app.get("/orientation/:campusID", sudoAdminAuth, getOrientationOverview);
+app.get(
+  "/orientation/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  getOrientationOverview
+);
 
-app.post("/orientation/overview/edit", sudoAdminAuth, editOrientationOverview);
+app.post(
+  "/orientation/overview/edit",
+  [appCheckVerification, sudoAdminAuth],
+  editOrientationOverview
+);
 
 app.post(
   "/orientation/content/:campusID/:orientationID",
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   editOrientationOverviewContent
 );
 
 app.post(
   "/orientation/page/:campusID/:orientationID",
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   createOrientationPage
 );
 
-app.get("/orientation/page/:campusID", sudoAdminAuth, getOrientationPages);
+app.get(
+  "/orientation/page/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  getOrientationPages
+);
 
 app.post(
   "/orientation/subcontent/:campusID/:orientationPageID",
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   createNewSubcontent
 );
 
 app.post(
   "/orientation/subcontent-title/:campusID/:orientationPageID/:subcontentID",
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   editSubcontentTitle
 );
 
 app.post(
   "/orientation/subcontent-content/:campusID/:orientationPageID/:subcontentID",
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   editSubcontentContent
 );
 
 app.post(
   "/orientation/subcontent-image/:campusID/:orientationPageID/:subcontentID",
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   editSubcontentImage
 );
 
 app.delete(
   "/orientation/subcontent-image/:campusID/:orientationPageID/:subcontentID",
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   deleteSubcontentImage
 );
 
 app.post(
   "/orientation/subcontent-file/:campusID/:orientationPageID/:subcontentID",
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   editSubcontentFile
 );
 
 app.post(
   "/orientation/subcontent-file-delete/:campusID/:orientationPageID/:subcontentID",
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   deleteSubcontentFile
 );
 
 app.delete(
   "/orientation/subcontent/:campusID/:orientationPageID/:subcontentID",
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   deleteSubcontent
 );
 
 app.post(
   "/orientation/overview-video/:campusID/:orientationID",
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   editOrientationOverviewVideos
 );
 
 app.post(
   "/orientation/overview-video-delete/:campusID/:orientationID",
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   deleteOrientationOverviewVideo
 );
 
@@ -275,93 +338,177 @@ app.post(
 
 app.post(
   "/orientation/subcontent-image/upload",
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   uploadOrientationPostImage
 );
 
 app.post(
   "/orientation/subcontent-file/upload",
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   uploadOrientationPostFile
 );
 
 app.post(
   "/orientation/overview-video/:campusID",
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   uploadOrientationOverviewVideo
 );
 
 app.post(
   "/orientation/page-title/:campusID/:orientationID/:orientationPageID",
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   editOrientationPageTitle
 );
 
 app.post(
   "/orientation/page-header/:campusID/:orientationPageID",
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   editOrientationPageHeader
 );
 
 app.post(
   "/orientation/page-content/:campusID/:orientationPageID",
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   editOrientationPageContent
 );
 
 app.delete(
   "/orientation/page/:campusID/:orientationID/:orientationPageID",
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   deleteOrientationPage
 );
 
-app.post("/clubs/:campusID", sudoAdminAuth, getAllClubs);
-app.get("/clubs-sa/:campusID", sudoAdminAuth, getPendingClubsForSA);
-app.get("/clubs/admin/:campusID", sudoAdminAuth, getPendingClubsForAdmin);
+app.post(
+  "/clubs/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  getAllClubs
+);
+app.get(
+  "/clubs-sa/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  getPendingClubsForSA
+);
+app.get(
+  "/clubs/admin/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  getPendingClubsForAdmin
+);
 
-app.post(`/clubs/approve/:campusID/:clubID`, sudoAdminAuth, approveClub);
-app.post(`/clubs-sa/approve/:campusID/:clubID`, sudoAdminAuth, approveClub);
+app.post(
+  `/clubs/approve/:campusID/:clubID`,
+  [appCheckVerification, sudoAdminAuth],
+  approveClub
+);
+app.post(
+  `/clubs-sa/approve/:campusID/:clubID`,
+  [appCheckVerification, sudoAdminAuth],
+  approveClub
+);
 
-app.post(`/clubs/reject/:campusID/:clubID`, sudoAdminAuth, rejectClub);
-app.post(`/clubs-sa/reject/:campusID/:clubID`, sudoAdminAuth, rejectClub);
+app.post(
+  `/clubs/reject/:campusID/:clubID`,
+  [appCheckVerification, sudoAdminAuth],
+  rejectClub
+);
+app.post(
+  `/clubs-sa/reject/:campusID/:clubID`,
+  [appCheckVerification, sudoAdminAuth],
+  rejectClub
+);
 
-app.post(`/clubs/suspend/:campusID/:clubID`, sudoAdminAuth, suspendClub);
+app.post(
+  `/clubs/suspend/:campusID/:clubID`,
+  [appCheckVerification, sudoAdminAuth],
+  suspendClub
+);
 
 app.post(
   `/clubs/remove-suspension/:campusID/:clubID`,
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   removeSuspension
 );
 
-app.post("/clubs/president/:campusID", sudoAdminAuth, changePresident);
+app.post(
+  "/clubs/president/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  changePresident
+);
 
-app.post("/clubs/members/:clubID/:campusID", sudoAdminAuth, getClubMembers);
+app.post(
+  "/clubs/members/:clubID/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  getClubMembers
+);
 
-app.get("/clubs/activities/:campusID", sudoAdminAuth, getAllClubActivities);
+app.get(
+  "/clubs/activities/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  getAllClubActivities
+);
 app.post(
   "/clubs/activities/event/:campusID",
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   handleEventActivity
 );
 app.post(
   "/clubs/activities/gallery/:campusID",
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   handleGalleryActivity
 );
 
-app.post("/clubs/events/true/:campusID", sudoAdminAuth, setClubEventToTrue);
-app.post("/clubs/gallery/true/:campusID", sudoAdminAuth, setClubGalleryToTrue);
-app.post("/clubs/:clubID/:campusID", sudoAdminAuth, getAClub);
-app.get("/clubs/approved/:campusID", sudoAdminAuth, getApprovedClubs);
+app.post(
+  "/clubs/events/true/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  setClubEventToTrue
+);
+app.post(
+  "/clubs/gallery/true/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  setClubGalleryToTrue
+);
+app.post(
+  "/clubs/:clubID/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  getAClub
+);
+app.get(
+  "/clubs/approved/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  getApprovedClubs
+);
 
 app.post("/pdf", modifyPdf);
 app.get("/pdf-test", testPdf);
-app.post("/admin/add-pdf/:campusID", sudoAdminAuth, createGeneralForm);
-app.post("/admin/upload-pdf/:campusID", sudoAdminAuth, uploadForm);
-app.get("/admin/general-forms/:campusID", sudoAdminAuth, getGeneralForms);
-app.post("/admin/delete-pdf/:campusID", sudoAdminAuth, deleteGeneralForm);
+app.post(
+  "/admin/add-pdf/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  createGeneralForm
+);
+app.post(
+  "/admin/upload-pdf/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  uploadForm
+);
+app.get(
+  "/admin/general-forms/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  getGeneralForms
+);
+app.post(
+  "/admin/delete-pdf/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  deleteGeneralForm
+);
 
-app.post("/notification/:campusID", NormalAuth, createNotification);
-app.post("/notification/email/:campusID", NormalAuth, sendEmailNotification);
+app.post(
+  "/notification/:campusID",
+  [appCheckVerification, NormalAuth],
+  createNotification
+);
+app.post(
+  "/notification/email/:campusID",
+  [appCheckVerification, NormalAuth],
+  sendEmailNotification
+);
 
 exports.api = functions.region("asia-southeast1").https.onRequest(app);

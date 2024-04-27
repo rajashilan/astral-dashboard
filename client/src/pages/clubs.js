@@ -13,6 +13,7 @@ import {
   getSaClubs,
 } from "../redux/actions/dataActions";
 import ClubActivities from "../components/ClubActivities";
+import { checkToken } from "../util/checkToken";
 
 export default function Clubs() {
   //handle tab switching
@@ -25,11 +26,12 @@ export default function Clubs() {
   const state = useSelector((state) => state.user);
   const sa = useSelector((state) => state.user.campusData.sa);
   const role = useSelector((state) => state.user.adminData.role);
+  const UIloading = useSelector((state) => state.UI.loading);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (!state.authenticated) navigate("/login");
+    checkToken();
 
     if (role) {
       if (
@@ -44,7 +46,7 @@ export default function Clubs() {
       if (role[0] === "focused:studentgovernment") dispatch(getSaClubs());
       else dispatch(getClubs(role, sa));
     }
-  }, [role]);
+  }, [role, state.authenticated, UIloading]);
 
   let display =
     tab === "pending" ? (

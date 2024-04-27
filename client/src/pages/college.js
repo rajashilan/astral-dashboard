@@ -6,6 +6,7 @@ import RegisterAdmins from "../components/RegisterAdmins";
 import GeneralForms from "../components/GeneralForms";
 
 import { useSelector } from "react-redux";
+import { checkToken } from "../util/checkToken";
 
 export default function College() {
   //handle tab switching
@@ -16,7 +17,7 @@ export default function College() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!state.authenticated) navigate("/login");
+    checkToken();
   }, []);
 
   useEffect(() => {

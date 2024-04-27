@@ -15,6 +15,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { createNewOrientationPage } from "../redux/actions/dataActions";
+import { checkToken } from "../util/checkToken";
 
 const formSchema = z.object({
   title: z.string().min(1, { message: "Please enter a title" }),
@@ -45,7 +46,7 @@ export default function Orientation() {
   const titleInputRef = useRef();
 
   useEffect(() => {
-    if (!userState.authenticated) navigate("/login");
+    checkToken();
   }, []);
 
   useEffect(() => {
