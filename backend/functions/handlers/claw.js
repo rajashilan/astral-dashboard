@@ -45,6 +45,11 @@ exports.addCollegeAndCampus = (req, res) => {
     logo: req.body.logo,
   };
 
+  let collegeName = {
+    name: req.body.college,
+    suffix: req.body.suffix,
+  };
+
   const campus = {
     createdAt: new Date().toISOString(),
     college: req.body.college,
@@ -61,6 +66,13 @@ exports.addCollegeAndCampus = (req, res) => {
     clubCreationDoc: req.body.clubCreationDoc,
     clubCreationDocName: req.body.clubCreationDocName,
     logo: req.body.logo,
+  };
+
+  let campusName = {
+    name: req.body.campus,
+    college: req.body.college,
+    departments: req.body.departments,
+    intakes: req.body.intakes,
   };
 
   let orientationData = {
@@ -126,6 +138,12 @@ exports.addCollegeAndCampus = (req, res) => {
                 .update({ orientationID: orientationData.orientationID });
             })
             .then(() => {
+              return db.collection("collegeNames").add(collegeName);
+            })
+            .then(() => {
+              return db.collection("campusNames").add(campusName);
+            })
+            .then(() => {
               return res.status(201).json({
                 message: `${campus.name} created successfully`,
                 linkID: campus.linkID,
@@ -162,6 +180,13 @@ exports.addCampus = (req, res) => {
     saName: req.body.saName,
     clubCreationDoc: req.body.clubCreationDoc,
     clubCreationDocName: req.body.clubCreationDocName,
+  };
+
+  let campusName = {
+    name: req.body.campus,
+    college: req.body.college,
+    departments: req.body.departments,
+    intakes: req.body.intakes,
   };
 
   let orientationData = {
@@ -220,6 +245,9 @@ exports.addCampus = (req, res) => {
               return db
                 .doc(`/campuses/${orientationData.campusID}`)
                 .update({ orientationID: orientationData.orientationID });
+            })
+            .then(() => {
+              return db.collection("campusNames").add(campusName);
             })
             .then(() => {
               return res.status(201).json({
