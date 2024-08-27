@@ -79,6 +79,8 @@ const {
   uploadOrientationOverviewVideo,
   editOrientationOverviewVideos,
   deleteOrientationOverviewVideo,
+  editOrientationSubcontentVideos,
+  deleteOrientationSubcontentVideo,
   deleteSubcontentImage,
 } = require("./handlers/orientation");
 
@@ -110,8 +112,8 @@ const {
 app.use(
   cors({
     origin: [
-      // "http://localhost:3000",
-      // "https://web.postman.co/",
+      "http://localhost:3000",
+      "https://web.postman.co/",
       "exp://192.168.0.8:19000",
       "https://astral-d3ff5.web.app",
       "https://astral-app.com",
@@ -332,6 +334,18 @@ app.post(
   "/orientation/overview-video-delete/:campusID/:orientationID",
   [appCheckVerification, sudoAdminAuth],
   deleteOrientationOverviewVideo
+);
+
+app.post(
+  "/orientation/subcontent-video/:campusID/:orientationPageID/:subcontentID",
+  [appCheckVerification, sudoAdminAuth],
+  editOrientationSubcontentVideos
+);
+
+app.post(
+  "/orientation/subcontent-video-delete/:campusID/:orientationPageID/:subcontentID",
+  [appCheckVerification, sudoAdminAuth],
+  deleteOrientationSubcontentVideo
 );
 
 //problem is it mistakens another url that is before this, as this url

@@ -188,11 +188,94 @@ exports.deleteOrientationOverviewVideo = (req, res) => {
 //         {
 //             title: title,
 //             content: content,
-//             images: [{image: imageUrl,}],
+//             image: [{image: imageUrl,}],
 //             files: [{title:title, link: link}],
+//             videos: [{}]
 //         }
 //     ]
 // }
+
+exports.editOrientationSubcontentVideos = (req, res) => {
+  const orientationPageID = req.params.orientationPageID;
+  let subcontentID = req.params.subcontentID;
+
+  let video = {
+    filename: req.body.filename,
+    url: req.body.url,
+    createdAt: new Date().toISOString(),
+    videoID: crypto.randomBytes(10).toString("hex"),
+  };
+
+  let videos;
+
+  //first get the videos
+  db.doc(`/orientationPages/${orientationPageID}`)
+    .get()
+    .then((doc) => {
+      let temp = doc.data().subcontent;
+      let subcontent = temp.find(
+        (content) => content.subcontentID === subcontentID
+      );
+
+      if (!subcontent.videos) {
+        subcontent.videos = [];
+      }
+
+      videos = subcontent.videos;
+
+      if (videos.length === 3)
+        return res.status(400).json({ error: "Video cap reached" });
+
+      videos.push(video);
+
+      return db
+        .doc(`/orientationPages/${orientationPageID}`)
+        .update({ subcontent: [...temp] });
+    })
+    .then(() => {
+      return res.status(200).json({ videos });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
+exports.deleteOrientationSubcontentVideo = (req, res) => {
+  const orientationPageID = req.params.orientationPageID;
+  let subcontentID = req.params.subcontentID;
+  const videoID = req.body.videoID;
+  let videos;
+
+  db.doc(`/orientationPages/${orientationPageID}`)
+    .get()
+    .then((doc) => {
+      let temp = doc.data().subcontent;
+      let subcontent = temp.find(
+        (content) => content.subcontentID === subcontentID
+      );
+
+      if (!subcontent.videos) {
+        return res.status(404).json({ error: "No videos found" });
+      }
+
+      videos = subcontent.videos;
+
+      let index = videos.findIndex((video) => video.videoID === videoID);
+      videos.splice(index, 1);
+
+      return db
+        .doc(`/orientationPages/${orientationPageID}`)
+        .update({ subcontent: [...temp] });
+    })
+    .then(() => {
+      return res.status(200).json({ videos });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
 
 //create new orientation page
 exports.createOrientationPage = (req, res) => {
