@@ -37,6 +37,7 @@ import {
   CLEAR_CLUB_MEMBERS,
   CHANGE_CLUB_PRESIDENT,
   SET_APPROVED_CLUBS,
+  UPDATE_ORIENTATION_SUBCONTENT_VIDEO,
 } from "../types";
 
 const initialState = {
@@ -304,6 +305,26 @@ export default function (state = initialState, action) {
           },
         },
       };
+    case UPDATE_ORIENTATION_SUBCONTENT_VIDEO: {
+      let temp = [...state.orientation.pages];
+      let page = temp.find(
+        (page) => page.orientationPageID === action.payload.orientationPageID
+      );
+      let subcontent = page.subcontent.find(
+        (content) => content.subcontentID === action.payload.subcontentID
+      );
+      subcontent.videos = [...action.payload.videos];
+
+      return {
+        ...state,
+        orientation: {
+          overview: {
+            ...state.orientation.overview,
+          },
+          pages: [...temp],
+        },
+      };
+    }
     case DELETE_SUBCONTENT:
       let deleteSubcontentPageIndex = state.orientation.pages.findIndex(
         (page) => page.orientationPageID === action.payload.orientationPageID

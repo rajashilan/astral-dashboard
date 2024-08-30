@@ -38,6 +38,7 @@ import {
   REACTIVATE_SA,
   DEACTIVATE_SA,
   SET_APPROVED_CLUBS,
+  UPDATE_ORIENTATION_SUBCONTENT_VIDEO,
 } from "../types";
 import axios from "axios";
 
@@ -510,6 +511,78 @@ export const deleteOrientationOverviewVideo =
           payload: res.data,
         });
         alert("Orientation video deleted successfully");
+      })
+      .catch((error) => {
+        dispatch({
+          type: SET_GENERAL_ERRORS,
+          payload: error.response.data.error,
+        });
+        console.error(error);
+        dispatch({ type: STOP_LOADING_DATA });
+      });
+  };
+
+export const addOrientationSubcontentVideo =
+  (data, orientationPageID, subcontentID) => (dispatch) => {
+    dispatch({ type: LOADING_DATA });
+    const campusID = localStorage.getItem("AdminCampus");
+
+    axios
+      .post(
+        `/orientation/subcontent-video/${campusID}/${orientationPageID}/${subcontentID}`,
+        data
+      )
+      .then((res) => {
+        dispatch({ type: STOP_LOADING_DATA });
+        dispatch({ type: CLEAR_GENERAL_ERRORS });
+
+        const payload = {
+          videos: [...res.data.videos],
+          subcontentID,
+          orientationPageID,
+        };
+
+        dispatch({
+          type: UPDATE_ORIENTATION_SUBCONTENT_VIDEO,
+          payload,
+        });
+
+        alert("Video added successfully");
+      })
+      .catch((error) => {
+        dispatch({
+          type: SET_GENERAL_ERRORS,
+          payload: error.response.data.error,
+        });
+        console.error(error);
+        dispatch({ type: STOP_LOADING_DATA });
+      });
+  };
+
+export const deleteOrientationSubcontentVideo =
+  (data, orientationPageID, subcontentID) => (dispatch) => {
+    dispatch({ type: LOADING_DATA });
+    const campusID = localStorage.getItem("AdminCampus");
+
+    axios
+      .post(
+        `/orientation/subcontent-video-delete/${campusID}/${orientationPageID}/${subcontentID}`,
+        data
+      )
+      .then((res) => {
+        dispatch({ type: STOP_LOADING_DATA });
+        dispatch({ type: CLEAR_GENERAL_ERRORS });
+        const payload = {
+          videos: [...res.data.videos],
+          subcontentID,
+          orientationPageID,
+        };
+
+        dispatch({
+          type: UPDATE_ORIENTATION_SUBCONTENT_VIDEO,
+          payload,
+        });
+        alert("Video deleted successfully");
       })
       .catch((error) => {
         dispatch({
