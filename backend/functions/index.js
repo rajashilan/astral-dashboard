@@ -79,6 +79,8 @@ const {
   uploadOrientationOverviewVideo,
   editOrientationOverviewVideos,
   deleteOrientationOverviewVideo,
+  editOrientationSubcontentVideos,
+  deleteOrientationSubcontentVideo,
   deleteSubcontentImage,
 } = require("./handlers/orientation");
 
@@ -332,6 +334,18 @@ app.post(
   "/orientation/overview-video-delete/:campusID/:orientationID",
   [appCheckVerification, sudoAdminAuth],
   deleteOrientationOverviewVideo
+);
+
+app.post(
+  "/orientation/subcontent-video/:campusID/:orientationPageID/:subcontentID",
+  [appCheckVerification, sudoAdminAuth],
+  editOrientationSubcontentVideos
+);
+
+app.post(
+  "/orientation/subcontent-video-delete/:campusID/:orientationPageID/:subcontentID",
+  [appCheckVerification, sudoAdminAuth],
+  deleteOrientationSubcontentVideo
 );
 
 //problem is it mistakens another url that is before this, as this url

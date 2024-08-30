@@ -14,18 +14,24 @@ import {
   updateSubcontentFile,
   updateSubcontentImage,
   updateSubcontentTitle,
+  addOrientationSubcontentVideo,
+  deleteOrientationSubcontentVideo,
 } from "../redux/actions/dataActions";
 
 import edit from "../assets/edit.svg";
 import bin from "../assets/bin.svg";
 import add from "../assets/add.svg";
+import video from "../assets/video.svg";
 
 import TextInput from "../components/TextInput";
 import Button from "../components/Button";
 import ErrorLabel from "./ErrorLabel";
 import WarningLabel from "./WarningLabel";
+import Label from "../components/Label";
 
 import axios from "axios";
+import ReactPlayer from "react-player";
+
 import {
   LOADING_DATA,
   SET_GENERAL_ERRORS,
@@ -66,6 +72,13 @@ export default function OrientationPagePreview() {
 
   const [image, setImage] = useState([]);
   const [showResetImageModal, setShowResetImageModal] = useState(false);
+
+  const [showDeleteVideoModal, setShowDeleteVideoModal] = useState(false);
+  const [deleteVideoID, setDeleteVideoID] = useState("");
+
+  const [showAddVideoModal, setShowAddVideoModal] = useState(false);
+  const [addVideo, setAddVideo] = useState("");
+  const [filename, setFilename] = useState("");
 
   const handleShowPageModal = (id) => {
     let data;
@@ -488,6 +501,219 @@ export default function OrientationPagePreview() {
       );
     });
 
+  const handleAddVideo = () => {
+    //show a modal to get the url
+    //replace everything after the last slash with preview
+    //get the filename?
+    let data = {
+      filename: filename,
+      url: addVideo,
+    };
+
+    data.url = data.url.replace(/[^/]*$/, "preview");
+    dispatch(
+      addOrientationSubcontentVideo(
+        data,
+        pageModalData.orientationPageID,
+        subcontentModalData.subcontentID
+      )
+    );
+    handleAddVideoModal();
+  };
+
+  const handleAddVideoModal = () => {
+    setShowAddVideoModal(!showAddVideoModal);
+    setAddVideo("");
+    setFilename("");
+  };
+
+  let AddVideoModal = (
+    <div
+      className={
+        "modal modal-middle h-auto " + (showAddVideoModal ? "modal-open" : "")
+      }
+    >
+      <div className=" modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
+        <button
+          onClick={handleAddVideoModal}
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+        >
+          ✕
+        </button>
+        <h3 style={{ fontSize: "26px", fontWeight: "bold", color: "white" }}>
+          To upload a video:
+        </h3>
+        <Label className="!text-center">
+          First upload your video to Google Drive.
+          <br />
+          Ensure the sharing settings is enabled for everyone who has the link.
+          <br />
+          Then, copy and paste the sharing link here.
+        </Label>
+        <TextInput
+          type="text"
+          id="videoUrl"
+          className="w-full !mt-[24px] !bg-[#232F52]"
+          placeholder="Enter your Google Drive video link here"
+          disabled={loading}
+          onChange={(e) => setAddVideo(e.target.value)}
+          value={addVideo}
+        />
+        <TextInput
+          type="text"
+          id="videoFilename"
+          className="w-full !bg-[#232F52]"
+          placeholder="Enter your video title"
+          disabled={loading}
+          onChange={(e) => setFilename(e.target.value)}
+          value={filename}
+        />
+        {addVideo !== "" && filename !== "" ? (
+          <Button
+            onClick={handleAddVideo}
+            text="add video"
+            className="w-full"
+            loading={loading}
+            disabled={loading}
+          />
+        ) : null}
+      </div>
+    </div>
+  );
+
+  //first show delete video modal
+  //set the delete video data in state
+  //if confirm, dispatch
+  const handleDeleteVideoModal = (videoID) => {
+    if (videoID !== "") {
+      setDeleteVideoID(videoID);
+      setShowDeleteVideoModal(!showDeleteVideoModal);
+    } else {
+      setDeleteVideoID("");
+      setShowDeleteVideoModal(!showDeleteVideoModal);
+    }
+  };
+
+  const handleDeleteVideo = () => {
+    let data = {
+      videoID: deleteVideoID,
+    };
+    dispatch(
+      deleteOrientationSubcontentVideo(
+        data,
+        pageModalData.orientationPageID,
+        subcontentModalData.subcontentID
+      )
+    );
+    handleDeleteVideoModal();
+  };
+
+  let confirmDeleteVideoModal = (
+    <div
+      className={
+        "modal modal-middle h-auto " +
+        (showDeleteVideoModal ? "modal-open" : "")
+      }
+    >
+      <div className=" modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
+        <button
+          onClick={handleDeleteVideoModal}
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+        >
+          ✕
+        </button>
+        <p className="text-[18px] text-[#DFE5F8] font-normal mt-[1rem] mb=[1rem]">
+          Are you sure you want to delete the following video?
+        </p>
+        <ReactPlayer
+          controls={true}
+          width="auto"
+          height="320px"
+          playIcon
+          url={deleteVideoID}
+        />
+        <Button
+          onClick={handleDeleteVideo}
+          text="delete"
+          x
+          className="w-full !bg-gray-600 !text-white"
+          disabled={loading}
+        />
+        <Button
+          onClick={handleDeleteVideoModal}
+          text="cancel"
+          x
+          className="w-full"
+          disabled={loading}
+        />
+      </div>
+    </div>
+  );
+
+  //if 1 video, only show that video
+  //if more than 1 video, show a a grid of 2
+  let videos =
+    subcontentModalData.videos && subcontentModalData.videos.length > 0 ? (
+      <div className="flex flex-col items-center justify-center">
+        <div className="grid grid-flow-row-dense grid-cols-1 gap-[2rem] mt-[2rem] ml-[1.5rem] items-center justify-center">
+          {subcontentModalData.videos &&
+            subcontentModalData.videos.map((video) => {
+              return (
+                <div className="flex flex-row">
+                  <iframe src={video.url} width="auto" height="auto" />
+                  <div className="fle-x flex-col ml-[0.5rem] space-y-[0.5rem]">
+                    <button
+                      onClick={() => {
+                        handleDeleteVideoModal(video.videoID);
+                      }}
+                      className="btn-sm btn-square btn p-1 bg-red-700"
+                    >
+                      <img src={bin} alt="delete" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          {/* only show video button if there is less than 3 videos */}
+        </div>
+        {subcontentModalData.videos && subcontentModalData.videos.length < 3 ? (
+          <>
+            <Button
+              onClick={handleAddVideoModal}
+              // img={video}
+              // className="!w-full !h-full"
+              // imgClassName="!w-[56px] !h-[42px] !max-w-[320px]"
+              text="upload another video"
+              className="!mt-[1.5rem] !bg-[#C4FFF9]"
+              disabled={loading}
+              loading={loading}
+            />
+          </>
+        ) : null}
+      </div>
+    ) : (
+      <div className="flex justify-center mt-[2rem]">
+        <Button
+          onClick={handleAddVideoModal}
+          // img={video}
+          // className="!w-auto !h-auto !px-[100px] justify-self-center"
+          // imgClassName="!w-[56px] !h-[42px] !max-w-[320px]"
+          text="upload video"
+          className="!mt-[0.625rem] !bg-[#C4FFF9]"
+          disabled={loading}
+          loading={loading}
+        />
+      </div>
+    );
+
+  //show video disclaimer if more than 3 videos
+  let videoCapText =
+    subcontentModalData.videos && subcontentModalData.videos.length === 3 ? (
+      <Label className="!text-[#C6CDE2] !text-center !mt-[2rem]">
+        Max video cap reached. Please delete a video to add a new one.
+      </Label>
+    ) : null;
+
   let Modal = (
     <div
       className={
@@ -658,6 +884,10 @@ export default function OrientationPagePreview() {
             value={editSubcontentContent}
           />
         </div>
+        {AddVideoModal}
+        {confirmDeleteVideoModal}
+        {videos}
+        {videoCapText}
         {subcontentModalData.image && subcontentModalData.image.length > 0 ? (
           <>
             {subcontentModalData.image &&

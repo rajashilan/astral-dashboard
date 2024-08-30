@@ -238,7 +238,7 @@ export default function OrientationOverview() {
         </div>
       </div>
     ) : state.videos.length > 1 ? (
-      <div className="grid grid-flow-row-dense grid-cols-3 gap-[2rem] mt-[2rem] items-center justify-center">
+      <div className="grid grid-flow-row-dense grid-cols-3 gap-[8rem] mt-[2rem] items-center justify-center">
         {state.videos &&
           state.videos.map((video) => {
             return (
