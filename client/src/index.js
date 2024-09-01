@@ -18,57 +18,57 @@ import { logoutUser, getSessionData } from "./redux/actions/userActions";
 import { SET_AUTHENTICATED } from "./redux/types";
 import axios from "axios";
 import jwtDecode from "jwt-decode";
-
 import { checkToken } from "./util/checkToken";
 
+// Initialize Firebase
 const app = firebase.initializeApp(config);
 
+// Initialize App Check
 const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaEnterpriseProvider(
-    "6LfrRcIpAAAAAL9YTE9wZwWLXpNPcaSWL1TWU3e-"
+    process.env.REACT_APP_RECAPTCHA_ENTERPRISE_PROVIDER
   ),
   isTokenAutoRefreshEnabled: true,
 });
 
-const getAppCheckToken = async () => {
-  let appCheckTokenResponse;
+// Function to set up Axios interceptors with App Check token
+const setupAxiosInterceptors = async () => {
   try {
-    appCheckTokenResponse = await getToken(appCheck, /* forceRefresh= */ false);
+    const appCheckTokenResponse = await getToken(appCheck, false);
+    axios.interceptors.request.use(
+      (config) => {
+        config.headers["X-Firebase-AppCheck"] = appCheckTokenResponse.token;
+        return config;
+      },
+      (error) => {
+        console.error("Axios request error:", error);
+        return Promise.reject(error);
+      }
+    );
   } catch (err) {
-    console.error(err);
-    return;
+    console.error("App Check token retrieval error:", err);
   }
-
-  axios.interceptors.request.use(
-    (config) => {
-      config.headers["X-Firebase-AppCheck"] = appCheckTokenResponse.token;
-      return config;
-    },
-    (error) => {
-      console.error(error);
-      return Promise.reject(error);
-    }
-  );
 };
 
-getAppCheckToken().then(() => {
+// Check and set up authentication
+const setupAuth = () => {
   const token = localStorage.FBIdToken;
-
   if (token) {
     const decodedToken = jwtDecode(token);
     if (decodedToken.exp * 1000 < Date.now()) {
       store.dispatch(logoutUser());
     } else {
-      store.dispatch({
-        type: SET_AUTHENTICATED,
-      });
+      store.dispatch({ type: SET_AUTHENTICATED });
       axios.defaults.headers.common["Authorization"] = token;
       store.dispatch(getSessionData());
     }
   }
-});
+};
 
-// Periodically check token validity every 5 minutes
+// Initialize App Check and setup authentication
+setupAxiosInterceptors().then(setupAuth);
+
+// Periodically check token validity
 setInterval(() => {
   checkToken();
 }, 5 * 60 * 1000);
@@ -82,7 +82,5 @@ root.render(
   </React.StrictMode>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+// Performance reporting
 reportWebVitals();
