@@ -337,13 +337,13 @@ app.post(
 );
 
 app.post(
-  "/orientation/subcontent-video/:campusID/:orientationPageID/:subcontentID",
+  "/orientation/subcontent-video/:campusID/:orientationPageID",
   [appCheckVerification, sudoAdminAuth],
   editOrientationSubcontentVideos
 );
 
 app.post(
-  "/orientation/subcontent-video-delete/:campusID/:orientationPageID/:subcontentID",
+  "/orientation/subcontent-video-delete/:campusID/:orientationPageID",
   [appCheckVerification, sudoAdminAuth],
   deleteOrientationSubcontentVideo
 );
