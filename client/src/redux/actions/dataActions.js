@@ -523,13 +523,13 @@ export const deleteOrientationOverviewVideo =
   };
 
 export const addOrientationSubcontentVideo =
-  (data, orientationPageID, subcontentID) => (dispatch) => {
+  (data, orientationPageID) => (dispatch) => {
     dispatch({ type: LOADING_DATA });
     const campusID = localStorage.getItem("AdminCampus");
 
     axios
       .post(
-        `/orientation/subcontent-video/${campusID}/${orientationPageID}/${subcontentID}`,
+        `/orientation/subcontent-video/${campusID}/${orientationPageID}`,
         data
       )
       .then((res) => {
@@ -538,7 +538,6 @@ export const addOrientationSubcontentVideo =
 
         const payload = {
           videos: [...res.data.videos],
-          subcontentID,
           orientationPageID,
         };
 
@@ -560,13 +559,13 @@ export const addOrientationSubcontentVideo =
   };
 
 export const deleteOrientationSubcontentVideo =
-  (data, orientationPageID, subcontentID) => (dispatch) => {
+  (data, orientationPageID) => (dispatch) => {
     dispatch({ type: LOADING_DATA });
     const campusID = localStorage.getItem("AdminCampus");
 
     axios
       .post(
-        `/orientation/subcontent-video-delete/${campusID}/${orientationPageID}/${subcontentID}`,
+        `/orientation/subcontent-video-delete/${campusID}/${orientationPageID}`,
         data
       )
       .then((res) => {
@@ -574,7 +573,6 @@ export const deleteOrientationSubcontentVideo =
         dispatch({ type: CLEAR_GENERAL_ERRORS });
         const payload = {
           videos: [...res.data.videos],
-          subcontentID,
           orientationPageID,
         };
 

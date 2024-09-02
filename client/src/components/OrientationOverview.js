@@ -180,7 +180,6 @@ export default function OrientationOverview() {
           controls={true}
           width="auto"
           height="320px"
-          playIcon
           url={deleteVideoID}
         />
         <Button
@@ -242,7 +241,7 @@ export default function OrientationOverview() {
         {state.videos &&
           state.videos.map((video) => {
             return (
-              <div className="flex flexrow">
+              <div key={video.videoID} className="flex flexrow">
                 <iframe src={video.url} width="auto" height="auto" />
                 <div className="fle-x flex-col ml-[0.5rem] space-y-[0.5rem]">
                   <button

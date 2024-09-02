@@ -310,10 +310,7 @@ export default function (state = initialState, action) {
       let page = temp.find(
         (page) => page.orientationPageID === action.payload.orientationPageID
       );
-      let subcontent = page.subcontent.find(
-        (content) => content.subcontentID === action.payload.subcontentID
-      );
-      subcontent.videos = [...action.payload.videos];
+      page.videos = [...action.payload.videos];
 
       return {
         ...state,
