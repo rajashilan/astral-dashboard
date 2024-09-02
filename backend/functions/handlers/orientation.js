@@ -197,7 +197,6 @@ exports.deleteOrientationOverviewVideo = (req, res) => {
 
 exports.editOrientationSubcontentVideos = (req, res) => {
   const orientationPageID = req.params.orientationPageID;
-  let subcontentID = req.params.subcontentID;
 
   let video = {
     filename: req.body.filename,
@@ -212,16 +211,13 @@ exports.editOrientationSubcontentVideos = (req, res) => {
   db.doc(`/orientationPages/${orientationPageID}`)
     .get()
     .then((doc) => {
-      let temp = doc.data().subcontent;
-      let subcontent = temp.find(
-        (content) => content.subcontentID === subcontentID
-      );
+      let temp = doc.data();
 
-      if (!subcontent.videos) {
-        subcontent.videos = [];
+      if (!temp.videos) {
+        temp.videos = [];
       }
 
-      videos = subcontent.videos;
+      videos = temp.videos;
 
       if (videos.length === 3)
         return res.status(400).json({ error: "Video cap reached" });
@@ -230,7 +226,7 @@ exports.editOrientationSubcontentVideos = (req, res) => {
 
       return db
         .doc(`/orientationPages/${orientationPageID}`)
-        .update({ subcontent: [...temp] });
+        .update({ videos: [...videos] });
     })
     .then(() => {
       return res.status(200).json({ videos });
@@ -243,30 +239,26 @@ exports.editOrientationSubcontentVideos = (req, res) => {
 
 exports.deleteOrientationSubcontentVideo = (req, res) => {
   const orientationPageID = req.params.orientationPageID;
-  let subcontentID = req.params.subcontentID;
   const videoID = req.body.videoID;
   let videos;
 
   db.doc(`/orientationPages/${orientationPageID}`)
     .get()
     .then((doc) => {
-      let temp = doc.data().subcontent;
-      let subcontent = temp.find(
-        (content) => content.subcontentID === subcontentID
-      );
+      let temp = doc.data();
 
-      if (!subcontent.videos) {
+      if (!temp.videos) {
         return res.status(404).json({ error: "No videos found" });
       }
 
-      videos = subcontent.videos;
+      videos = temp.videos;
 
       let index = videos.findIndex((video) => video.videoID === videoID);
       videos.splice(index, 1);
 
       return db
         .doc(`/orientationPages/${orientationPageID}`)
-        .update({ subcontent: [...temp] });
+        .update({ videos: [...videos] });
     })
     .then(() => {
       return res.status(200).json({ videos });

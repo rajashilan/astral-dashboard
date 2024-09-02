@@ -629,7 +629,6 @@ export default function OrientationPagePreview() {
           controls={true}
           width="auto"
           height="320px"
-          playIcon
           url={deleteVideoID}
         />
         <Button
@@ -653,13 +652,13 @@ export default function OrientationPagePreview() {
   //if 1 video, only show that video
   //if more than 1 video, show a a grid of 2
   let videos =
-    subcontentModalData.videos && subcontentModalData.videos.length > 0 ? (
+    pageModalData.videos && pageModalData.videos.length > 0 ? (
       <div className="flex flex-col items-center justify-center">
         <div className="grid grid-flow-row-dense grid-cols-1 gap-[2rem] mt-[2rem] ml-[1.5rem] items-center justify-center">
-          {subcontentModalData.videos &&
-            subcontentModalData.videos.map((video) => {
+          {pageModalData.videos &&
+            pageModalData.videos.map((video) => {
               return (
-                <div className="flex flex-row">
+                <div key={video.videoID} className="flex flex-row">
                   <iframe src={video.url} width="auto" height="auto" />
                   <div className="fle-x flex-col ml-[0.5rem] space-y-[0.5rem]">
                     <button
@@ -676,7 +675,7 @@ export default function OrientationPagePreview() {
             })}
           {/* only show video button if there is less than 3 videos */}
         </div>
-        {subcontentModalData.videos && subcontentModalData.videos.length < 3 ? (
+        {pageModalData.videos && pageModalData.videos.length < 3 ? (
           <>
             <Button
               onClick={handleAddVideoModal}
@@ -708,7 +707,7 @@ export default function OrientationPagePreview() {
 
   //show video disclaimer if more than 3 videos
   let videoCapText =
-    subcontentModalData.videos && subcontentModalData.videos.length === 3 ? (
+    pageModalData.videos && pageModalData.videos.length === 3 ? (
       <Label className="!text-[#C6CDE2] !text-center !mt-[2rem]">
         Max video cap reached. Please delete a video to add a new one.
       </Label>
@@ -749,6 +748,12 @@ export default function OrientationPagePreview() {
         <p className="text-[14px] text-[#C6CDE2] font-normal">
           {pageModalData.content}
         </p>
+        {/* videos here */}
+        {AddVideoModal}
+        {confirmDeleteVideoModal}
+        {videos}
+        {videoCapText}
+
         <hr className="border border-solid border-gray-500 border-[1px] w-full my-[2rem]" />
         <div className="flex flex-row items-center justify-center space-x-[2rem] mb-[1rem] -mt-[1rem]">
           <h1 className="text-[20px] font-bold text-[#DFE5F8] text-center]">
@@ -884,10 +889,6 @@ export default function OrientationPagePreview() {
             value={editSubcontentContent}
           />
         </div>
-        {AddVideoModal}
-        {confirmDeleteVideoModal}
-        {videos}
-        {videoCapText}
         {subcontentModalData.image && subcontentModalData.image.length > 0 ? (
           <>
             {subcontentModalData.image &&
