@@ -59,7 +59,7 @@ function App() {
         <Route exact path="/:campusID/:linkID/:admin" element={<Signup />} />
         <Route exact path="/" element={<Menu />} />
         <Route exact path="/home" element={<Home />} />
-        <Route exact path="/college" element={<College />} />
+        <Route exact path="/admin" element={<College />} />
         <Route exact path="/orientation" element={<Orientation />} />
         <Route exact path="/clubs" element={<Clubs />} />
       </Routes>

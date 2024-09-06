@@ -45,9 +45,9 @@ export default function Menu() {
       <p>loading...</p>
     ) : state.role[0] === "sudo" ? (
       <div className="flex flex-col text-center space-y-[0.5rem]">
-        <Link to="/college">
+        <Link to="/admin">
           <p className="text-[46px] font-normal text-[#C4FFF9] cursor-pointer">
-            college
+            admin
           </p>
         </Link>
         <Link to="/orientation">
@@ -64,9 +64,9 @@ export default function Menu() {
     ) : (
       <div className="flex flex-col text-center space-y-[0.5rem]">
         {state.role.includes("focused:college") && (
-          <Link to="/college">
+          <Link to="/admin">
             <p className="text-[46px] font-normal text-[#C4FFF9] cursor-pointer">
-              college
+              admin
             </p>
           </Link>
         )}

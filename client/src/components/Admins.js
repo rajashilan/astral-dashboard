@@ -22,7 +22,7 @@ export default function Admins() {
   const [generalErrors, setGeneralErrors] = useState("");
   const [showEditModal, setShowEditModal] = useState(false);
   const [editModalData, setEditModalData] = useState({});
-  const [roles, setRoles] = useState(["clubs", "orientation", "college"]);
+  const [roles, setRoles] = useState(["clubs", "orientation", "admin"]);
   const [checkedState, setCheckedState] = useState(new Array(3).fill(false));
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedRoles, setSelectedRoles] = useState([]);
@@ -95,10 +95,17 @@ export default function Admins() {
 
       //handle transforming chosen roles to the actual codes
       if (temp.length === 3) temp = ["sudo"];
-      else
+      else {
         temp.forEach((role, index) => {
-          if (role !== "sudo") temp[index] = `focused:${role.replace(" ", "")}`;
+          if (role !== "sudo") {
+            if (role === "admin") {
+              temp[index] = `focused:college`;
+            } else {
+              temp[index] = `focused:${role.replace(" ", "")}`;
+            }
+          }
         });
+      }
 
       let data = {
         role: [...temp],
@@ -327,8 +334,8 @@ export default function Admins() {
           <li>Clubs: Admin manages all club affairs.</li>
           <li>Orientation: Admin oversees campus orientation.</li>
           <li>
-            College: Admin handles college-related affairs (e.g., managing and
-            registering admins).
+            Admin: Admin handles admin-related affairs (e.g., managing and
+            registering admins, updating forms, etc).
           </li>
         </ul>
         <ErrorLabel className="!mt-[16px] !-mb-[10px]">

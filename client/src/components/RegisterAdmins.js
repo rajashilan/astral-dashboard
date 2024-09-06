@@ -19,7 +19,7 @@ export default function RegisterAdmins() {
   const [roles, setRoles] = useState([
     "clubs",
     "orientation",
-    "college",
+    "admin",
     "student government",
   ]);
   const [checkedState, setCheckedState] = useState(new Array(4).fill(false));
@@ -107,14 +107,20 @@ export default function RegisterAdmins() {
 
       //handle transforming chosen roles to the actual codes
       if (
-        ["clubs", "orientation", "college"].every((role) =>
+        ["clubs", "orientation", "admin"].every((role) =>
           selectedRoles.includes(role)
         )
       )
         temp = ["sudo"];
       else
         temp.forEach((role, index) => {
-          if (role !== "sudo") temp[index] = `focused:${role.replace(" ", "")}`;
+          if (role !== "sudo") {
+            if (role === "admin") {
+              temp[index] = `focused:college`;
+            } else {
+              temp[index] = `focused:${role.replace(" ", "")}`;
+            }
+          }
         });
 
       dispatch(createNewAdminLink(temp));
@@ -202,7 +208,7 @@ export default function RegisterAdmins() {
                   onChange={() => {
                     if (role === "student government" && sa !== "")
                       alert(
-                        "Campus already has a student goverment account. Deactivate that account to add a new one."
+                        "Campus already has a student government account. Deactivate that account to add a new one."
                       );
                     else handleOnChange(index);
                   }}
@@ -227,8 +233,8 @@ export default function RegisterAdmins() {
         <li>Clubs: Admin manages all club affairs.</li>
         <li>Orientation: Admin oversees campus orientation.</li>
         <li>
-          College: Admin handles college-related affairs (e.g., managing and
-          registering admins).
+          Admin: Admin handles admin-related affairs (e.g., managing and
+          registering admins, updating forms, etc).
         </li>
       </ul>
 

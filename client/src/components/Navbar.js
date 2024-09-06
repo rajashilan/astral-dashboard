@@ -22,13 +22,13 @@ function Navbar() {
     <p>loading...</p>
   ) : state.role && state.role[0] === "sudo" ? (
     <div className="flex flex-row space-x-[2.875rem]">
-      <Link to="/college">
+      <Link to="/admin">
         <p
           className={
-            window.location.pathname === "/college" ? navActive : navInactive
+            window.location.pathname === "/admin" ? navActive : navInactive
           }
         >
-          college
+          admin
         </p>
       </Link>
       <Link to="/orientation">
@@ -61,13 +61,13 @@ function Navbar() {
   ) : (
     <div className="flex flex-row space-x-[2.875rem]">
       {state.role && state.role.includes("focused:college") && (
-        <Link to="/college">
+        <Link to="/admin">
           <p
             className={
-              window.location.pathname === "/college" ? navActive : navInactive
+              window.location.pathname === "/admin" ? navActive : navInactive
             }
           >
-            college
+            admin
           </p>
         </Link>
       )}
