@@ -159,7 +159,7 @@ app.get(
 
 //get all departments for a college
 app.get(
-  "/departments/:campusID",
+  "/admin/departments/:campusID",
   [appCheckVerification, sudoAdminAuth],
   getDepartmentsForCampus
 );
@@ -211,14 +211,14 @@ app.get(
 
 //edit a campus' department
 app.post(
-  "/department/edit/:campusID",
+  "/admin/department/edit/:campusID",
   [appCheckVerification, sudoAdminAuth],
   editCampusDepartment
 );
 
 //edit a campus' intake
 app.post(
-  "department/edit-intake/:campusID",
+  "/admin/department/edit-intake/:campusID",
   [appCheckVerification, sudoAdminAuth],
   editCampusIntake
 );

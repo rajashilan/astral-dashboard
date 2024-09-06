@@ -68,7 +68,7 @@ export const getDepartmentsForCampus = () => (dispatch) => {
 
   const campusID = localStorage.getItem("AdminCampus");
   axios
-    .get(`/departments/${campusID}`)
+    .get(`/admin/departments/${campusID}`)
     .then((res) => {
       dispatch({ type: SET_DEPARTMENTS, payload: res.data });
       dispatch({ type: STOP_LOADING_DATA });
