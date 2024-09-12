@@ -10,7 +10,6 @@ import {
   getDepartmentsForCampus,
   createNewAdminLink,
 } from "../redux/actions/dataActions";
-import { CLEAR_NEW_ADMIN_LINK } from "../redux/types";
 
 export default function RegisterAdmins() {
   const dispatch = useDispatch();

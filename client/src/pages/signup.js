@@ -14,6 +14,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { CLEAR_GENERAL_ERRORS, SET_GENERAL_ERRORS } from "../redux/types";
+import { setupAuth, setupAxiosInterceptors } from "..";
 
 const formSchema = z.object({
   email: z
@@ -67,7 +68,7 @@ export default function Signup() {
   }, [generalErrors]);
 
   useEffect(() => {
-    if (state.authenticated) navigate("/");
+    if (state.authenticated) navigate("/menu");
     //check if link and campus ID are valid
 
     //check if its added admin
@@ -88,24 +89,32 @@ export default function Signup() {
     if (requestLink) {
       setGeneralErrors("");
       setLoading(true);
-      axios
-        .post(requestLink)
-        .then((res) => {
-          setLoading(false);
-          const valid = res.data.valid;
-          if (valid === true) {
-            setDisable(false);
-          } else {
-            setGeneralErrors("Invalid link");
-          }
-        })
-        .catch((error) => {
-          console.log(error.response.status);
-          if (error.response.status === 404) setGeneralErrors("Invalid link");
-          else setGeneralErrors(error.response.data.error);
-          console.error(error);
-          setLoading(false);
-        });
+
+      const verifyLink = async () => {
+        await setupAxiosInterceptors();
+        setupAuth();
+
+        axios
+          .post(requestLink)
+          .then((res) => {
+            setLoading(false);
+            const valid = res.data.valid;
+            if (valid === true) {
+              setDisable(false);
+            } else {
+              setGeneralErrors("Invalid link");
+            }
+          })
+          .catch((error) => {
+            console.log(error.response.status);
+            if (error.response.status === 404) setGeneralErrors("Invalid link");
+            else setGeneralErrors(error.response.data.error);
+            console.error(error);
+            setLoading(false);
+          });
+      };
+
+      verifyLink();
     }
   }, []);
 
@@ -135,7 +144,7 @@ export default function Signup() {
           console.log(res.data);
           setLoading(false);
           setDisable(false);
-          navigate("/login", {
+          navigate("/", {
             state: {
               signedUp: true,
             },
@@ -193,7 +202,7 @@ export default function Signup() {
           loading={loading}
         />
         {!loading && (
-          <Link to="/login">
+          <Link to="/">
             <LabelButton text="login instead" className="!mt-[60px]" />
           </Link>
         )}

@@ -42,7 +42,7 @@ export default function Login() {
   const loading = useSelector((state) => state.UI.loading);
 
   useEffect(() => {
-    if (state.authenticated) navigate("/");
+    if (state.authenticated) navigate("/menu");
   }, []);
 
   const onFormSubmit = (data) => {

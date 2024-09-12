@@ -22,7 +22,7 @@ export const loginAdmin = (adminData, navigate) => (dispatch) => {
       dispatch({ type: STOP_LOADING_UI });
       dispatch({ type: CLEAR_GENERAL_ERRORS });
       dispatch(getSessionData());
-      navigate("/");
+      navigate("/menu");
     })
     .catch((error) => {
       dispatch({
@@ -62,5 +62,5 @@ export const logoutUser = () => (dispatch) => {
   dispatch({
     type: SET_UNAUTHENTICATED,
   });
-  window.location.replace("/login");
+  window.location.replace("/");
 };

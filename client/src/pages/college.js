@@ -23,7 +23,7 @@ export default function College() {
   useEffect(() => {
     if (role) {
       if (!(role.includes("focused:college") || role.includes("sudo")))
-        navigate("/");
+        navigate("/menu");
     }
   }, [role]);
 

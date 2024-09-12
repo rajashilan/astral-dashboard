@@ -55,9 +55,9 @@ function App() {
       <Navbar />
       <ToastContainer />
       <Routes>
-        <Route exact path="/login" element={<Login />} />
+        <Route exact path="/" element={<Login />} />
         <Route exact path="/:campusID/:linkID/:admin" element={<Signup />} />
-        <Route exact path="/" element={<Menu />} />
+        <Route exact path="/menu" element={<Menu />} />
         <Route exact path="/home" element={<Home />} />
         <Route exact path="/admin" element={<College />} />
         <Route exact path="/orientation" element={<Orientation />} />

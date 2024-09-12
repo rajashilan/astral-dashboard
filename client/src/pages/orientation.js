@@ -52,7 +52,7 @@ export default function Orientation() {
   useEffect(() => {
     if (role) {
       if (!(role.includes("focused:orientation") || role.includes("sudo")))
-        navigate("/");
+        navigate("/menu");
     }
   }, [role]);
 

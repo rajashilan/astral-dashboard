@@ -32,26 +32,31 @@ const appCheck = initializeAppCheck(app, {
 });
 
 // Function to set up Axios interceptors with App Check token
-const setupAxiosInterceptors = async () => {
-  try {
-    const appCheckTokenResponse = await getToken(appCheck, false);
-    axios.interceptors.request.use(
-      (config) => {
-        config.headers["X-Firebase-AppCheck"] = appCheckTokenResponse.token;
-        return config;
-      },
-      (error) => {
-        console.error("Axios request error:", error);
-        return Promise.reject(error);
-      }
-    );
-  } catch (err) {
-    console.error("App Check token retrieval error:", err);
+let interceptorsSetUp = false;
+
+export const setupAxiosInterceptors = async () => {
+  if (!interceptorsSetUp) {
+    try {
+      const appCheckTokenResponse = await getToken(appCheck, false);
+      axios.interceptors.request.use(
+        (config) => {
+          config.headers["X-Firebase-AppCheck"] = appCheckTokenResponse.token;
+          return config;
+        },
+        (error) => {
+          console.error("Axios request error:", error);
+          return Promise.reject(error);
+        }
+      );
+      interceptorsSetUp = true;
+    } catch (err) {
+      console.error("App Check token retrieval error:", err);
+    }
   }
 };
 
 // Check and set up authentication
-const setupAuth = () => {
+export const setupAuth = () => {
   const token = localStorage.FBIdToken;
   if (token) {
     const decodedToken = jwtDecode(token);
@@ -66,11 +71,24 @@ const setupAuth = () => {
 };
 
 // Initialize App Check and setup authentication
-setupAxiosInterceptors().then(setupAuth);
+const initializeApp = async () => {
+  await setupAxiosInterceptors();
+  setupAuth();
+};
+
+initializeApp();
 
 // Periodically check token validity
+//if no token -> assume user is at login or signup, since other pages handles this anyways
 setInterval(() => {
-  checkToken();
+  const token = localStorage.FBIdToken;
+  if (token) {
+    const decodedToken = jwtDecode(token);
+    if (decodedToken.exp * 1000 < Date.now()) {
+      alert("you will be redirected to login");
+      store.dispatch(logoutUser());
+    }
+  }
 }, 5 * 60 * 1000);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

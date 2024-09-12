@@ -106,7 +106,7 @@ function Navbar() {
 
   return (
     <div className={hiddenClass}>
-      <Link to="/">
+      <Link to="/menu">
         <img
           src={logo}
           alt="astral"

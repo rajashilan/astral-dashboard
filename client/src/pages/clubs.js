@@ -42,7 +42,7 @@ export default function Clubs() {
           role.includes("sudo")
         )
       )
-        navigate("/");
+        navigate("/menu");
       if (role[0] === "focused:studentgovernment") dispatch(getSaClubs());
       else dispatch(getClubs(role, sa));
     }
