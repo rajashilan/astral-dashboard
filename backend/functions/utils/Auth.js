@@ -146,9 +146,11 @@ exports.verifyAdminForSessionData = (req, res, next) => {
 };
 
 exports.appCheckVerification = (req, res, next) => {
-  const appCheckToken = req.header("x-firebase-appcheck");
+  const appCheckToken = req.header("X-Firebase-AppCheck");
 
   if (!appCheckToken) {
+    console.log("no appchecktoken req.originalUrl: ", req.originalUrl);
+    console.log("no appchecktoken req.url: ", req.url);
     return res.status(401).json({ error: "Unauthorized" });
   }
 
@@ -159,9 +161,17 @@ exports.appCheckVerification = (req, res, next) => {
         if (decodedToken) return next();
       })
       .catch((err) => {
+        console.log(
+          "appchecktoken verification error req.originalUrl: ",
+          req.originalUrl,
+          err
+        );
+        console.log("appchecktoken verification error req.url: ", req.url, err);
         return res.status(401).json({ error: "Unauthorized" });
       });
   } catch (err) {
+    console.log("appchecktoken error req.originalUrl: ", req.originalUrl, err);
+    console.log("appchecktoken error req.url: ", req.url, err);
     return res.status(401).json({ error: "Unauthorized" });
   }
 };

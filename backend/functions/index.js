@@ -144,16 +144,15 @@ app.post("/college/logo/:collegeID", verifyClaw, uploadCollegeLogo);
 //college routes ==============================================================
 
 //get all colleges
-app.get("/colleges", appCheckVerification, getAllColleges);
+app.get("/colleges", [appCheckVerification], getAllColleges);
 
 //get all campuses for a college
-app.post("/campuses", appCheckVerification, getCampuses);
+app.post("/campuses", [appCheckVerification], getCampuses);
 
 //get all admins for a college
 app.get(
   "/admins/:campusID",
-  appCheckVerification,
-  sudoAdminAuth,
+  [appCheckVerification, sudoAdminAuth],
   getAdminsForCampus
 );
 
@@ -167,28 +166,28 @@ app.get(
 //get validity of first time signup link
 app.post(
   "/validate-link/:campusID/:linkID",
-  appCheckVerification,
+  [appCheckVerification],
   firstTimeSignUpLinkValidity
 );
 
 //get validity of admin add link
 app.post(
   "/validate-add-admin-link/:campusID/:linkID",
-  appCheckVerification,
+  [appCheckVerification],
   addedAdminSignUpLinkValidity
 );
 
 //admin first time login
 app.post(
   "/admin-signup/:campusID/:linkID",
-  appCheckVerification,
+  [appCheckVerification],
   adminFirstTimeSignUp
 );
 
 //added admin signup
 app.post(
   "/add-admin-signup/:campusID/:linkID",
-  appCheckVerification,
+  [appCheckVerification],
   addedAdminSignUp
 );
 
@@ -519,10 +518,6 @@ app.post(
   [appCheckVerification, NormalAuth],
   createNotification
 );
-app.post(
-  "/notification/email/:campusID",
-  [appCheckVerification, NormalAuth],
-  sendEmailNotification
-);
+app.post("/notification/email/:campusID", [NormalAuth], sendEmailNotification);
 
 exports.api = functions.region("asia-southeast1").https.onRequest(app);
