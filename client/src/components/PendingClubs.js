@@ -57,31 +57,33 @@ export default function PendingClubs() {
   const handleApprove = (club) => {
     dispatch(approveClub(club, role));
 
-    let notification = {
-      preText: "",
-      postText: "",
-      sourceID: "",
-      sourceName: "",
-      sourceImage: "",
-      sourceDestination: "",
-      defaultText: "",
-      read: false,
-      userID: "",
-      createdAt: new Date().toISOString(),
-      notificationID: "",
-    };
+    if (role[0] !== "focused:studentgovernment") {
+      let notification = {
+        preText: "",
+        postText: "",
+        sourceID: "",
+        sourceName: "",
+        sourceImage: "",
+        sourceDestination: "",
+        defaultText: "",
+        read: false,
+        userID: "",
+        createdAt: new Date().toISOString(),
+        notificationID: "",
+      };
 
-    notification.sourceName = club.name;
-    notification.sourceID = club.clubID;
-    notification.sourceImage = club.image;
-    notification.sourceDestination = "Clubs";
-    notification.userID = club.roles["president"].userID;
-    notification.preText = "Club request for";
-    notification.postText =
-      "approved. Add details and activate for others to join.";
+      notification.sourceName = club.name;
+      notification.sourceID = club.clubID;
+      notification.sourceImage = club.image;
+      notification.sourceDestination = "Clubs";
+      notification.userID = club.roles["president"].userID;
+      notification.preText = "Club request for";
+      notification.postText =
+        "approved. Add details and activate for others to join.";
 
-    let userIDs = [club.roles["president"].userID];
-    dispatch(createNotification(notification, userIDs));
+      let userIDs = [club.roles["president"].userID];
+      dispatch(createNotification(notification, userIDs));
+    }
   };
 
   const handleShowRejectionModal = (data) => {
