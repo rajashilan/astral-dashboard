@@ -99,7 +99,11 @@ exports.approveClub = (req, res) => {
       if (role[0] === "focused:studentgovernment")
         return db
           .doc(`/clubs/${clubID}`)
-          .update({ saApproval: "approved", reviewLevel: "admin" });
+          .update({
+            saApproval: "approved",
+            reviewLevel: "admin",
+            approvalText: "pending approval from Admin",
+          });
       else
         return db
           .doc(`/clubs/${clubID}`)
@@ -114,6 +118,7 @@ exports.approveClub = (req, res) => {
       if (role[0] === "focused:studentgovernment") {
         temp[index].saApproval = "approved";
         temp[index].reviewLevel = "admin";
+        temp[index].approvalText = "pending approval from Admin";
       } else {
         temp[index].approval = "approved";
         temp[index].rejectionReason = "";
