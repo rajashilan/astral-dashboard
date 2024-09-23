@@ -513,11 +513,7 @@ app.post(
   deleteGeneralForm
 );
 
-app.post(
-  "/notification/:campusID",
-  [appCheckVerification, NormalAuth],
-  createNotification
-);
+app.post("/notification/:campusID", [NormalAuth], createNotification);
 app.post("/notification/email/:campusID", [NormalAuth], sendEmailNotification);
 
 exports.api = functions.region("asia-southeast1").https.onRequest(app);
