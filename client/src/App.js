@@ -62,6 +62,7 @@ function App() {
         <Route exact path="/admin" element={<College />} />
         <Route exact path="/orientation" element={<Orientation />} />
         <Route exact path="/clubs" element={<Clubs />} />
+        <Route path="*" element={<Login />} /> {/* Catch-all route */}
       </Routes>
     </Router>
   );
