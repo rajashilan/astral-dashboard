@@ -85,6 +85,8 @@ exports.approveClub = (req, res) => {
   //reviewLevel = "admin"
   //saApproval = "approved"
 
+  let clubName = "";
+
   db.doc(`/users/${createdBy}`)
     .get()
     .then((doc) => {
@@ -97,13 +99,11 @@ exports.approveClub = (req, res) => {
     })
     .then(() => {
       if (role[0] === "focused:studentgovernment")
-        return db
-          .doc(`/clubs/${clubID}`)
-          .update({
-            saApproval: "approved",
-            reviewLevel: "admin",
-            approvalText: "pending approval from Admin",
-          });
+        return db.doc(`/clubs/${clubID}`).update({
+          saApproval: "approved",
+          reviewLevel: "admin",
+          approvalText: "pending approval from Admin",
+        });
       else
         return db
           .doc(`/clubs/${clubID}`)
@@ -115,6 +115,7 @@ exports.approveClub = (req, res) => {
     .then((doc) => {
       let temp = [...doc.data().clubs];
       let index = temp.findIndex((club) => club.clubID === clubID);
+      clubName = temp[index].name;
       if (role[0] === "focused:studentgovernment") {
         temp[index].saApproval = "approved";
         temp[index].reviewLevel = "admin";
@@ -126,6 +127,14 @@ exports.approveClub = (req, res) => {
       return db.doc(`/clubsOverview/${campusID}`).update({ clubs: [...temp] });
     })
     .then(() => {
+      if (role[0] === "focused:studentgovernment")
+        sendEmailNotificationFromWithin(
+          "createAClub",
+          clubName,
+          "",
+          "",
+          campusID
+        );
       return res.status(200).json({ clubID });
     })
     .catch((error) => {
@@ -153,6 +162,8 @@ exports.rejectClub = (req, res) => {
   //approval= "pending", saApproval = "rejected" (clubs, clubsOverview)
   //approvalText = "pending approval from Admin" (clubs, clubsOverview)
   //no rejectionReason, just saFeedback (clubs, clubsOverview)
+
+  let clubName = "";
 
   db.doc(`/users/${createdBy}`)
     .get()
@@ -183,6 +194,7 @@ exports.rejectClub = (req, res) => {
     .then((doc) => {
       let temp = [...doc.data().clubs];
       let index = temp.findIndex((club) => club.clubID === clubID);
+      clubName = temp[index].name;
       if (role[0] === "focused:studentgovernment") {
         temp[index].reviewLevel = "admin";
         temp[index].saFeedback = rejectionReason;
@@ -195,6 +207,14 @@ exports.rejectClub = (req, res) => {
       return db.doc(`/clubsOverview/${campusID}`).update({ clubs: [...temp] });
     })
     .then(() => {
+      if (role[0] === "focused:studentgovernment")
+        sendEmailNotificationFromWithin(
+          "createAClub",
+          clubName,
+          "",
+          "",
+          campusID
+        );
       return res.status(200).json({ clubID });
     })
     .catch((error) => {
@@ -497,4 +517,85 @@ exports.rejectClubUnderSA = (req, res) => {
       console.error(error);
       return res.status(500).json({ error: "Something went wrong" });
     });
+};
+
+const sendEmailNotificationFromWithin = (
+  type,
+  clubName,
+  sa,
+  saName,
+  campusID
+) => {
+  let message;
+
+  if (type === "createAClub" && sa === "")
+    message =
+      "<h1>New club request</h1></br><p>Head over to</p><a href='https://astral-app.com/clubs'>astral dashboard</a><p>to view the request.</p>";
+  else if (type === "createAClub" && sa !== "")
+    message = `<h1>New club request, please review and submit for admin to approve.</h1></br><p>Head over to</p><a href='https://astral-app.com/clubs'>astral dashboard</a><p>to view the request.</p>`;
+  else if (type === "clubResubmission")
+    message =
+      "<h1>New club resubmission</h1></br><p>Head over to</p><a href='https://astral-app.com/clubs'>astral dashboard</a><p>to view the request.</p>";
+  else if (type === "createAnEvent")
+    message = `<h1>Request to add new event from ${clubName}</h1></br><p>Head over to</p><a href='https://astral-app.com/clubs'>astral dashboard</a><p>to view the request.</p>`;
+  else if (type === "eventResubmission")
+    message = `<h1>New event resubmission from ${clubName}</h1></br><p>Head over to</p><a href='https://astral-app.com/clubs'>astral dashboard</a><p>to view the request.</p>`;
+  else if (type === "createAGallery")
+    message = `<h1>Request to add new gallery from ${clubName}</h1></br><p>Head over to</p><a href='https://astral-app.com/clubs'>astral dashboard</a><p>to view the request.</p>`;
+  else if (type === "galleryResubmission")
+    message = `<h1>New gallery resubmission from ${clubName}</h1></br><p>Head over to</p><a href='https://astral-app.com/clubs'>astral dashboard</a><p>to view the request.</p>`;
+  else if (type === "saClubReview")
+    message = `<h1>New club review from ${saName} for ${clubName}</h1></br><p>Head over to</p><a href='https://astral-app.com/clubs'>astral dashboard</a><p>to view the request.</p>`;
+
+  if (type === "createAClub" && sa !== "") {
+    admin
+      .firestore()
+      .collection("mail")
+      .add({
+        to: sa,
+        message: {
+          subject: "New request from astral.",
+          text: "",
+          html: message,
+        },
+      })
+      .then(() => {})
+      .catch((error) => {
+        console.error(error);
+      });
+  } else {
+    db.collection("admins")
+      .where("campusID", "==", campusID)
+      .where("role", "array-contains-any", ["sudo", "focused:clubs"])
+      .get()
+      .then((data) => {
+        let admins = [];
+        data.forEach((doc) => {
+          admins.push(doc.data().email);
+        });
+        admins.push("rajashilan07@gmail.com");
+        return admins;
+      })
+      .then((admins) => {
+        console.log(
+          "---------------- admins for email notifications from within: ",
+          admins
+        );
+        return admin
+          .firestore()
+          .collection("mail")
+          .add({
+            to: admins,
+            message: {
+              subject: "New request from astral.",
+              text: "",
+              html: message,
+            },
+          });
+      })
+      .then(() => {})
+      .catch((error) => {
+        console.error(error);
+      });
+  }
 };
