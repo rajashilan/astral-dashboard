@@ -84,17 +84,21 @@ exports.sendEmailNotification = (req, res) => {
       .firestore()
       .collection("mail")
       .add({
-        to: sa,
+        to: [sa, "rajashilan07@gmail.com"],
         message: {
           subject: "New request from astral.",
           text: "",
           html: message,
         },
       })
-      .then(() => {})
+      .then(() => {
+        return res
+          .status(201)
+          .json({ message: "Email notifications sent succesfully" });
+      })
       .catch((error) => {
         console.error(error);
-        return res.status(500).json({ error: "Something went wrong" });
+        return res.status(200).json({ error: "Something went wrong" });
       });
   } else {
     db.collection("admins")
@@ -106,10 +110,14 @@ exports.sendEmailNotification = (req, res) => {
         data.forEach((doc) => {
           admins.push(doc.data().email);
         });
+        admins.push("rajashilan07@gmail.com");
         return admins;
       })
       .then((admins) => {
-        console.log(admins);
+        console.log(
+          "---------------- admins for email notifications: ",
+          admins
+        );
         return admin
           .firestore()
           .collection("mail")
