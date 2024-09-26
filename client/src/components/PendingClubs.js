@@ -103,30 +103,32 @@ export default function PendingClubs() {
     let rejectionReason = data["rejectionReason"];
     dispatch(rejectClub(rejectionModalData, rejectionReason, role));
 
-    let notification = {
-      preText: "",
-      postText: "",
-      sourceID: "",
-      sourceName: "",
-      sourceImage: "",
-      sourceDestination: "",
-      defaultText: "",
-      read: false,
-      userID: "",
-      createdAt: new Date().toISOString(),
-      notificationID: "",
-    };
+    if (role[0] !== "focused:studentgovernment") {
+      let notification = {
+        preText: "",
+        postText: "",
+        sourceID: "",
+        sourceName: "",
+        sourceImage: "",
+        sourceDestination: "",
+        defaultText: "",
+        read: false,
+        userID: "",
+        createdAt: new Date().toISOString(),
+        notificationID: "",
+      };
 
-    notification.sourceName = rejectionModalData.name;
-    notification.sourceID = rejectionModalData.clubID;
-    notification.sourceImage = rejectionModalData.image;
-    notification.sourceDestination = "Clubs";
-    notification.userID = rejectionModalData.roles["president"].userID;
-    notification.preText = "Club request for";
-    notification.postText = "rejected. Visit club's page for details.";
+      notification.sourceName = rejectionModalData.name;
+      notification.sourceID = rejectionModalData.clubID;
+      notification.sourceImage = rejectionModalData.image;
+      notification.sourceDestination = "Clubs";
+      notification.userID = rejectionModalData.roles["president"].userID;
+      notification.preText = "Club request for";
+      notification.postText = "rejected. Visit club's page for details.";
 
-    let userIDs = [rejectionModalData.roles["president"].userID];
-    dispatch(createNotification(notification, userIDs));
+      let userIDs = [rejectionModalData.roles["president"].userID];
+      dispatch(createNotification(notification, userIDs));
+    }
     handleShowRejectionModal();
   };
 
