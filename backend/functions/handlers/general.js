@@ -62,23 +62,24 @@ exports.sendEmailNotification = (req, res) => {
 
   if (type === "createAClub" && sa === "")
     message =
-      "<h1>New club request</h1></br><p>Head over to</p><a href='https://astral-app.com/clubs'>astral dashboard</a><p>to view the request.</p>";
+      "<h1>New club request</h1></br><h4>Head over to</h4><a href='https://astral-app.com/clubs'>astral dashboard</a><h4>to view the request.</h4>";
   else if (type === "createAClub" && sa !== "")
-    message = `<h1>New club request, please review and submit for admin to approve.</h1></br><p>Head over to</p><a href='https://astral-app.com/clubs'>astral dashboard</a><p>to view the request.</p>`;
+    message = `<h1>New club request, please review and submit for admin to approve.</h1></br><h4>Head over to</h4><a href='https://astral-app.com/clubs'>astral dashboard</a><h4>to view the request.</h4>`;
   else if (type === "clubResubmission")
     message =
-      "<h1>New club resubmission</h1></br><p>Head over to</p><a href='https://astral-app.com/clubs'>astral dashboard</a><p>to view the request.</p>";
+      "<h1>New club resubmission</h1></br><h4>Head over to</h4><a href='https://astral-app.com/clubs'>astral dashboard</a><h4>to view the request.</h4>";
   else if (type === "createAnEvent")
-    message = `<h1>Request to add new event from ${clubName}</h1></br><p>Head over to</p><a href='https://astral-app.com/clubs'>astral dashboard</a><p>to view the request.</p>`;
+    message = `<h1>Request to add new event from ${clubName}</h1></br><h4>Head over to</h4><a href='https://astral-app.com/clubs'>astral dashboard</a><h4>to view the request.</h4>`;
   else if (type === "eventResubmission")
-    message = `<h1>New event resubmission from ${clubName}</h1></br><p>Head over to</p><a href='https://astral-app.com/clubs'>astral dashboard</a><p>to view the request.</p>`;
+    message = `<h1>New event resubmission from ${clubName}</h1></br><h4>Head over to</h4><a href='https://astral-app.com/clubs'>astral dashboard</a><h4>to view the request.</h4>`;
   else if (type === "createAGallery")
-    message = `<h1>Request to add new gallery from ${clubName}</h1></br><p>Head over to</p><a href='https://astral-app.com/clubs'>astral dashboard</a><p>to view the request.</p>`;
+    message = `<h1>Request to add new gallery from ${clubName}</h1></br><h4>Head over to</h4><a href='https://astral-app.com/clubs'>astral dashboard</a><h4>to view the request.</h4>`;
   else if (type === "galleryResubmission")
-    message = `<h1>New gallery resubmission from ${clubName}</h1></br><p>Head over to</p><a href='https://astral-app.com/clubs'>astral dashboard</a><p>to view the request.</p>`;
+    message = `<h1>New gallery resubmission from ${clubName}</h1></br><h4>Head over to</h4><a href='https://astral-app.com/clubs'>astral dashboard</a><h4>to view the request.</h4>`;
   else if (type === "saClubReview")
-    message = `<h1>New club review from ${saName} for ${clubName}</h1></br><p>Head over to</p><a href='https://astral-app.com/clubs'>astral dashboard</a><p>to view the request.</p>`;
-
+    message = `<h1>New club review from ${saName} for ${clubName}</h1></br><h4>Head over to</h4><a href='https://astral-app.com/clubs'>astral dashboard</a><h4>to view the request.</h4>`;
+  else if (type === "clubRenewal")
+    message = `<h1>New renewal form resubmission from ${clubName}</h1></br><h4>Head over to</h4><a href='https://astral-app.com/clubs'>astral dashboard</a><h4>to view the request.</h4>`;
   if (type === "createAClub" && sa !== "") {
     admin
       .firestore()

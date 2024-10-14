@@ -1,6 +1,5 @@
 import React from "react";
 import clsx from "clsx";
-import { render } from "react-dom";
 
 import { Spinner } from "react-activity";
 import "react-activity/dist/library.css";

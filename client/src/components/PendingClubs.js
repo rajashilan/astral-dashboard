@@ -259,7 +259,11 @@ export default function PendingClubs() {
                 scope="row"
                 className="px-6 py-4 font-normal text-[#85A1FF] break-all"
               >
-                <a href={club.clubCreationDocs[0]} target="_blank" className="">
+                <a
+                  href={club.clubCreationDocs[club.clubCreationDocs.length - 1]}
+                  target="_blank"
+                  className=""
+                >
                   Download form
                 </a>
               </th>

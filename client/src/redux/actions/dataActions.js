@@ -39,6 +39,7 @@ import {
   DEACTIVATE_SA,
   SET_APPROVED_CLUBS,
   UPDATE_ORIENTATION_SUBCONTENT_VIDEO,
+  UPDATE_CLUB_MEMBERS,
 } from "../types";
 import axios from "axios";
 
@@ -1172,23 +1173,28 @@ export const getAClub = (clubID) => (dispatch) => {
     });
 };
 
-export const changeClubPresident = (data) => (dispatch) => {
+export const updateClubRole = (data) => (dispatch) => {
   dispatch({ type: LOADING_DATA });
   const campusID = localStorage.getItem("AdminCampus");
 
   axios
-    .post(`/clubs/president/${campusID}`, data)
+    .post(`/clubs/role/update/${campusID}`, data)
     .then((res) => {
       dispatch({ type: STOP_LOADING_DATA });
-      alert("Club President has been changed");
+      const payload = {
+        ...data,
+        ...res.data,
+      };
+      dispatch({ type: UPDATE_CLUB_MEMBERS, payload });
+      alert("Club role updated successfully");
     })
     .catch((error) => {
+      console.error(error);
       dispatch({ type: STOP_LOADING_DATA });
       dispatch({
         type: SET_GENERAL_ERRORS,
         payload: error.response.data.error,
       });
-      console.error(error);
     });
 };
 

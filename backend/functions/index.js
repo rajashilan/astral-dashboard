@@ -90,7 +90,7 @@ const {
   rejectClub,
   suspendClub,
   removeSuspension,
-  changePresident,
+  updateClubRole,
   getClubMembers,
   getPendingClubsForSA,
   getPendingClubsForAdmin,
@@ -442,9 +442,9 @@ app.post(
 );
 
 app.post(
-  "/clubs/president/:campusID",
+  "/clubs/role/update/:campusID",
   [appCheckVerification, sudoAdminAuth],
-  changePresident
+  updateClubRole
 );
 
 app.post(

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
 
@@ -10,7 +10,7 @@ import WarningLabel from "./WarningLabel";
 import ErrorLabel from "./ErrorLabel";
 import TextInput from "../components/TextInput";
 import {
-  changeClubPresident,
+  updateClubRole,
   getApprovedClubs,
   getClubMembers,
   suspendClub,
@@ -29,15 +29,35 @@ export default function ApprovedClubs() {
   const approvedClubs = useSelector((state) => state.data.approvedClubs);
   const loading = useSelector((state) => state.data.loading);
 
+  const memberSelectorRef = useRef(null);
+
   const [generalErrors, setGeneralErrors] = useState("");
   const [showSuspensionModal, setShowSuspensionModal] = useState(false);
   const [suspensionModalData, setSuspensionModalData] = useState({});
   const [showManageModal, setShowManageModal] = useState(false);
-  const [manageModalData, setShowManageModalData] = useState({});
+  const [manageModalData, setManageModalData] = useState({});
   const [manageModalLoading, setManageModalLoading] = useState(false);
+
   const [currentPresident, setCurrentPresident] = useState({});
   const [newPresident, setNewPresident] = useState({});
+
+  const [currentClubRoles, setCurrentClubRoles] = useState([]);
+  const [currentClubOriginalMembers, setCurrentClubOriginalMembers] = useState(
+    []
+  );
+  const [newMemberForRole, setNewMemberForRole] = useState("");
+  const [updateRoleModalData, setUpdateRoleModalData] = useState({});
+  const [showUpdateRoleModal, setShowUpdateRoleModal] = useState(false);
+
   const [numOfDays, setNumOfDays] = useState(0);
+
+  const stringSpaceRegex = /\s+/g;
+
+  function isEmpty(obj) {
+    return Object.keys(obj).length === 0;
+  }
+
+  //need to get all the list of roles
 
   useEffect(() => {
     dispatch({ type: CLEAR_CLUB_MEMBERS });
@@ -46,19 +66,64 @@ export default function ApprovedClubs() {
 
   //handle setting loading to false after getting club members
   useEffect(() => {
-    if (clubMembers.length > 0) {
+    if (clubMembers.length > 0 && !isEmpty(manageModalData)) {
       setManageModalLoading(false);
-      //set the president
-      let index = clubMembers.findIndex(
-        (member) => member.role === "president"
-      );
-      setCurrentPresident({
-        userID: clubMembers[index].userID,
-        memberID: clubMembers[index].memberID,
-        name: clubMembers[index].name,
+
+      //set the other roles, if the role isn't member
+      let tempCurrentClubRoles = [];
+      let tempCurrentClubOriginalMembers = {};
+
+      Object.values(manageModalData.roles).forEach((role) => {
+        if (role.name !== "member") {
+          //access to role name, and the userID who has that role
+          //if it is not assigned, set userID, memberID, and name as null
+
+          if (role.name === "president") {
+            //set the president
+            let index = clubMembers.findIndex(
+              (member) => member.role === "president"
+            );
+            setCurrentPresident({
+              userID: clubMembers[index].userID,
+              memberID: clubMembers[index].memberID,
+              name: clubMembers[index].name,
+              role: role.name,
+            });
+          } else {
+            tempCurrentClubRoles.push(role.name);
+            if (role.userID === "") {
+              tempCurrentClubOriginalMembers[
+                role.name.replace(stringSpaceRegex, "")
+              ] = {
+                role: role.name,
+                userID: null,
+                memberID: null,
+                name: null,
+              };
+            } else {
+              const index = clubMembers.findIndex(
+                (member) => member.role === role.name
+              );
+              tempCurrentClubOriginalMembers[
+                role.name.replace(stringSpaceRegex, "")
+              ] = {
+                role: role.name,
+                userID: clubMembers[index].userID,
+                memberID: clubMembers[index].memberID,
+                name: clubMembers[index].name,
+              };
+            }
+          }
+        }
       });
+      setCurrentClubRoles(tempCurrentClubRoles);
+      setCurrentClubOriginalMembers(tempCurrentClubOriginalMembers);
     }
-  }, [clubMembers]);
+  }, [clubMembers, manageModalData]);
+
+  useEffect(() => {
+    if (!isEmpty(updateRoleModalData)) setManageModalLoading(false);
+  }, [updateRoleModalData]);
 
   const handleShowSuspensionModal = (data) => {
     if (data) setSuspensionModalData(data);
@@ -70,13 +135,29 @@ export default function ApprovedClubs() {
 
   const handleShowManageModal = (data) => {
     if (data) {
-      setShowManageModalData(data);
+      setManageModalData(data);
       setManageModalLoading(true);
       dispatch(getClubMembers(data.clubID));
-    } else setShowManageModalData({});
-    setGeneralErrors("");
-    dispatch({ type: CLEAR_CLUB_MEMBERS });
+    } else {
+      setManageModalData({});
+      setGeneralErrors("");
+      dispatch({ type: CLEAR_CLUB_MEMBERS });
+    }
     setShowManageModal(!showManageModal);
+  };
+
+  const handleShowUpdateRoleModal = (data) => {
+    // setManageModalLoading(true) basically to avoid role.name is undefined error
+    if (data) {
+      setUpdateRoleModalData(data);
+      setManageModalLoading(true);
+    } else {
+      setUpdateRoleModalData({});
+      setGeneralErrors("");
+      setNewMemberForRole("");
+      memberSelectorRef.current.selectedIndex = 0;
+    }
+    setShowUpdateRoleModal(!showUpdateRoleModal);
   };
 
   const handleSuspend = () => {
@@ -93,13 +174,98 @@ export default function ApprovedClubs() {
     }
   };
 
+  const handleSetNewPresident = (e) => {
+    if (e.target.value === "Select new president") {
+      setNewPresident({});
+      return;
+    }
+    let index = clubMembers.findIndex(
+      (member) => member.userID === e.target.value
+    );
+    setNewPresident({
+      userID: clubMembers[index].userID,
+      memberID: clubMembers[index].memberID,
+    });
+  };
+
+  const handleSetNewRole = (e) => {
+    setGeneralErrors("");
+    //newMemberForRole has the userID of the new member
+    //data for the new role is in updateRoleModalData
+
+    //1. check if the selection is not the default selection
+    //2. check if the member the role is being assigned to is the current president
+    if (
+      newMemberForRole === "Select new president" ||
+      newMemberForRole === ""
+    ) {
+      setGeneralErrors("Please select a member.");
+      return;
+    } else if (newMemberForRole === currentPresident.userID) {
+      setGeneralErrors(
+        "This member is the current president. Please reassign president role to another member to continue."
+      );
+      return;
+    }
+
+    let data = {
+      clubID: manageModalData.clubID,
+      previousMember: null,
+      newMember: null,
+      newRole: updateRoleModalData.role,
+      newRoleWithoutSpacing: updateRoleModalData.role.replace(
+        stringSpaceRegex,
+        ""
+      ),
+    };
+
+    //previous member if exists
+    if (updateRoleModalData.userID) {
+      data.previousMember = {
+        userID: updateRoleModalData.userID,
+        memberID: updateRoleModalData.memberID,
+      };
+    }
+
+    //find new member
+    let index = clubMembers.findIndex(
+      (member) => member.userID === newMemberForRole
+    );
+    data.newMember = {
+      userID: clubMembers[index].userID,
+      memberID: clubMembers[index].memberID,
+    };
+
+    dispatch(updateClubRole(data));
+
+    //what if member had a previous role?
+    let prevRole = Object.values(manageModalData.roles).find(
+      (role) => role.userID === data.newMember.userID
+    );
+
+    if (prevRole) {
+      prevRole = prevRole.name.replace(stringSpaceRegex, "");
+      manageModalData.roles[prevRole].userID = "";
+      manageModalData.roles[prevRole].memberID = "";
+    }
+
+    //need to reflect changes in manage modal data and in approve clubs (done thru redux)
+    manageModalData.roles[data.newRoleWithoutSpacing].userID =
+      data.newMember.userID;
+    manageModalData.roles[data.newRoleWithoutSpacing].memberID =
+      data.newMember.memberID;
+    updateRoleModalData.userID = data.newMember.userID;
+    updateRoleModalData.memberID = data.newMember.memberID;
+    updateRoleModalData.name = clubMembers[index].name;
+  };
+
   const handleChangePresident = () => {
     let data = {
       clubID: manageModalData.clubID,
       previousPresident: currentPresident,
       newPresident,
     };
-    dispatch(changeClubPresident(data));
+    dispatch(updateClubRole(data));
     handleShowManageModal();
   };
 
@@ -169,45 +335,115 @@ export default function ApprovedClubs() {
           ✕
         </button>
         <h3 className="text-[20px] text-[#DFE5F8] font-medium mb-[1rem]">
-          {manageModalData.name}
+          {manageModalData.name} - manage roles
         </h3>
-        <h2 className="text-[18px] text-[#DFE5F8] font-normal">
-          Change president
-        </h2>
-        <p className="text-[16px] text-[#DFE5F8] font-normal">
-          {manageModalLoading
-            ? "loading members..."
-            : `current president: ${currentPresident.name}`}
-        </p>
+        <a
+          href={
+            manageModalData.clubCreationDocs &&
+            manageModalData.clubCreationDocs[
+              manageModalData.clubCreationDocs.length - 1
+            ]
+          }
+          target="_blank"
+          className="font-normal text-[#85A1FF] break-all mb-2"
+        >
+          Download form
+        </a>
+        <div className="flex flex-col">
+          {manageModalLoading ? (
+            <p className="text-[16px] text-[#DFE5F8] font-normal">
+              loading members
+            </p>
+          ) : (
+            <div className="text-left self-center  space-y-[0.5rem]">
+              <p
+                onClick={() => {
+                  handleShowUpdateRoleModal(currentPresident);
+                }}
+                className="cursor-pointer text-[16px] text-[#DFE5F8] font-normal px-2 py-1 border border-gray-500 rounded-lg"
+              >{`current president: ${currentPresident.name}`}</p>
+              {Object.values(currentClubOriginalMembers).map((role) => {
+                return (
+                  <p
+                    key={role.role}
+                    onClick={() => {
+                      handleShowUpdateRoleModal(role);
+                    }}
+                    className="cursor-pointer text-[16px] text-[#DFE5F8] font-normal px-2 py-1 border border-gray-500 rounded-lg"
+                  >
+                    {role.name
+                      ? `current ${role.role}: ${role.name}`
+                      : `current ${role.role}: N/A`}
+                  </p>
+                );
+              })}
+            </div>
+          )}
+          <p className="text-[12px] text-[#DFE5F8] font-normal mt-5">
+            *Click on a role to make changes
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+
+  let UpdateRoleModal = (
+    <div
+      className={
+        "modal modal-middle h-auto " + (showUpdateRoleModal ? "modal-open" : "")
+      }
+    >
+      <div className=" modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
+        <button
+          onClick={() => handleShowUpdateRoleModal()}
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+        >
+          ✕
+        </button>
+        <h3 className="text-[20px] text-[#DFE5F8] font-medium mb-[1rem]">
+          {updateRoleModalData.role} - manage role
+        </h3>
+        <div className="flex flex-col">
+          {manageModalLoading ? (
+            <p className="text-[16px] text-[#DFE5F8] font-normal">
+              loading member
+            </p>
+          ) : (
+            <div className="text-left self-center  space-y-[0.5rem]">
+              <p className="cursor-pointer text-[16px] text-[#DFE5F8] font-normal">
+                {updateRoleModalData.name
+                  ? `current ${updateRoleModalData.role}: ${updateRoleModalData.name}`
+                  : `current ${updateRoleModalData.role}: N/A`}
+              </p>
+            </div>
+          )}
+        </div>
+        {/* show president selection first */}
         <div className="flex flex-col space-y-[1rem]">
           <select
-            disabled={manageModalLoading}
+            disabled={loading}
             id="members"
-            className="mt-[14px] bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+            className="mt-[14px] border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
             onChange={(e) => {
-              let index = clubMembers.findIndex(
-                (member) => member.userID === e.target.value
-              );
-              setNewPresident({
-                userID: clubMembers[index].userID,
-                memberID: clubMembers[index].memberID,
-              });
+              setNewMemberForRole(e.target.value);
             }}
+            ref={memberSelectorRef}
           >
-            <option selected>Select new president</option>
-            {clubMembers.map(
-              (item) =>
-                item.role !== "president" && (
+            <option selected>{`Select new ${updateRoleModalData.role}`}</option>
+            {clubMembers.map((item) => {
+              return (
+                item.role !== updateRoleModalData.role && (
                   <option key={item.name} value={item.userID}>
                     {item.name}
                   </option>
                 )
-            )}
+              );
+            })}
           </select>
         </div>
         <ErrorLabel>{generalErrors && generalErrors}</ErrorLabel>
         <Button
-          onClick={handleChangePresident}
+          onClick={handleSetNewRole}
           text="update"
           className="!mt-[0.625rem]"
           disabled={loading}
@@ -286,6 +522,7 @@ export default function ApprovedClubs() {
       {display}
       {SuspendModal}
       {ManageModal}
+      {UpdateRoleModal}
     </div>
   );
 }

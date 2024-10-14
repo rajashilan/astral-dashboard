@@ -283,82 +283,98 @@ exports.removeSuspension = (req, res) => {
     });
 };
 
-exports.changePresident = (req, res) => {
-  const clubID = req.body.clubID;
-  const previousPresident = req.body.previousPresident;
-  const newPresident = req.body.newPresident;
+exports.updateClubRole = (req, res) => {
+  const { clubID, previousMember, newMember, newRole, newRoleWithoutSpacing } =
+    req.body;
 
-  //update in clubs, clubMembers, and users
+  let membersToReturn;
+
+  // Update in clubs, clubMembers, and users
   db.doc(`/clubs/${clubID}`)
     .get()
     .then((doc) => {
-      let temp = { ...doc.data().roles };
+      let roles = { ...doc.data().roles };
 
-      //check if user has had a previous role, if yes, remove
-      for (role in temp) {
-        if (temp[role].userID === newPresident.userID) {
-          temp[role].userID = "";
-          temp[role].memberID = "";
+      // Check if user has a previous role, if yes, remove
+      for (let role in roles) {
+        if (roles[role].userID === newMember.userID) {
+          roles[role].userID = "";
+          roles[role].memberID = "";
           break;
         }
       }
 
-      temp["president"].userID = newPresident.userID;
-      temp["president"].memberID = newPresident.memberID;
+      roles[newRoleWithoutSpacing].userID = newMember.userID;
+      roles[newRoleWithoutSpacing].memberID = newMember.memberID;
 
-      return db.doc(`/clubs/${clubID}`).update({ roles: { ...temp } });
+      return db.doc(`/clubs/${clubID}`).update({ roles });
     })
     .then(() => {
       return db.doc(`/clubMembers/${clubID}`).get();
     })
     .then((doc) => {
-      let temp = [...doc.data().members];
-      //change previous president's role to member
-      let prevPresidentIndex = temp.findIndex(
-        (member) => member.userID === previousPresident.userID
-      );
-      temp[prevPresidentIndex].role = "member";
+      let members = [...doc.data().members];
+      // Change previous president's role to member
+      if (previousMember) {
+        let index = members.findIndex(
+          (member) => member.userID === previousMember.userID
+        );
+        if (index !== -1) {
+          members[index].role = "member";
+        }
+      }
 
-      //change new president's role to president
-      let newPresidentIndex = temp.findIndex(
-        (member) => member.userID === newPresident.userID
+      // Change new president's role
+      let index = members.findIndex(
+        (member) => member.userID === newMember.userID
       );
-      temp[newPresidentIndex].role = "president";
+      if (index !== -1) {
+        members[index].role = newRole;
+      }
 
-      return db.doc(`/clubMembers/${clubID}`).update({ members: [...temp] });
+      membersToReturn = members;
+
+      return db.doc(`/clubMembers/${clubID}`).update({ members });
     })
     .then(() => {
-      //update old president's role in users
-      return db.doc(`/users/${previousPresident.userID}`).get();
-    })
-    .then((doc) => {
-      let temp = [...doc.data().clubs];
-
-      let clubIndex = temp.findIndex((club) => club.clubID === clubID);
-      temp[clubIndex].role = "member";
+      // Update old president's role in users
+      if (!previousMember) return Promise.resolve();
 
       return db
-        .doc(`/users/${previousPresident.userID}`)
-        .update({ clubs: [...temp] });
+        .doc(`/users/${previousMember.userID}`)
+        .get()
+        .then((doc) => {
+          let clubs = [...doc.data().clubs];
+          let clubIndex = clubs.findIndex((club) => club.clubID === clubID);
+          if (clubIndex !== -1) {
+            clubs[clubIndex].role = "member";
+          }
+
+          return db.doc(`/users/${previousMember.userID}`).update({ clubs });
+        });
     })
     .then(() => {
-      //update new president's role in users
-      return db.doc(`/users/${newPresident.userID}`).get();
-    })
-    .then((doc) => {
-      let temp = [...doc.data().clubs];
-
-      let clubIndex = temp.findIndex((club) => club.clubID === clubID);
-      temp[clubIndex].role = "president";
-
+      // Update new president's role in users
       return db
-        .doc(`/users/${newPresident.userID}`)
-        .update({ clubs: [...temp] });
+        .doc(`/users/${newMember.userID}`)
+        .get()
+        .then((doc) => {
+          let clubs = [...doc.data().clubs];
+          let index = clubs.findIndex((club) => club.clubID === clubID);
+          if (index !== -1) {
+            clubs[index].role = newRole;
+          }
+
+          return db.doc(`/users/${newMember.userID}`).update({ clubs });
+        });
     })
     .then(() => {
       return res
         .status(200)
-        .json({ message: "Changed president successfully" });
+        .json({
+          message: "Updated role successfully",
+          clubMembers: membersToReturn,
+        });
     })
     .catch((error) => {
       console.error(error);

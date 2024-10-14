@@ -38,6 +38,7 @@ import {
   CHANGE_CLUB_PRESIDENT,
   SET_APPROVED_CLUBS,
   UPDATE_ORIENTATION_SUBCONTENT_VIDEO,
+  UPDATE_CLUB_MEMBERS,
 } from "../types";
 
 const initialState = {
@@ -441,6 +442,25 @@ export default function (state = initialState, action) {
         ...state,
         clubActivities: [...tempClubActivities],
       };
+    case UPDATE_CLUB_MEMBERS: {
+      const data = action.payload;
+
+      let temp = [...state.approvedClubs];
+      const index = temp.findIndex((club) => club.clubID === data.clubID);
+
+      //new member could have had a previous role
+
+      temp[index].roles[data.newRoleWithoutSpacing].userID =
+        data.newMember.userID;
+      temp[index].roles[data.newRoleWithoutSpacing].memberID =
+        data.newMember.memberID;
+
+      return {
+        ...state,
+        clubMembers: [...data.clubMembers],
+        approvedClubs: [...temp],
+      };
+    }
     case SET_A_CLUB:
       return {
         ...state,
