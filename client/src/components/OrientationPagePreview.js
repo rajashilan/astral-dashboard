@@ -536,7 +536,7 @@ export default function OrientationPagePreview() {
       <div className=" modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
         <button
           onClick={handleAddVideoModal}
-          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-gray-800 pt-1 text-white"
         >
           ✕
         </button>
@@ -618,7 +618,7 @@ export default function OrientationPagePreview() {
       <div className=" modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
         <button
           onClick={handleDeleteVideoModal}
-          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-gray-800 pt-1 text-white"
         >
           ✕
         </button>
@@ -723,7 +723,7 @@ export default function OrientationPagePreview() {
       <div className="w-9/12 max-w-3xl modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
         <button
           onClick={() => setShowPageModal(!showPageModal)}
-          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-gray-800 pt-1 text-white"
         >
           ✕
         </button>
@@ -780,7 +780,7 @@ export default function OrientationPagePreview() {
       <div className=" modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
         <button
           onClick={handleShowEditPageData}
-          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-gray-800 pt-1 text-white"
         >
           ✕
         </button>
@@ -850,7 +850,7 @@ export default function OrientationPagePreview() {
             justShowEditSubcontentData();
             setImage([]);
           }}
-          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-gray-800 pt-1 text-white"
         >
           ✕
         </button>
@@ -1019,7 +1019,7 @@ export default function OrientationPagePreview() {
       <div className=" modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
         <button
           onClick={handleDeleteModal}
-          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-gray-800 pt-1 text-white"
         >
           ✕
         </button>
@@ -1055,7 +1055,7 @@ export default function OrientationPagePreview() {
       <div className=" modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
         <button
           onClick={handleDeletePageModal}
-          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-gray-800 pt-1 text-white"
         >
           ✕
         </button>
@@ -1092,7 +1092,7 @@ export default function OrientationPagePreview() {
       <div className=" modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
         <button
           onClick={handleDeleteFileModal}
-          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-gray-800 pt-1 text-white"
         >
           ✕
         </button>
@@ -1133,7 +1133,7 @@ export default function OrientationPagePreview() {
             setShowResetImageModal(!showResetImageModal);
             setShowEditSubcontentModal(!showEditSubcontentModal);
           }}
-          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-gray-800 pt-1 text-white"
         >
           ✕
         </button>
@@ -1183,7 +1183,7 @@ export default function OrientationPagePreview() {
       <div className=" modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
         <button
           onClick={handleAddNewPostModalImageNull}
-          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-gray-800 pt-1 text-white"
         >
           ✕
         </button>

@@ -289,7 +289,7 @@ export default function Admins() {
       <div className="modal-box flex flex-col items-center gap-2 bg-[#232F52] md:p-20">
         <button
           onClick={() => setShowEditModal(!showEditModal)}
-          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-gray-800 pt-1 text-white"
         >
           ✕
         </button>

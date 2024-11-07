@@ -194,7 +194,7 @@ export default function GeneralForms() {
       <div className=" modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
         <button
           onClick={handleShowDeleteModal}
-          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-gray-800 pt-1 text-white"
           disabled={submitLoading}
         >
           ✕
@@ -304,7 +304,7 @@ export default function GeneralForms() {
       <div className="modal-box flex flex-col items-center gap-2 bg-[#1A2238] md:p-20">
         <button
           onClick={() => handleShowAddModal()}
-          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-gray-800 pt-1 text-white"
           disabled={submitLoading}
         >
           ✕

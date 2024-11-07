@@ -88,7 +88,7 @@ export default function Orientation() {
       <div className=" modal-box flex flex-col text-center gap-2 bg-[#1A2238] p-10">
         <button
           onClick={() => setShowAddPageModal(!showAddPageModal)}
-          className="btn-sm btn-circle btn absolute right-4 top-4 bg-base-100 pt-1 text-white"
+          className="btn-sm btn-circle btn absolute right-4 top-4 bg-gray-800 pt-1 text-white"
         >
           ✕
         </button>
