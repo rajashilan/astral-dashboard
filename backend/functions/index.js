@@ -53,6 +53,9 @@ const {
   setClubEventToTrue,
   setClubGalleryToTrue,
   getAClub,
+  getReports,
+  ignoreReport,
+  suspendPost,
 } = require("./handlers/campusAdmin");
 
 const {
@@ -488,6 +491,24 @@ app.get(
   "/clubs/approved/:campusID",
   [appCheckVerification, sudoAdminAuth],
   getApprovedClubs
+);
+
+app.get(
+  "/clubs/reports/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  getReports
+);
+
+app.post(
+  "/clubs/reports/ignore/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  ignoreReport
+);
+
+app.post(
+  "/clubs/post/suspend/:campusID",
+  [appCheckVerification, sudoAdminAuth],
+  suspendPost
 );
 
 app.post("/pdf", modifyPdf);

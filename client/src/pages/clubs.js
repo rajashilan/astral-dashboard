@@ -105,7 +105,7 @@ export default function Clubs() {
                 tab === "activities" ? activeTabClass : inactiveTabClass
               }
             >
-              Clubs Activities
+              Post Reports
             </p>
           </li>
         </ul>

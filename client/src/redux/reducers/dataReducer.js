@@ -39,6 +39,8 @@ import {
   SET_APPROVED_CLUBS,
   UPDATE_ORIENTATION_SUBCONTENT_VIDEO,
   UPDATE_CLUB_MEMBERS,
+  SET_REPORTS,
+  UPDATE_REPORTS,
 } from "../types";
 
 const initialState = {
@@ -53,6 +55,7 @@ const initialState = {
   clubMembers: [],
   approvedClubs: [],
   clubActivities: [],
+  reports: [],
   loading: false,
   newAdminLink: "",
 };
@@ -481,6 +484,23 @@ export default function (state = initialState, action) {
         ...state,
         clubMembers: [],
       };
+    case SET_REPORTS: {
+      return {
+        ...state,
+        reports: [...action.payload],
+      };
+    }
+    case UPDATE_REPORTS: {
+      const index = state.reports.findIndex(
+        (post) => post.postID === action.payload.postID
+      );
+      let temp = [...state.reports];
+      temp.splice(index, 1);
+      return {
+        ...state,
+        reports: [...temp],
+      };
+    }
     case LOADING_DATA:
       return {
         ...state,

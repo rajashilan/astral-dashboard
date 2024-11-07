@@ -934,6 +934,71 @@ exports.handleGalleryActivity = (req, res) => {
     });
 };
 
+exports.getReports = (req, res) => {
+  const campusID = req.params.campusID;
+  let temp = [];
+
+  db.collection("reports")
+    .where("campusID", "==", campusID)
+    .get()
+    .then((data) => {
+      data.forEach((doc) => {
+        temp.push({ ...doc.data() });
+      });
+    })
+    .then(() => {
+      return res.status(200).json([...temp]);
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
+exports.ignoreReport = (req, res) => {
+  const postID = req.body.postID;
+
+  db.collection("reports")
+    .where("postID", "==", postID)
+    .get()
+    .then((querySnapshot) => {
+      const reportID = querySnapshot.docs[0].id;
+      return db.doc(`/reports/${reportID}`).delete();
+    })
+    .then(() => {
+      return res.status(200).json({ message: "Report ignored successfully" });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
+exports.suspendPost = (req, res) => {
+  const suspensionReason = req.body.suspensionReason;
+  const postID = req.body.postID;
+
+  db.collection("reports")
+    .where("postID", "==", postID)
+    .get()
+    .then((querySnapshot) => {
+      const reportID = querySnapshot.docs[0].id;
+      return db.doc(`/reports/${reportID}`).delete();
+    })
+    .then(() => {
+      return db
+        .doc(`/posts/${postID}`)
+        .update({ status: "suspended", suspensionReason });
+    })
+    .then(() => {
+      return res.status(200).json({ message: "Post suspended successfully" });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
+    });
+};
+
 exports.setClubEventToTrue = (req, res) => {
   const clubID = req.body.clubID;
 

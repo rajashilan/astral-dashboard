@@ -40,6 +40,8 @@ import {
   SET_APPROVED_CLUBS,
   UPDATE_ORIENTATION_SUBCONTENT_VIDEO,
   UPDATE_CLUB_MEMBERS,
+  SET_REPORTS,
+  UPDATE_REPORTS,
 } from "../types";
 import axios from "axios";
 
@@ -1205,6 +1207,65 @@ export const getClubMembers = (clubID) => (dispatch) => {
     .post(`/clubs/members/${clubID}/${campusID}`)
     .then((res) => {
       dispatch({ type: SET_CLUB_MEMBERS, payload: res.data });
+    })
+    .catch((error) => {
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: error.response.data.error,
+      });
+      console.error(error);
+    });
+};
+
+export const getReports = () => (dispatch) => {
+  const campusID = localStorage.getItem("AdminCampus");
+  dispatch({ type: LOADING_DATA });
+
+  axios
+    .get(`/clubs/reports/${campusID}`)
+    .then((res) => {
+      dispatch({ type: SET_REPORTS, payload: res.data });
+      dispatch({ type: STOP_LOADING_DATA });
+    })
+    .catch((error) => {
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: error.response.data.error,
+      });
+      console.error(error);
+    });
+};
+
+export const ignoreReport = (data) => (dispatch) => {
+  const campusID = localStorage.getItem("AdminCampus");
+  dispatch({ type: LOADING_DATA });
+
+  axios
+    .post(`/clubs/reports/ignore/${campusID}`, data)
+    .then((res) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({ type: UPDATE_REPORTS, payload: { postID: data.postID } });
+      alert("Report ignored successfully");
+    })
+    .catch((error) => {
+      dispatch({
+        type: SET_GENERAL_ERRORS,
+        payload: error.response.data.error,
+      });
+      console.error(error);
+    });
+};
+
+export const suspendPost = (data) => (dispatch) => {
+  const campusID = localStorage.getItem("AdminCampus");
+  dispatch({ type: LOADING_DATA });
+
+  axios
+    .post(`/clubs/post/suspend/${campusID}`, data)
+    .then((res) => {
+      dispatch({ type: STOP_LOADING_DATA });
+      dispatch({ type: UPDATE_REPORTS, payload: { postID: data.postID } });
+      alert("Post suspended successfully");
     })
     .catch((error) => {
       dispatch({
