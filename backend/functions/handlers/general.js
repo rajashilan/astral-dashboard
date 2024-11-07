@@ -80,6 +80,8 @@ exports.sendEmailNotification = (req, res) => {
     message = `<h1>New club review from ${saName} for ${clubName}</h1></br><h4>Head over to</h4><a href='https://astral-app.com/clubs'>astral dashboard</a><h4>to view the request.</h4>`;
   else if (type === "clubRenewal")
     message = `<h1>New renewal form resubmission from ${clubName}</h1></br><h4>Head over to</h4><a href='https://astral-app.com/clubs'>astral dashboard</a><h4>to view the request.</h4>`;
+  else if (type === "report")
+    message = `<h1>New report for a post from ${clubName}</h1></br><h4>Head over to</h4><a href='https://astral-app.com/clubs'>astral dashboard</a><h4>to view the report.</h4>`;
   if (type === "createAClub" && sa !== "") {
     admin
       .firestore()
